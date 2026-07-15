@@ -240,11 +240,37 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
     e.preventDefault();
     setError(null);
 
-    if (name.trim() === "" || selectedSchoolIds.length === 0) {
-      setError("Activity name and at least one school are required.");
+    if (name.trim() === "") {
+      setError("Activity name field is required.");
       return;
     }
 
+    if (!dueDate) {
+      setError("Due date is required.");
+      return;
+    }
+
+    if (dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const selectedDate = new Date(dueDate);
+
+      if (isNaN(selectedDate.getTime())) {
+        setError("Due date is invalid.");
+        return;
+      }
+
+      if (selectedDate < today) {
+        setError("Due date cannot be in the past.");
+        return;
+      }
+
+      if (selectedSchoolIds.length === 0) {
+        setError("At least one school is required to be selected.");
+        return;
+      }
+    }
     setSubmitting(true);
 
     const { data: activity, error: activityError } = await supabase
@@ -306,7 +332,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Activity name
+              Activity name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -319,7 +345,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Due date
+              Due date <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -331,7 +357,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Assign to schools
+              Assign to schools <span className="text-red-500">*</span>
             </label>
             <div className="space-y-1.5">
               {allSchools.map((school) => (
@@ -417,7 +443,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
         <div className="mb-5 flex items-center justify-between">
           <div>
             <h3 className="text-2xl font-bold text-slate-800">Edit Activity</h3>
-          <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500">
               Fill in the details to edit the activity.
             </p>
           </div>
@@ -473,8 +499,6 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
               size={18}
               className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
             />
-
-            
           </div>
 
           <div>

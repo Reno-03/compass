@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { useAuth } from "./useAuth";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { ClipboardList, CheckCircle2, Hourglass, XCircle } from "lucide-react";
+import {
+  ClipboardList,
+  CheckCircle2,
+  Hourglass,
+  XCircle,
+  Eye,
+} from "lucide-react";
 
 // ============================================
 // Shared style tokens
@@ -255,13 +261,15 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
     const submissionRows = selectedSchoolIds.map((schoolId) => ({
       activity_id: activity.id,
       school_id: schoolId,
+      name: activity.name,
+      due_date: activity.due_date,
       status: "not_started",
     }));
 
     const { data: newSubmissions, error: submissionError } = await supabase
       .from("submissions")
       .insert(submissionRows)
-      .select("*, activities(*)");
+      .select(); // no more nested activities(*) needed
 
     if (submissionError) {
       setError(submissionError.message);
@@ -340,9 +348,134 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
           >
             {submitting ? "Creating..." : "Create Activity"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const EditActivity = ({ submission, onSaved, onClose }) => {
+  const [name, setName] = useState(submission.name);
+  const [dueDate, setDueDate] = useState(submission.due_date || "");
+  const [status, setStatus] = useState(submission.status);
+  const [dateConducted, setDateConducted] = useState(
+    submission.date_conducted || "",
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+
+    if (name.trim() === "") {
+      setError("Activity name is required.");
+      return;
+    }
+
+    setSaving(true);
+
+    const { data, error } = await supabase
+      .from("submissions")
+      .update({
+        name,
+        due_date: dueDate || null,
+        status,
+        date_conducted: dateConducted || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", submission.id)
+      .select()
+      .single();
+
+    if (error) {
+      setError(error.message);
+      setSaving(false);
+      return;
+    }
+
+    onSaved(data);
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-800">Edit Activity</h3>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">
+              Activity name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">
+              Due date
+            </label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            >
+              <option value="not_started">Not Started</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">
+              Date conducted
+            </label>
+            <input
+              type="date"
+              value={dateConducted}
+              onChange={(e) => setDateConducted(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+          >
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </form>
       </div>
@@ -400,7 +533,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
           >
             {submitting ? "Signing in..." : "Sign In"}
           </button>
@@ -418,7 +551,7 @@ const LogoutButton = () => {
   return (
     <button
       onClick={handleLogout}
-      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
     >
       Log Out
     </button>
@@ -434,12 +567,13 @@ const AdminDashboard = ({ profile }) => {
   const [error, setError] = useState(null);
   const [activeSchoolId, setActiveSchoolId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingSubmission, setEditingSubmission] = useState(null);
 
   useEffect(() => {
     async function loadSchools() {
       const { data, error } = await supabase
         .from("schools")
-        .select("*, submissions(*, activities(*))")
+        .select("*, submissions(*)")
         .order("name");
 
       if (error) {
@@ -460,6 +594,17 @@ const AdminDashboard = ({ profile }) => {
         if (!match) return school;
         return { ...school, submissions: [...school.submissions, match] };
       }),
+    );
+  }
+
+  function handleActivityEdited(updatedSubmission) {
+    setSchoolData((prev) =>
+      prev.map((school) => ({
+        ...school,
+        submissions: school.submissions.map((sub) =>
+          sub.id === updatedSubmission.id ? updatedSubmission : sub,
+        ),
+      })),
     );
   }
 
@@ -521,7 +666,7 @@ const AdminDashboard = ({ profile }) => {
             <button
               key={school.id}
               onClick={() => setActiveSchoolId(school.id)}
-              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold ${
+              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
                 activeSchoolId === school.id
                   ? "bg-[#0b1c39] text-white"
                   : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -539,7 +684,7 @@ const AdminDashboard = ({ profile }) => {
               <StatCard
                 label="Total Activities"
                 value={activeCounts.total}
-                sublabel='This month'
+                sublabel="This month"
                 color="slate"
                 icon={ClipboardList}
               />
@@ -581,25 +726,35 @@ const AdminDashboard = ({ profile }) => {
                     <thead>
                       <tr className="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-800">
                         <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
-                        <th className="pb-2 pt-2 font-bold">Due Date</th>
-                        <th className="pb-2 pt-2 font-bold">Status</th>
-                        <th className="pb-2 pt-2 font-bold">Date Conducted</th>
+                        <th className="pb-2 pt-2 font-bold text-center">Due Date</th>
+                        <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                        <th className="pb-2 pt-2 font-bold text-center">Date Conducted</th>
+                        <th className="pb-2 pt-2 font-bold text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {activeSchool.submissions.map((sub) => (
                         <tr key={sub.id} className="border-b border-slate-50">
                           <td className="py-3 pl-2 font-medium text-slate-700">
-                            {sub.activities.name}
+                            {sub.name}
                           </td>
-                          <td className="py-3 text-slate-500">
-                            {sub.activities.due_date || "—"}
+                          <td className="py-3 text-center text-slate-500">
+                            {sub.due_date || "—"}
                           </td>
-                          <td className="py-3">
+                          <td className="py-3 text-center">
                             <StatusBadge status={sub.status} />
                           </td>
-                          <td className="py-3 text-slate-500">
+                          <td className="py-3 text-center text-slate-500">
                             {sub.date_conducted || "—"}
+                          </td>
+                          <td className="py-3 text-center">
+                            <button
+                              onClick={() => setEditingSubmission(sub)}
+                              className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                              title="Edit activity"
+                            >
+                              <Eye size={18} />
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -618,7 +773,7 @@ const AdminDashboard = ({ profile }) => {
                   </p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                    className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer"
                   >
                     + Add New Activity
                   </button>
@@ -628,11 +783,21 @@ const AdminDashboard = ({ profile }) => {
           </>
         )}
 
+        {/* Create Activity Modal */}
         {showCreateModal && (
           <CreateActivity
             allSchools={schoolData}
             onActivityCreated={handleActivityCreated}
             onClose={() => setShowCreateModal(false)}
+          />
+        )}
+
+        {/* Edit Activity Modal */}
+        {editingSubmission && (
+          <EditActivity
+            submission={editingSubmission}
+            onSaved={handleActivityEdited}
+            onClose={() => setEditingSubmission(null)}
           />
         )}
       </main>
@@ -839,13 +1004,9 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <p className="font-semibold text-slate-800">
-            {submission.activities.name}
-          </p>
-          {submission.activities.due_date && (
-            <p className="text-xs text-slate-500">
-              Due {submission.activities.due_date}
-            </p>
+          <p className="font-semibold text-slate-800">{submission.name}</p>
+          {submission.due_date && (
+            <p className="text-xs text-slate-500">Due {submission.due_date}</p>
           )}
         </div>
         <StatusBadge status={status} />

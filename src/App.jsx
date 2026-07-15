@@ -285,11 +285,14 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-800">Add New Activity</h3>
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-1">Add New Activity</h3>
+          <p className="text-sm text-slate-500">Fill in the details to create a new activity.</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-slate-400 hover:text-slate-600 cursor-pointer mr-2"
           >
             ✕
           </button>
@@ -297,27 +300,27 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
               Activity name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
               placeholder="e.g. Nutrition Month Celebration"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
               Due date
             </label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none transition focus:ring-3 focus:ring-blue-500/20"
             />
           </div>
 
@@ -407,10 +410,10 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-800">Edit Activity</h3>
+          <h3 className="text-2xl font-bold text-slate-800">Edit Activity</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-slate-400 hover:text-slate-600 cursor-pointer"
           >
             ✕
           </button>
@@ -418,37 +421,37 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
               Activity name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
               Due date
             </label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
               Status
             </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="w-full right-4 rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
             >
               <option value="not_started">Not Started</option>
               <option value="ongoing">Ongoing</option>

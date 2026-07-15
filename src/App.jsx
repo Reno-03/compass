@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { useAuth } from "./useAuth";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { ClipboardList, CheckCircle2, Hourglass, XCircle } from "lucide-react";
 
 // ============================================
 // Shared style tokens
@@ -18,7 +19,11 @@ const STATUS_LABEL = {
   ongoing: "Ongoing",
   not_started: "Not Started",
 };
-const DONUT_COLORS = { completed: "#16A34A", ongoing: "#D97706", not_started: "#DC2626" };
+const DONUT_COLORS = {
+  completed: "#16A34A",
+  ongoing: "#D97706",
+  not_started: "#DC2626",
+};
 
 const StatusBadge = ({ status }) => (
   <span
@@ -47,7 +52,7 @@ const countByStatus = (submissions) => ({
 // ============================================
 // Stat card
 // ============================================
-const StatCard = ({ label, value, sublabel, color }) => {
+const StatCard = ({ label, value, sublabel, color, icon: Icon }) => {
   const palette = {
     slate: "bg-slate-50 text-slate-600 border-slate-200",
     green: "bg-green-50 text-green-700 border-green-200",
@@ -55,11 +60,29 @@ const StatCard = ({ label, value, sublabel, color }) => {
     red: "bg-red-50 text-red-700 border-red-200",
   }[color];
 
+  const iconBg = {
+    slate: "bg-slate-200 text-slate-600",
+    green: "bg-green-500 text-white",
+    amber: "bg-amber-500 text-white",
+    red: "bg-red-500 text-white",
+  }[color];
+
   return (
-    <div className={`rounded-xl border p-4 ${palette}`}>
-      <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{label}</p>
-      <p className="mt-1 text-3xl font-bold">{value}</p>
-      {sublabel && <p className="text-xs opacity-70">{sublabel}</p>}
+    <div className={`flex items-start gap-5 rounded-xl border p-4 ${palette}`}>
+      {Icon && (
+        <div
+          className={`flex h-18 w-18 shrink-0 items-center justify-center rounded-full ${iconBg}`}
+        >
+          <Icon size={38} />
+        </div>
+      )}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
+          {label}
+        </p>
+        <p className="mt-1 text-4xl font-bold">{value}</p>
+        {sublabel && <p className="text-xs opacity-70">{sublabel}</p>}
+      </div>
     </div>
   );
 };
@@ -74,11 +97,15 @@ const ComplianceDonut = ({ counts }) => {
     { name: "Not Started", value: counts.not_started, key: "not_started" },
   ].filter((d) => d.value > 0);
 
-  const pct = counts.total ? Math.round((counts.completed / counts.total) * 100) : 0;
+  const pct = counts.total
+    ? Math.round((counts.completed / counts.total) * 100)
+    : 0;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <p className="mb-3 text-sm font-semibold text-slate-800">Compliance Overview</p>
+      <p className="mb-3 text-sm font-semibold text-slate-800">
+        Compliance Overview
+      </p>
       <div className="flex items-center gap-4">
         <div className="relative h-40 w-40 shrink-0">
           {data.length > 0 ? (
@@ -109,9 +136,21 @@ const ComplianceDonut = ({ counts }) => {
           </div>
         </div>
         <div className="space-y-2 text-sm">
-          <LegendRow color={DONUT_COLORS.completed} label="Completed" value={counts.completed} />
-          <LegendRow color={DONUT_COLORS.ongoing} label="Ongoing" value={counts.ongoing} />
-          <LegendRow color={DONUT_COLORS.not_started} label="Not Started" value={counts.not_started} />
+          <LegendRow
+            color={DONUT_COLORS.completed}
+            label="Completed"
+            value={counts.completed}
+          />
+          <LegendRow
+            color={DONUT_COLORS.ongoing}
+            label="Ongoing"
+            value={counts.ongoing}
+          />
+          <LegendRow
+            color={DONUT_COLORS.not_started}
+            label="Not Started"
+            value={counts.not_started}
+          />
         </div>
       </div>
     </div>
@@ -120,7 +159,10 @@ const ComplianceDonut = ({ counts }) => {
 
 const LegendRow = ({ color, label, value }) => (
   <div className="flex items-center gap-2">
-    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+    <span
+      className="h-2.5 w-2.5 rounded-full"
+      style={{ backgroundColor: color }}
+    />
     <span className="text-slate-600">{label}</span>
     <span className="font-semibold text-slate-800">{value}</span>
   </div>
@@ -147,7 +189,9 @@ const Sidebar = () => {
         </div>
         <div className="text-sm font-semibold leading-tight">
           COMPASS
-          <div className="text-[11px] font-normal text-white/60">School Program Monitoring</div>
+          <div className="text-[11px] font-normal text-white/60">
+            School Program Monitoring
+          </div>
         </div>
       </div>
 
@@ -235,7 +279,10 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-800">Add New Activity</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600"
+          >
             ✕
           </button>
         </div>
@@ -255,7 +302,9 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Due date</label>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">
+              Due date
+            </label>
             <input
               type="date"
               value={dueDate}
@@ -415,14 +464,24 @@ const AdminDashboard = ({ profile }) => {
   }
 
   if (loading)
-    return <div className="flex min-h-screen items-center justify-center text-slate-500">Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-500">
+        Loading...
+      </div>
+    );
   if (error)
-    return <div className="flex min-h-screen items-center justify-center text-red-600">Error: {error}</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-red-600">
+        Error: {error}
+      </div>
+    );
 
   const activeSchool = schoolData.find((s) => s.id === activeSchoolId);
   const allSubmissions = schoolData.flatMap((s) => s.submissions);
   const overallCounts = countByStatus(allSubmissions);
-  const activeCounts = activeSchool ? countByStatus(activeSchool.submissions) : countByStatus([]);
+  const activeCounts = activeSchool
+    ? countByStatus(activeSchool.submissions)
+    : countByStatus([]);
 
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
@@ -440,9 +499,12 @@ const AdminDashboard = ({ profile }) => {
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Dashboard Overview</h1>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Dashboard Overview
+            </h1>
             <p className="text-sm text-slate-500">
-              Monitor accomplishments of central schools, generate reports, and track compliance.
+              Monitor accomplishments of central schools, generate reports, and
+              track compliance.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -474,24 +536,33 @@ const AdminDashboard = ({ profile }) => {
           <>
             {/* Stat cards */}
             <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-              <StatCard label="Total Activities" value={activeCounts.total} color="slate" />
+              <StatCard
+                label="Total Activities"
+                value={activeCounts.total}
+                sublabel='This month'
+                color="slate"
+                icon={ClipboardList}
+              />
               <StatCard
                 label="Completed"
                 value={activeCounts.completed}
                 sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
                 color="green"
+                icon={CheckCircle2}
               />
               <StatCard
                 label="Ongoing"
                 value={activeCounts.ongoing}
                 sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
                 color="amber"
+                icon={Hourglass}
               />
               <StatCard
                 label="Not Started"
                 value={activeCounts.not_started}
                 sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
                 color="red"
+                icon={XCircle}
               />
             </div>
 
@@ -508,24 +579,28 @@ const AdminDashboard = ({ profile }) => {
                 ) : (
                   <table className="w-full text-left text-sm">
                     <thead>
-                      <tr className="border-b border-slate-100 text-xs uppercase text-slate-400">
-                        <th className="pb-2 font-semibold">Activity</th>
-                        <th className="pb-2 font-semibold">Due Date</th>
-                        <th className="pb-2 font-semibold">Status</th>
-                        <th className="pb-2 font-semibold">Date Conducted</th>
+                      <tr className="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-800">
+                        <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
+                        <th className="pb-2 pt-2 font-bold">Due Date</th>
+                        <th className="pb-2 pt-2 font-bold">Status</th>
+                        <th className="pb-2 pt-2 font-bold">Date Conducted</th>
                       </tr>
                     </thead>
                     <tbody>
                       {activeSchool.submissions.map((sub) => (
                         <tr key={sub.id} className="border-b border-slate-50">
-                          <td className="py-3 font-medium text-slate-700">
+                          <td className="py-3 pl-2 font-medium text-slate-700">
                             {sub.activities.name}
                           </td>
-                          <td className="py-3 text-slate-500">{sub.activities.due_date || "—"}</td>
+                          <td className="py-3 text-slate-500">
+                            {sub.activities.due_date || "—"}
+                          </td>
                           <td className="py-3">
                             <StatusBadge status={sub.status} />
                           </td>
-                          <td className="py-3 text-slate-500">{sub.date_conducted || "—"}</td>
+                          <td className="py-3 text-slate-500">
+                            {sub.date_conducted || "—"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -538,7 +613,9 @@ const AdminDashboard = ({ profile }) => {
                 <ComplianceDonut counts={activeCounts} />
 
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <p className="mb-3 text-sm font-semibold text-slate-800">Quick Actions</p>
+                  <p className="mb-3 text-sm font-semibold text-slate-800">
+                    Quick Actions
+                  </p>
                   <button
                     onClick={() => setShowCreateModal(true)}
                     className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
@@ -569,7 +646,9 @@ const ComplianceMiniDonut = ({ counts }) => {
     { name: "Ongoing", value: counts.ongoing, key: "ongoing" },
     { name: "Not Started", value: counts.not_started, key: "not_started" },
   ].filter((d) => d.value > 0);
-  const pct = counts.total ? Math.round((counts.completed / counts.total) * 100) : 0;
+  const pct = counts.total
+    ? Math.round((counts.completed / counts.total) * 100)
+    : 0;
 
   return (
     <div className="flex items-center gap-3">
@@ -577,7 +656,13 @@ const ComplianceMiniDonut = ({ counts }) => {
         {data.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={data} dataKey="value" innerRadius={24} outerRadius={38} stroke="none">
+              <Pie
+                data={data}
+                dataKey="value"
+                innerRadius={24}
+                outerRadius={38}
+                stroke="none"
+              >
                 {data.map((d) => (
                   <Cell key={d.key} fill={DONUT_COLORS[d.key]} />
                 ))}
@@ -594,9 +679,18 @@ const ComplianceMiniDonut = ({ counts }) => {
         </div>
       </div>
       <div className="space-y-1 text-[11px] text-white/70">
-        <p><span className="mr-1 inline-block h-2 w-2 rounded-full bg-green-500" />Completed {counts.completed}</p>
-        <p><span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-500" />Ongoing {counts.ongoing}</p>
-        <p><span className="mr-1 inline-block h-2 w-2 rounded-full bg-red-500" />Not Started {counts.not_started}</p>
+        <p>
+          <span className="mr-1 inline-block h-2 w-2 rounded-full bg-green-500" />
+          Completed {counts.completed}
+        </p>
+        <p>
+          <span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-500" />
+          Ongoing {counts.ongoing}
+        </p>
+        <p>
+          <span className="mr-1 inline-block h-2 w-2 rounded-full bg-red-500" />
+          Not Started {counts.not_started}
+        </p>
       </div>
     </div>
   );
@@ -632,9 +726,17 @@ const SchoolHeadDashboard = ({ profile }) => {
   }
 
   if (loading)
-    return <div className="flex min-h-screen items-center justify-center text-slate-500">Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-500">
+        Loading...
+      </div>
+    );
   if (error)
-    return <div className="flex min-h-screen items-center justify-center text-red-600">Error: {error}</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-red-600">
+        Error: {error}
+      </div>
+    );
 
   const counts = countByStatus(submissions);
 
@@ -642,17 +744,41 @@ const SchoolHeadDashboard = ({ profile }) => {
     <div className="min-h-screen bg-[#f4f6fb] p-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">My School's Activities</h1>
-          <p className="text-sm text-slate-500">Update your compliance status and remarks.</p>
+          <h1 className="text-2xl font-bold text-slate-800">
+            My School's Activities
+          </h1>
+          <p className="text-sm text-slate-500">
+            Update your compliance status and remarks.
+          </p>
         </div>
         <LogoutButton />
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label="Total" value={counts.total} color="slate" />
-        <StatCard label="Completed" value={counts.completed} color="green" />
-        <StatCard label="Ongoing" value={counts.ongoing} color="amber" />
-        <StatCard label="Not Started" value={counts.not_started} color="red" />
+        <StatCard
+          label="Total"
+          value={counts.total}
+          color="slate"
+          icon={ClipboardList}
+        />
+        <StatCard
+          label="Completed"
+          value={counts.completed}
+          color="green"
+          icon={CheckCircle2}
+        />
+        <StatCard
+          label="Ongoing"
+          value={counts.ongoing}
+          color="amber"
+          icon={Hourglass}
+        />
+        <StatCard
+          label="Not Started"
+          value={counts.not_started}
+          color="red"
+          icon={XCircle}
+        />
       </div>
 
       {submissions.length === 0 ? (
@@ -677,7 +803,9 @@ const SchoolHeadDashboard = ({ profile }) => {
 const SubmissionEditRow = ({ submission, onUpdated }) => {
   const [status, setStatus] = useState(submission.status);
   const [remarks, setRemarks] = useState(submission.remarks || "");
-  const [dateConducted, setDateConducted] = useState(submission.date_conducted || "");
+  const [dateConducted, setDateConducted] = useState(
+    submission.date_conducted || "",
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -711,9 +839,13 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <p className="font-semibold text-slate-800">{submission.activities.name}</p>
+          <p className="font-semibold text-slate-800">
+            {submission.activities.name}
+          </p>
           {submission.activities.due_date && (
-            <p className="text-xs text-slate-500">Due {submission.activities.due_date}</p>
+            <p className="text-xs text-slate-500">
+              Due {submission.activities.due_date}
+            </p>
           )}
         </div>
         <StatusBadge status={status} />
@@ -721,7 +853,9 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-500">Status</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-500">
+            Status
+          </label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
@@ -733,7 +867,9 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-500">Date conducted</label>
+          <label className="mb-1 block text-xs font-semibold text-slate-500">
+            Date conducted
+          </label>
           <input
             type="date"
             value={dateConducted}
@@ -744,7 +880,9 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
       </div>
 
       <div className="mt-3">
-        <label className="mb-1 block text-xs font-semibold text-slate-500">Remarks</label>
+        <label className="mb-1 block text-xs font-semibold text-slate-500">
+          Remarks
+        </label>
         <textarea
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
@@ -773,10 +911,18 @@ function App() {
   const { session, profile, loading } = useAuth();
 
   if (loading)
-    return <div className="flex min-h-screen items-center justify-center text-slate-500">Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-500">
+        Loading...
+      </div>
+    );
   if (!session) return <LoginPage />;
   if (!profile)
-    return <div className="flex min-h-screen items-center justify-center text-slate-500">Setting up your account...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-500">
+        Setting up your account...
+      </div>
+    );
 
   return profile.role === "admin" ? (
     <AdminDashboard profile={profile} />

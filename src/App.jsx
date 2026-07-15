@@ -348,7 +348,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
           >
             {submitting ? "Creating..." : "Create Activity"}
           </button>
@@ -773,7 +773,7 @@ const AdminDashboard = ({ profile }) => {
                   </p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer"
+                    className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
                   >
                     + Add New Activity
                   </button>

@@ -407,8 +407,35 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
     setError(null);
 
     if (name.trim() === "") {
-      setError("Activity name is required.");
+      setError("Activity name field is required.");
       return;
+    }
+
+    if (!status) {
+      setError("Status is required.");
+      return;
+    }
+
+    if (!dueDate) {
+      setError("Due date is required.");
+      return;
+    }
+
+    if (dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const selectedDate = new Date(dueDate);
+
+      if (isNaN(selectedDate.getTime())) {
+        setError("Due date is invalid.");
+        return;
+      }
+
+      if (selectedDate < today) {
+        setError("Due date cannot be in the past.");
+        return;
+      }
     }
 
     setSaving(true);
@@ -458,7 +485,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Activity name
+              Activity name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -470,7 +497,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Due date
+              Due date  <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -482,7 +509,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
 
           <div className="relative">
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Status
+              Status <span className="text-red-500">*</span>
             </label>
 
             <select
@@ -503,7 +530,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
 
           <div>
             <label className="mb-1 block text-xs font-semibold text-slate-500">
-              Date conducted
+              Date conducted 
             </label>
             <input
               type="date"

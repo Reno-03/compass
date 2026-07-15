@@ -10,6 +10,7 @@ import {
   Hourglass,
   XCircle,
   Eye,
+  ChevronDown,
 } from "lucide-react";
 
 // ============================================
@@ -287,8 +288,12 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-1">Add New Activity</h3>
-          <p className="text-sm text-slate-500">Fill in the details to create a new activity.</p>
+            <h3 className="text-2xl font-bold text-slate-800 mb-1">
+              Add New Activity
+            </h3>
+            <p className="text-sm text-slate-500">
+              Fill in the details to create a new activity.
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -444,19 +449,27 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
             />
           </div>
 
-          <div>
+          <div className="relative">
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Status
             </label>
+
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full right-4 rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
             >
               <option value="not_started">Not Started</option>
               <option value="ongoing">Ongoing</option>
               <option value="completed">Completed</option>
             </select>
+
+            <ChevronDown
+              size={18}
+              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+            />
+
+            
           </div>
 
           <div>
@@ -729,10 +742,18 @@ const AdminDashboard = ({ profile }) => {
                     <thead>
                       <tr className="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-800">
                         <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
-                        <th className="pb-2 pt-2 font-bold text-center">Due Date</th>
-                        <th className="pb-2 pt-2 font-bold text-center">Status</th>
-                        <th className="pb-2 pt-2 font-bold text-center">Date Conducted</th>
-                        <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                        <th className="pb-2 pt-2 font-bold text-center">
+                          Due Date
+                        </th>
+                        <th className="pb-2 pt-2 font-bold text-center">
+                          Status
+                        </th>
+                        <th className="pb-2 pt-2 font-bold text-center">
+                          Date Conducted
+                        </th>
+                        <th className="pb-2 pt-2 font-bold text-center">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody>

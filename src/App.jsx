@@ -497,7 +497,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Due date  <span className="text-red-500">*</span>
+              Due date <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -530,7 +530,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
 
           <div>
             <label className="mb-1 block text-xs font-semibold text-slate-500">
-              Date conducted 
+              Date conducted
             </label>
             <input
               type="date"
@@ -700,6 +700,22 @@ const AdminDashboard = ({ profile }) => {
     ? countByStatus(activeSchool.submissions)
     : countByStatus([]);
 
+  const statusOrder = {
+    not_started: 0,
+    ongoing: 1,
+    completed: 2,
+  };
+
+  const sortedSubmissions = [...activeSchool.submissions].sort((a, b) => {
+    const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+
+    if (statusDiff !== 0) return statusDiff;
+
+    if (!a.due_date) return 1;
+    if (!b.due_date) return -1;
+
+    return new Date(a.due_date) - new Date(b.due_date);
+  });
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
       <div className="flex flex-col">
@@ -813,7 +829,7 @@ const AdminDashboard = ({ profile }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {activeSchool.submissions.map((sub) => (
+                      {sortedSubmissions.map((sub) => (
                         <tr key={sub.id} className="border-b border-slate-50">
                           <td className="py-3 pl-2 font-medium text-slate-700">
                             {sub.name}

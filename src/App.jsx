@@ -190,17 +190,19 @@ const Sidebar = () => {
 
   return (
     <aside className="flex w-64 shrink-0 flex-col bg-[#0b1c39] px-4 py-6 text-white">
-      <div className="mb-8 flex items-center gap-3 px-1">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-sm font-bold">
-          DE
-        </div>
-        <div className="text-sm font-semibold leading-tight">
-          COMPASS
+      <div className="mb-8 flex items-center gap-5 px-1">
+        <img src="/images/DEPED_logo.png" alt="DEPED Logo" className="h-12 w-12" />
+        <img src="/images/DEPED_torch_logo.png" alt="DEPED Logo" className="h-10" />
+      </div>
+
+      <div className="mb-8 text-lg font-semibold leading-tight">
+          <div className="mb-1 text-2xl font-bold text-white">
+            COMPASS
+          </div>
           <div className="text-[11px] font-normal text-white/60">
-            School Program Monitoring
+            Centralized Online Monitoring of Programs, Activities, and School Submissions
           </div>
         </div>
-      </div>
 
       <nav className="flex-1 space-y-1">
         {navItems.map((item) => (

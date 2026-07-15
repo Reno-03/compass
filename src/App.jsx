@@ -1,105 +1,178 @@
-// App.jsx
-// Day 1: Admin creates activities, assigns to schools, view-only submissions list
+// App.jsx — Tailwind-styled to match DepEd COMPASS reference
 
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import { useAuth } from "./useAuth";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 // ============================================
-// Compliance calculation — now reads submissions, not activities
+// Shared style tokens
+// ============================================
+const STATUS_STYLES = {
+  completed: "bg-green-50 text-green-700 border-green-200",
+  ongoing: "bg-amber-50 text-amber-700 border-amber-200",
+  not_started: "bg-red-50 text-red-700 border-red-200",
+};
+const STATUS_LABEL = {
+  completed: "Completed",
+  ongoing: "Ongoing",
+  not_started: "Not Started",
+};
+const DONUT_COLORS = { completed: "#16A34A", ongoing: "#D97706", not_started: "#DC2626" };
+
+const StatusBadge = ({ status }) => (
+  <span
+    className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
+  >
+    {STATUS_LABEL[status] || status}
+  </span>
+);
+
+// ============================================
+// Compliance calc
 // ============================================
 const complianceCalculator = (school) => {
-  if (!school.submissions || school.submissions.length === 0) {
-    return 0;
-  }
-  const completed = school.submissions.filter(
-    (submission) => submission.status === "completed",
-  );
+  if (!school.submissions || school.submissions.length === 0) return 0;
+  const completed = school.submissions.filter((s) => s.status === "completed");
   return Math.round((completed.length / school.submissions.length) * 100);
 };
 
-const ComplianceBadge = ({ complianceRating }) => {
-  const isGood = complianceRating >= 75;
-  return (
-    <span
-      style={{
-        opacity: 0.8,
-        color: isGood ? "green" : "red",
-        fontStyle: "italic",
-        fontSize: 15,
-      }}
-    >
-      Compliance: {complianceRating}%
-    </span>
-  );
-};
+const countByStatus = (submissions) => ({
+  total: submissions.length,
+  completed: submissions.filter((s) => s.status === "completed").length,
+  ongoing: submissions.filter((s) => s.status === "ongoing").length,
+  not_started: submissions.filter((s) => s.status === "not_started").length,
+});
 
 // ============================================
-// School list + card
+// Stat card
 // ============================================
-const SchoolList = ({ schoolData }) => {
+const StatCard = ({ label, value, sublabel, color }) => {
+  const palette = {
+    slate: "bg-slate-50 text-slate-600 border-slate-200",
+    green: "bg-green-50 text-green-700 border-green-200",
+    amber: "bg-amber-50 text-amber-700 border-amber-200",
+    red: "bg-red-50 text-red-700 border-red-200",
+  }[color];
+
   return (
-    <div style={{ textAlign: "left", paddingLeft: 16, paddingTop: 35 }}>
-      {schoolData.map((school) => (
-        <SchoolCard key={school.id} school={school} />
-      ))}
+    <div className={`rounded-xl border p-4 ${palette}`}>
+      <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{label}</p>
+      <p className="mt-1 text-3xl font-bold">{value}</p>
+      {sublabel && <p className="text-xs opacity-70">{sublabel}</p>}
     </div>
   );
 };
 
-const SchoolCard = ({ school }) => {
-  const [showSubmissions, setShowSubmissions] = useState(false);
+// ============================================
+// Compliance donut
+// ============================================
+const ComplianceDonut = ({ counts }) => {
+  const data = [
+    { name: "Completed", value: counts.completed, key: "completed" },
+    { name: "Ongoing", value: counts.ongoing, key: "ongoing" },
+    { name: "Not Started", value: counts.not_started, key: "not_started" },
+  ].filter((d) => d.value > 0);
+
+  const pct = counts.total ? Math.round((counts.completed / counts.total) * 100) : 0;
 
   return (
-    <>
-      <h2>{school.name}</h2>
-      <ComplianceBadge complianceRating={complianceCalculator(school)} />
-      <br />
+    <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <p className="mb-3 text-sm font-semibold text-slate-800">Compliance Overview</p>
+      <div className="flex items-center gap-4">
+        <div className="relative h-40 w-40 shrink-0">
+          {data.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  dataKey="value"
+                  innerRadius={50}
+                  outerRadius={75}
+                  paddingAngle={2}
+                  stroke="none"
+                >
+                  {data.map((d) => (
+                    <Cell key={d.key} fill={DONUT_COLORS[d.key]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center rounded-full border-8 border-slate-100 text-xs text-slate-400">
+              No data
+            </div>
+          )}
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-bold text-slate-800">{pct}%</span>
+            <span className="text-[10px] text-slate-500">Overall</span>
+          </div>
+        </div>
+        <div className="space-y-2 text-sm">
+          <LegendRow color={DONUT_COLORS.completed} label="Completed" value={counts.completed} />
+          <LegendRow color={DONUT_COLORS.ongoing} label="Ongoing" value={counts.ongoing} />
+          <LegendRow color={DONUT_COLORS.not_started} label="Not Started" value={counts.not_started} />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-      {school.submissions.length !== 0 ? (
-        <button onClick={() => setShowSubmissions(!showSubmissions)}>
-          {showSubmissions ? "Hide Activities" : "Show Activities"}
-        </button>
-      ) : (
-        <p style={{ fontStyle: "italic", opacity: 0.6 }}>
-          No activities assigned yet.
-        </p>
-      )}
+const LegendRow = ({ color, label, value }) => (
+  <div className="flex items-center gap-2">
+    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+    <span className="text-slate-600">{label}</span>
+    <span className="font-semibold text-slate-800">{value}</span>
+  </div>
+);
 
-      <ul>
-        {showSubmissions &&
-          school.submissions.map((submission) => (
-            <SubmissionRow key={submission.id} submission={submission} />
-          ))}
-      </ul>
-    </>
+// ============================================
+// Sidebar (mostly static for now — one working page)
+// ============================================
+const Sidebar = () => {
+  const navItems = [
+    { label: "Dashboard", active: true },
+    { label: "Monitor Accomplishments" },
+    { label: "Consolidated Reports" },
+    { label: "Analytics" },
+    { label: "Send Reminders" },
+    { label: "Download Reports" },
+  ];
+
+  return (
+    <aside className="flex w-64 shrink-0 flex-col bg-[#0b1c39] px-4 py-6 text-white">
+      <div className="mb-8 flex items-center gap-3 px-1">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-sm font-bold">
+          DE
+        </div>
+        <div className="text-sm font-semibold leading-tight">
+          COMPASS
+          <div className="text-[11px] font-normal text-white/60">School Program Monitoring</div>
+        </div>
+      </div>
+
+      <nav className="flex-1 space-y-1">
+        {navItems.map((item) => (
+          <div
+            key={item.label}
+            className={`rounded-lg px-3 py-2 text-sm ${
+              item.active
+                ? "bg-blue-600 font-semibold text-white"
+                : "text-white/70 hover:bg-white/5"
+            }`}
+          >
+            {item.label}
+          </div>
+        ))}
+      </nav>
+    </aside>
   );
 };
 
 // ============================================
-// Submission row — READ ONLY for Day 1
-// activity name/due_date come from the nested `activities` object,
-// status/remarks come from the submission itself
+// Create Activity — Admin only
 // ============================================
-const SubmissionRow = ({ submission }) => {
-  const isCompleted = submission.status === "completed";
-
-  return (
-    <li style={{ color: "white" }}>
-      {isCompleted ? "✅" : "⏳"} {submission.activities.name}
-      {submission.activities.due_date && (
-        <span style={{ opacity: 0.6 }}> (due {submission.activities.due_date})</span>
-      )}
-      {" — "}
-      <span style={{ opacity: 0.8 }}>{submission.status}</span>
-    </li>
-  );
-};
-
-// ============================================
-// Create Activity — Admin only, assigns to multiple schools at once
-// ============================================
-const CreateActivity = ({ allSchools, onActivityCreated }) => {
+const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   const [name, setName] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [selectedSchoolIds, setSelectedSchoolIds] = useState([]);
@@ -123,7 +196,6 @@ const CreateActivity = ({ allSchools, onActivityCreated }) => {
 
     setSubmitting(true);
 
-    // Step 1: insert the activity
     const { data: activity, error: activityError } = await supabase
       .from("activities")
       .insert({ name, due_date: dueDate || null })
@@ -136,7 +208,6 @@ const CreateActivity = ({ allSchools, onActivityCreated }) => {
       return;
     }
 
-    // Step 2: bulk-insert submissions for each selected school
     const submissionRows = selectedSchoolIds.map((schoolId) => ({
       activity_id: activity.id,
       school_id: schoolId,
@@ -146,7 +217,7 @@ const CreateActivity = ({ allSchools, onActivityCreated }) => {
     const { data: newSubmissions, error: submissionError } = await supabase
       .from("submissions")
       .insert(submissionRows)
-      .select("*, activities(*)"); // return with nested activity so parent state matches fetch shape
+      .select("*, activities(*)");
 
     if (submissionError) {
       setError(submissionError.message);
@@ -155,48 +226,78 @@ const CreateActivity = ({ allSchools, onActivityCreated }) => {
     }
 
     onActivityCreated(newSubmissions);
-
-    setName("");
-    setDueDate("");
-    setSelectedSchoolIds([]);
     setSubmitting(false);
+    onClose();
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>
-      <h3>Create Activity</h3>
-      <input
-        type="text"
-        placeholder="Activity name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="date"
-        value={dueDate}
-        onChange={(e) => setDueDate(e.target.value)}
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-800">Add New Activity</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+            ✕
+          </button>
+        </div>
 
-      <fieldset>
-        <legend>Assign to schools</legend>
-        {allSchools.map((school) => (
-          <label key={school.id} style={{ display: "block" }}>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">
+              Activity name
+            </label>
             <input
-              type="checkbox"
-              checked={selectedSchoolIds.includes(school.id)}
-              onChange={() => toggleSchool(school.id)}
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="e.g. Nutrition Month Celebration"
             />
-            {school.name}
-          </label>
-        ))}
-      </fieldset>
+          </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">Due date</label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
 
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Creating..." : "Create Activity"}
-      </button>
-    </form>
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Assign to schools
+            </label>
+            <div className="space-y-1.5">
+              {allSchools.map((school) => (
+                <label
+                  key={school.id}
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSchoolIds.includes(school.id)}
+                    onChange={() => toggleSchool(school.id)}
+                    className="h-4 w-4 rounded border-slate-300 text-blue-600"
+                  />
+                  {school.name}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            {submitting ? "Creating..." : "Create Activity"}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 
@@ -217,47 +318,73 @@ const LoginPage = () => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-
     const { error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
     });
-
     if (error) setError(error.message);
     setSubmitting(false);
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="Email"
-      />
-      <input
-        name="password"
-        type="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="Password"
-      />
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Signing in..." : "Sign In"}
-      </button>
-    </form>
+    <div className="flex min-h-screen items-center justify-center bg-[#0b1c39] px-4">
+      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-xl">
+        <h1 className="mb-1 text-xl font-bold text-slate-800">COMPASS</h1>
+        <p className="mb-6 text-sm text-slate-500">Sign in to your account</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Email"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+          <input
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Password"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            {submitting ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const LogoutButton = () => {
+  async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error(error.message);
+  }
+  return (
+    <button
+      onClick={handleLogout}
+      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+    >
+      Log Out
+    </button>
   );
 };
 
 // ============================================
 // Admin Dashboard
 // ============================================
-const AdminDashboard = () => {
+const AdminDashboard = ({ profile }) => {
   const [schoolData, setSchoolData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeSchoolId, setActiveSchoolId] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     async function loadSchools() {
@@ -270,78 +397,214 @@ const AdminDashboard = () => {
         setError(error.message);
       } else {
         setSchoolData(data);
+        if (data.length > 0) setActiveSchoolId(data[0].id);
       }
       setLoading(false);
     }
     loadSchools();
   }, []);
 
-  // Called after CreateActivity successfully inserts submissions.
-  // newSubmissions is an array — one row per school that was assigned.
   function handleActivityCreated(newSubmissions) {
-    console.log(newSubmissions);
     setSchoolData((prev) =>
       prev.map((school) => {
-        const matchingSubmission = newSubmissions.find(
-          (s) => s.school_id === school.id,
-        );
-
-        // if there's no school match, jsut keep the school data
-        if (!matchingSubmission) return school; 
-
-        // if there's a school match, add a submission
-        return {
-          ...school,
-          submissions: [...school.submissions, matchingSubmission],
-        };
+        const match = newSubmissions.find((s) => s.school_id === school.id);
+        if (!match) return school;
+        return { ...school, submissions: [...school.submissions, match] };
       }),
     );
   }
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return <div className="flex min-h-screen items-center justify-center text-slate-500">Loading...</div>;
+  if (error)
+    return <div className="flex min-h-screen items-center justify-center text-red-600">Error: {error}</div>;
 
-  const filteredSchools = schoolData.filter((school) =>
-    school.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-  const isEmptySchools = filteredSchools.length === 0;
+  const activeSchool = schoolData.find((s) => s.id === activeSchoolId);
+  const allSubmissions = schoolData.flatMap((s) => s.submissions);
+  const overallCounts = countByStatus(allSubmissions);
+  const activeCounts = activeSchool ? countByStatus(activeSchool.submissions) : countByStatus([]);
 
   return (
-    <>
-      <div>
-        <h1>School Compliance Dashboard</h1>
-        <LogoutButton />
-      </div>
-
-      <CreateActivity
-        allSchools={schoolData}
-        onActivityCreated={handleActivityCreated}
-      />
-
-      <input
-        type="text"
-        placeholder="Search Schools..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      <div>
-        {isEmptySchools && (
-          <p style={{ fontStyle: "italic", paddingTop: 100 }}>
-            No Schools Found.
+    <div className="flex min-h-screen bg-[#f4f6fb]">
+      <div className="flex flex-col">
+        <Sidebar />
+        <div className="mt-0 bg-[#0b1c39] px-4 pb-77 pt-0 text-white">
+          <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-white/50">
+            Monthly Progress (All Schools)
           </p>
-        )}
-        <SchoolList schoolData={filteredSchools} />
+          <ComplianceMiniDonut counts={overallCounts} />
+        </div>
       </div>
-    </>
+
+      <main className="flex-1 p-8">
+        {/* Header */}
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">Dashboard Overview</h1>
+            <p className="text-sm text-slate-500">
+              Monitor accomplishments of central schools, generate reports, and track compliance.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-600">
+              Welcome, {profile.full_name || "PDO"}
+            </span>
+            <LogoutButton />
+          </div>
+        </div>
+
+        {/* School tabs */}
+        <div className="mb-6 flex gap-2 overflow-x-auto">
+          {schoolData.map((school) => (
+            <button
+              key={school.id}
+              onClick={() => setActiveSchoolId(school.id)}
+              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold ${
+                activeSchoolId === school.id
+                  ? "bg-[#0b1c39] text-white"
+                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {school.name}
+            </button>
+          ))}
+        </div>
+
+        {activeSchool && (
+          <>
+            {/* Stat cards */}
+            <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+              <StatCard label="Total Activities" value={activeCounts.total} color="slate" />
+              <StatCard
+                label="Completed"
+                value={activeCounts.completed}
+                sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
+                color="green"
+              />
+              <StatCard
+                label="Ongoing"
+                value={activeCounts.ongoing}
+                sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
+                color="amber"
+              />
+              <StatCard
+                label="Not Started"
+                value={activeCounts.not_started}
+                sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
+                color="red"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              {/* Activities table */}
+              <div className="rounded-xl border border-slate-200 bg-white p-5 lg:col-span-2">
+                <p className="mb-4 text-sm font-semibold text-slate-800">
+                  Activities Monitoring — {activeSchool.name}
+                </p>
+                {activeSchool.submissions.length === 0 ? (
+                  <p className="py-8 text-center text-sm italic text-slate-400">
+                    No activities assigned yet.
+                  </p>
+                ) : (
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-100 text-xs uppercase text-slate-400">
+                        <th className="pb-2 font-semibold">Activity</th>
+                        <th className="pb-2 font-semibold">Due Date</th>
+                        <th className="pb-2 font-semibold">Status</th>
+                        <th className="pb-2 font-semibold">Date Conducted</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeSchool.submissions.map((sub) => (
+                        <tr key={sub.id} className="border-b border-slate-50">
+                          <td className="py-3 font-medium text-slate-700">
+                            {sub.activities.name}
+                          </td>
+                          <td className="py-3 text-slate-500">{sub.activities.due_date || "—"}</td>
+                          <td className="py-3">
+                            <StatusBadge status={sub.status} />
+                          </td>
+                          <td className="py-3 text-slate-500">{sub.date_conducted || "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* Right column */}
+              <div className="space-y-6">
+                <ComplianceDonut counts={activeCounts} />
+
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                  <p className="mb-3 text-sm font-semibold text-slate-800">Quick Actions</p>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                  >
+                    + Add New Activity
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {showCreateModal && (
+          <CreateActivity
+            allSchools={schoolData}
+            onActivityCreated={handleActivityCreated}
+            onClose={() => setShowCreateModal(false)}
+          />
+        )}
+      </main>
+    </div>
+  );
+};
+
+const ComplianceMiniDonut = ({ counts }) => {
+  const data = [
+    { name: "Completed", value: counts.completed, key: "completed" },
+    { name: "Ongoing", value: counts.ongoing, key: "ongoing" },
+    { name: "Not Started", value: counts.not_started, key: "not_started" },
+  ].filter((d) => d.value > 0);
+  const pct = counts.total ? Math.round((counts.completed / counts.total) * 100) : 0;
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="relative h-20 w-20 shrink-0">
+        {data.length > 0 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={data} dataKey="value" innerRadius={24} outerRadius={38} stroke="none">
+                {data.map((d) => (
+                  <Cell key={d.key} fill={DONUT_COLORS[d.key]} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-white/10 text-[10px] text-white/40">
+            No data
+          </div>
+        )}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-bold">
+          {pct}%
+        </div>
+      </div>
+      <div className="space-y-1 text-[11px] text-white/70">
+        <p><span className="mr-1 inline-block h-2 w-2 rounded-full bg-green-500" />Completed {counts.completed}</p>
+        <p><span className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-500" />Ongoing {counts.ongoing}</p>
+        <p><span className="mr-1 inline-block h-2 w-2 rounded-full bg-red-500" />Not Started {counts.not_started}</p>
+      </div>
+    </div>
   );
 };
 
 // ============================================
-// Placeholder — built out Day 2
+// School Head Dashboard
 // ============================================
-// Add this near your other components, replacing the Day 1 placeholder
-
 const SchoolHeadDashboard = ({ profile }) => {
   const [submissions, setSubmissions] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -355,33 +618,49 @@ const SchoolHeadDashboard = ({ profile }) => {
         .eq("school_id", profile.school_id)
         .order("updated_at", { ascending: false });
 
-      if (error) {
-        setError(error.message);
-      } else {
-        setSubmissions(data);
-      }
+      if (error) setError(error.message);
+      else setSubmissions(data);
       setLoading(false);
     }
     loadSubmissions();
   }, [profile.school_id]);
 
-  function handleSubmissionUpdated(updatedSubmission) {
+  function handleSubmissionUpdated(updated) {
     setSubmissions((prev) =>
-      prev.map((s) => (s.id === updatedSubmission.id ? { ...s, ...updatedSubmission } : s)),
+      prev.map((s) => (s.id === updated.id ? { ...s, ...updated } : s)),
     );
   }
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return <div className="flex min-h-screen items-center justify-center text-slate-500">Loading...</div>;
+  if (error)
+    return <div className="flex min-h-screen items-center justify-center text-red-600">Error: {error}</div>;
+
+  const counts = countByStatus(submissions);
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>My School's Activities</h1>
-      <LogoutButton />
+    <div className="min-h-screen bg-[#f4f6fb] p-8">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">My School's Activities</h1>
+          <p className="text-sm text-slate-500">Update your compliance status and remarks.</p>
+        </div>
+        <LogoutButton />
+      </div>
+
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <StatCard label="Total" value={counts.total} color="slate" />
+        <StatCard label="Completed" value={counts.completed} color="green" />
+        <StatCard label="Ongoing" value={counts.ongoing} color="amber" />
+        <StatCard label="Not Started" value={counts.not_started} color="red" />
+      </div>
+
       {submissions.length === 0 ? (
-        <p style={{ fontStyle: "italic" }}>No activities assigned yet.</p>
+        <p className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm italic text-slate-400">
+          No activities assigned yet.
+        </p>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <div className="space-y-4">
           {submissions.map((submission) => (
             <SubmissionEditRow
               key={submission.id}
@@ -389,7 +668,7 @@ const SchoolHeadDashboard = ({ profile }) => {
               onUpdated={handleSubmissionUpdated}
             />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
@@ -429,85 +708,81 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
   }
 
   return (
-    <li
-      style={{
-        border: "1px solid #444",
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 12,
-      }}
-    >
-      <strong>{submission.activities.name}</strong>
-      {submission.activities.due_date && (
-        <span style={{ opacity: 0.6 }}> (due {submission.activities.due_date})</span>
-      )}
-      <br />
+    <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <p className="font-semibold text-slate-800">{submission.activities.name}</p>
+          {submission.activities.due_date && (
+            <p className="text-xs text-slate-500">Due {submission.activities.due_date}</p>
+          )}
+        </div>
+        <StatusBadge status={status} />
+      </div>
 
-      <label>
-        Status:{" "}
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="not_started">Not Started</option>
-          <option value="ongoing">Ongoing</option>
-          <option value="completed">Completed</option>
-        </select>
-      </label>
-      <br />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-500">Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          >
+            <option value="not_started">Not Started</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-500">Date conducted</label>
+          <input
+            type="date"
+            value={dateConducted}
+            onChange={(e) => setDateConducted(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          />
+        </div>
+      </div>
 
-      <label>
-        Date conducted:{" "}
-        <input
-          type="date"
-          value={dateConducted}
-          onChange={(e) => setDateConducted(e.target.value)}
-        />
-      </label>
-      <br />
-
-      <label>
-        Remarks:
-        <br />
+      <div className="mt-3">
+        <label className="mb-1 block text-xs font-semibold text-slate-500">Remarks</label>
         <textarea
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
           rows={2}
-          style={{ width: "100%" }}
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
-      </label>
-      <br />
+      </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
-      <button onClick={handleSave} disabled={saving}>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+      >
         {saving ? "Saving..." : "Save"}
       </button>
-    </li>
+    </div>
   );
 };
 
-const LogoutButton = () => {
-  async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error(error.message);
-    }
-    // no need to manually reset state — onAuthStateChange in useAuth()
-    // will pick up session becoming null, and App() will re-render LoginPage
-  }
-
-  return <button onClick={handleLogout}>Log Out</button>;
-};
-
 // ============================================
-// App root — routes by auth + role
+// App root
 // ============================================
 function App() {
   const { session, profile, loading } = useAuth();
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return <div className="flex min-h-screen items-center justify-center text-slate-500">Loading...</div>;
   if (!session) return <LoginPage />;
-  if (!profile) return <p>Setting up your account...</p>;
+  if (!profile)
+    return <div className="flex min-h-screen items-center justify-center text-slate-500">Setting up your account...</div>;
 
-  return profile.role === "admin" ? <AdminDashboard /> : <SchoolHeadDashboard profile={profile}/>;
+  return profile.role === "admin" ? (
+    <AdminDashboard profile={profile} />
+  ) : (
+    <SchoolHeadDashboard profile={profile} />
+  );
 }
 
 export default App;

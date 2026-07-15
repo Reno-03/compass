@@ -191,18 +191,25 @@ const Sidebar = () => {
   return (
     <aside className="flex w-64 shrink-0 flex-col bg-[#0b1c39] px-4 py-6 text-white">
       <div className="mb-8 flex items-center gap-5 px-1">
-        <img src="/images/DEPED_logo.png" alt="DEPED Logo" className="h-12 w-12" />
-        <img src="/images/DEPED_torch_logo.png" alt="DEPED Logo" className="h-10" />
+        <img
+          src="/images/DEPED_logo.png"
+          alt="DEPED Logo"
+          className="h-12 w-12"
+        />
+        <img
+          src="/images/DEPED_torch_logo.png"
+          alt="DEPED Logo"
+          className="h-10"
+        />
       </div>
 
       <div className="mb-8 text-lg font-semibold leading-tight">
-          <div className="mb-1 text-2xl font-bold text-white">
-            COMPASS
-          </div>
-          <div className="text-[11px] font-normal text-white/60">
-            Centralized Online Monitoring of Programs, Activities, and School Submissions
-          </div>
+        <div className="mb-1 text-2xl font-bold text-white">COMPASS</div>
+        <div className="text-[11px] font-normal text-white/60">
+          Centralized Online Monitoring of Programs, Activities, and School
+          Submissions
         </div>
+      </div>
 
       <nav className="flex-1 space-y-1">
         {navItems.map((item) => (
@@ -312,8 +319,14 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-5 flex items-center justify-between">
           <div>
             <h3 className="text-2xl font-bold text-slate-800 mb-1">
@@ -467,8 +480,14 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-5 flex items-center justify-between">
           <div>
             <h3 className="text-2xl font-bold text-slate-800">Edit Activity</h3>

@@ -414,8 +414,13 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-slate-800">Edit Activity</h3>
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-800">Edit Activity</h3>
+          <p className="text-sm text-slate-500">
+              Fill in the details to edit the activity.
+            </p>
+          </div>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 cursor-pointer"
@@ -489,7 +494,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
           <button
             type="submit"
             disabled={saving}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>

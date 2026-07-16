@@ -205,7 +205,11 @@ const Sidebar = () => {
       </div>
 
       <div className="mb-8 text-lg font-semibold leading-tight">
-        <div className="mb-1 text-2xl font-bold text-white">COMPASS</div>
+        <img
+          src="/images/COMPASS_banner_dark.webp"
+          alt="COMPASS Banner"
+          className="mb-2 w-full rounded-lg"
+        />
         <div className="text-[11px] font-normal text-white/60">
           Centralized Online Monitoring of Programs, Activities, and School
           Submissions
@@ -450,7 +454,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
     const { error } = await supabase
       .from("submissions")
       .delete()
-      .eq("id", submission.id)
+      .eq("id", submission.id);
 
     if (error) {
       setError(error.message);

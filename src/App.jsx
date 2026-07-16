@@ -285,7 +285,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
     const { data: activity, error: activityError } = await supabase
       .from("activities")
-      .insert({ name, drive_link: driveLink || null })
+      .insert({ name, due_date: dueDate || null })
       .select()
       .single();
 
@@ -300,6 +300,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       school_id: schoolId,
       name: activity.name,
       due_date: activity.due_date,
+      drive_link: driveLink || null,
       status: "not_started",
     }));
 
@@ -386,10 +387,6 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
               placeholder="https://drive.google.com/..."
             />
-          </div>
-
-          <div>
-            
           </div>
 
           <div>
@@ -913,6 +910,9 @@ const AdminDashboard = ({ profile }) => {
                         <th className="pb-2 pt-2 font-bold text-center">
                           Actions
                         </th>
+                        <th className="pb-2 pt-2 font-bold text-center">
+                          Link
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -938,6 +938,21 @@ const AdminDashboard = ({ profile }) => {
                             >
                               <Eye size={18} />
                             </button>
+                          </td>
+                          <td className="py-3 text-center">
+                            {sub.drive_link ? (
+                              <a
+                                href={sub.drive_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex justify-center text-blue-600 hover:text-blue-800"
+                                title="Open Google Drive Link"
+                              >
+                                <GoogleDriveLogo size={18} />
+                              </a>
+                            ) : (
+                              "—"
+                            )}
                           </td>
                         </tr>
                       ))}

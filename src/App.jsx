@@ -11,6 +11,7 @@ import {
   XCircle,
   Eye,
   ChevronDown,
+  LogOut,
 } from "lucide-react";
 
 // ============================================
@@ -716,9 +717,10 @@ const LogoutButton = () => {
   return (
     <button
       onClick={handleLogout}
-      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+      className="inline-flex items-center gap-2  rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
     >
-      Log Out
+      <LogOut size={16} />
+      <span>Log Out</span>
     </button>
   );
 };

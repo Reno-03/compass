@@ -375,11 +375,11 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
           <div>
             <div className="mb-2 flex items-center gap-2">
               <label className="block text-xs font-semibold text-slate-500">
-              Google Drive Link 
-            </label>
-            <GoogleDriveLogo size={16} />
+                Google Drive Link (optional)
+              </label>
+              <GoogleDriveLogo size={16} />
             </div>
-            
+
             <input
               type="url"
               value={driveLink}
@@ -429,6 +429,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 const EditActivity = ({ submission, onSaved, onClose }) => {
   const [name, setName] = useState(submission.name);
   const [dueDate, setDueDate] = useState(submission.due_date || "");
+  const [driveLink, setDriveLink] = useState(submission.drive_link || "");
   const [status, setStatus] = useState(submission.status);
   const [dateConducted, setDateConducted] = useState(
     submission.date_conducted || "",
@@ -479,6 +480,7 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
       .update({
         name,
         due_date: dueDate || null,
+        drive_link: driveLink || null,
         status,
         date_conducted: dateConducted || null,
         updated_at: new Date().toISOString(),
@@ -569,8 +571,24 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
           </div>
 
           <div>
+            <div className="mb-2 flex items-center gap-2">
+              <label className="block text-xs font-semibold text-slate-500">
+                Google Drive Link (optional)
+              </label>
+              <GoogleDriveLogo size={16} />
+            </div>
+
+            <input
+              type="url"
+              value={driveLink}
+              onChange={(e) => setDriveLink(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
             <label className="mb-1 block text-xs font-semibold text-slate-500">
-              Date conducted
+              Date conducted (optional)
             </label>
             <input
               type="date"

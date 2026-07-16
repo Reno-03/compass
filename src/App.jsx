@@ -209,7 +209,7 @@ const Sidebar = () => {
         <img
           src="/images/COMPASS_banner_dark.webp"
           alt="COMPASS Banner"
-          className="mb-2 w-full rounded-lg"
+          className="mb-2 w-full pr-5 rounded-lg"
         />
         <div className="text-[11px] font-normal text-white/60">
           Centralized Online Monitoring of Programs, Activities, and School
@@ -680,39 +680,128 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0b1c39] px-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-xl">
-        <h1 className="mb-1 text-xl font-bold text-slate-800">COMPASS</h1>
-        <p className="mb-6 text-sm text-slate-500">Sign in to your account</p>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          <input
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Password"
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
-          >
-            {submitting ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
+    <div className="flex min-h-screen items-center justify-center bg-[#e3f1ff] p-6">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl">
+        {/* Left panel */}
+        
+        <div className="hidden w-1/2 flex-col justify-between bg-linear-to-br from-[#050f22] via-[#0b1c39] to-[#1e3a6e] p-12 text-white md:flex">
+          <div className="mb-6">
+            <div className="mb-8 flex items-center gap-4">
+              <img
+                src="/images/DEPED_logo.png"
+                alt="DEPED Logo"
+                className="h-12 w-12"
+              />
+              <img
+                src="/images/DEPED_torch_logo.png"
+                alt="DEPED Logo"
+                className="h-10"
+              />
+              <img
+                src="/images/COMPASS_banner_dark.webp"
+                alt="COMPASS Banner"
+                className="h-10 ml-4"
+              />
+            </div>
+
+            <h1 className="mb-8 text-4xl font-extrabold leading-tight">
+              Monitor compliance,
+              <br />
+              track progress,
+              <br />
+              stay accountable.
+            </h1>
+
+            <div className="space-y-4">
+              <ChecklistItem
+                title="Track every activity"
+                description="See what's due, ongoing, or completed across all schools in one view."
+              />
+              <ChecklistItem
+                title="Stay on top of deadlines"
+                description="Monitor due dates and compliance rates at a glance."
+              />
+              <ChecklistItem
+                title="Streamline reporting"
+                description="Consolidate school submissions without the back-and-forth."
+              />
+            </div>
+          </div>
+
+          <p className="text-xs text-white/40">
+            © {new Date().getFullYear()} COMPASS
+          </p>
+        </div>
+
+        {/* Right panel */}
+        <div className="flex w-full flex-col justify-center bg-white p-10 md:w-1/2 md:p-14">
+          <h2 className="mb-2 text-3xl font-bold text-slate-800">
+            Welcome back
+          </h2>
+          <p className="mb-8 text-sm text-slate-500">
+            Sign in to your COMPASS account to continue.
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-500">
+                Email
+              </label>
+              <input
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@deped.gov.ph"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-500">
+                Password
+              </label>
+              <input
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
+            >
+              {submitting ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+
+          <p className="mt-8 text-xs text-slate-400">
+            Access is limited to authorized DepEd personnel.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
+
+const ChecklistItem = ({ title, description }) => (
+  <div className="flex items-start gap-3">
+    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-500">
+      <CheckCircle2 size={14} className="text-white" />
+    </span>
+    <div>
+      <p className="text-sm font-semibold text-white">{title}</p>
+      <p className="text-sm text-white/60">{description}</p>
+    </div>
+  </div>
+);
 
 const LogoutButton = () => {
   async function handleLogout() {

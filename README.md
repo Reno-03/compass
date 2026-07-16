@@ -2,7 +2,7 @@
 
 **C**entralized **O**nline **M**onitoring of **P**rograms, **A**ctivities, and **S**chool **S**ubmissions
 
-A web-based compliance monitoring system built for SIGISDAC (DepEd) to track school activities, compliance rates, and report submissions across Admin and School Head roles.
+A web-based compliance monitoring system built  to track school activities, compliance rates, and report submissions across Admin and School Head roles.
 
 ![Version](https://img.shields.io/badge/version-v0.1.0--beta-blue)
 
@@ -43,7 +43,7 @@ Built with **React**, **Tailwind CSS**, **Supabase** (Auth, Database, RLS), and 
 - Modals close on outside click
 - Hover and translate-up animation on primary CTA buttons
 - Logout button with icon
-- DepEd sidebar branding (logo + app name)
+- Sidebar branding (logo + app name)
 - COMPASS logo, favicon, and app icon
 - Redesigned login page: split-panel layout with branding, feature checklist, and a blue gradient background, using email/password sign-in
 

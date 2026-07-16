@@ -346,7 +346,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Activity name <span className="text-red-500">*</span>
@@ -389,7 +389,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
             />
           </div>
 
-          <div>
+          <div className="mb-6">
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Assign to schools <span className="text-red-500">*</span>
             </label>
@@ -416,7 +416,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
+            className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
           >
             {submitting ? "Creating..." : "Create Activity"}
           </button>
@@ -548,7 +548,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Activity name <span className="text-red-500">*</span>
@@ -610,7 +610,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             />
           </div>
 
-          <div>
+          <div className="mb-6">
             <label className="mb-1 block text-xs font-semibold text-slate-500">
               Date conducted (optional)
             </label>
@@ -629,7 +629,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
               type="button"
               onClick={handleDelete}
               disabled={saving}
-              className="rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 cursor-pointer"
+              className="rounded-lg border border-red-300 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 cursor-pointer"
             >
               Delete
             </button>
@@ -637,7 +637,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+              className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>

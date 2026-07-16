@@ -1147,10 +1147,10 @@ const AdminDashboard = ({ profile }) => {
                       <colgroup>
                         <col className="w-[32%]" />
                         <col className="w-[15%]" />
-                        <col className="w-[15%]" />
                         <col className="w-[18%]" />
                         <col className="w-[10%]" />
                         <col className="w-[10%]" />
+                        <col className="w-[15%]" />
                       </colgroup>
                       <thead className="sticky top-0 z-10 bg-slate-50">
                         <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -1162,13 +1162,13 @@ const AdminDashboard = ({ profile }) => {
                             Status
                           </th>
                           <th className="pb-2 pt-2 font-bold text-center">
-                            Date Conducted
-                          </th>
-                          <th className="pb-2 pt-2 font-bold text-center">
                             Actions
                           </th>
                           <th className="pb-2 pt-2 font-bold text-center">
                             Link
+                          </th>
+                          <th className="pb-2 pt-2 font-bold text-center">
+                            Legal Basis
                           </th>
                         </tr>
                       </thead>
@@ -1185,9 +1185,6 @@ const AdminDashboard = ({ profile }) => {
                             </td>
                             <td className="py-3 text-center">
                               <StatusBadge status={sub.status} />
-                            </td>
-                            <td className="py-3 text-center text-slate-500">
-                              {sub.date_conducted || "—"}
                             </td>
                             <td className="py-3 text-center">
                               <button
@@ -1212,6 +1209,9 @@ const AdminDashboard = ({ profile }) => {
                               ) : (
                                 "—"
                               )}
+                            </td>
+                            <td className="py-3 text-center text-slate-500">
+                              {sub.activities?.legal_basis || "—"}
                             </td>
                           </tr>
                         ))}

@@ -426,7 +426,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   );
 };
 
-const EditActivity = ({ submission, onSaved, onClose }) => {
+const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   const [name, setName] = useState(submission.name);
   const [dueDate, setDueDate] = useState(submission.due_date || "");
   const [driveLink, setDriveLink] = useState(submission.drive_link || "");
@@ -436,6 +436,30 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  async function handleDelete() {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this activity?",
+    );
+
+    if (!confirmed) return;
+
+    setSaving(true);
+
+    const { error } = await supabase
+      .from("submissions")
+      .delete()
+      .eq("id", submission.id);
+
+    if (error) {
+      setError(error.message);
+      setSaving(false);
+      return;
+    }
+
+    onDeleted(submission.id);
+    onClose();
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -600,13 +624,24 @@ const EditActivity = ({ submission, onSaved, onClose }) => {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
+          <div className="flex justify-between gap-3">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={saving}
+              className="rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 cursor-pointer"
+            >
+              Delete
+            </button>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -778,6 +813,15 @@ const AdminDashboard = ({ profile }) => {
         submissions: school.submissions.map((sub) =>
           sub.id === updatedSubmission.id ? updatedSubmission : sub,
         ),
+      })),
+    );
+  }
+
+  function handleActivityDeleted(id) {
+    setSchoolData((prev) =>
+      prev.map((school) => ({
+        ...school,
+        submissions: school.submissions.filter((sub) => sub.id !== id),
       })),
     );
   }
@@ -1014,6 +1058,7 @@ const AdminDashboard = ({ profile }) => {
             submission={editingSubmission}
             onSaved={handleActivityEdited}
             onClose={() => setEditingSubmission(null)}
+            onDeleted={handleActivityDeleted}
           />
         )}
       </main>

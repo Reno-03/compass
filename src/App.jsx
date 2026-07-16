@@ -683,7 +683,7 @@ const LoginPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-[#e3f1ff] p-6">
       <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl">
         {/* Left panel */}
-        
+
         <div className="hidden w-1/2 flex-col justify-between bg-linear-to-br from-[#050f22] via-[#0b1c39] to-[#1e3a6e] p-12 text-white md:flex">
           <div className="mb-6">
             <div className="mb-8 flex items-center gap-4">
@@ -1141,23 +1141,25 @@ const AdminDashboard = ({ profile }) => {
                       : "No activities match the selected filter."}
                   </p>
                 ) : (
-                  <table className="w-full text-left text-sm">
+                  <table className="w-full table-fixed text-left text-sm">
                     <thead>
                       <tr className="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-800">
-                        <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
-                        <th className="pb-2 pt-2 font-bold text-center">
+                        <th className="pb-2 pt-2 pl-2 font-bold w-[32%]">
+                          Activity
+                        </th>
+                        <th className="pb-2 pt-2 font-bold text-center w-[15%]">
                           Date
                         </th>
-                        <th className="pb-2 pt-2 font-bold text-center">
+                        <th className="pb-2 pt-2 font-bold text-center w-[15%]">
                           Status
                         </th>
-                        <th className="pb-2 pt-2 font-bold text-center">
+                        <th className="pb-2 pt-2 font-bold text-center w-[18%]">
                           Date Conducted
                         </th>
-                        <th className="pb-2 pt-2 font-bold text-center">
+                        <th className="pb-2 pt-2 font-bold text-center w-[10%]">
                           Actions
                         </th>
-                        <th className="pb-2 pt-2 font-bold text-center">
+                        <th className="pb-2 pt-2 font-bold text-center w-[10%]">
                           Link
                         </th>
                       </tr>

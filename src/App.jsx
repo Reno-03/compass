@@ -450,7 +450,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
     const { error } = await supabase
       .from("submissions")
       .delete()
-      .eq("id", submission.id);
+      .eq("id", submission.id)
 
     if (error) {
       setError(error.message);
@@ -543,7 +543,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 cursor-pointer"
+            className="text-slate-400 hover:text-slate-600 cursor-pointer mr-2"
           >
             ✕
           </button>

@@ -1130,6 +1130,7 @@ const AdminDashboard = ({ profile }) => {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Activities table */}
+              {/* Activities table */}
               <div className="rounded-xl border border-slate-200 bg-white p-5 lg:col-span-2">
                 <p className="mb-4 text-sm font-semibold text-slate-800">
                   Activities Monitoring — {activeSchool.name}
@@ -1141,72 +1142,82 @@ const AdminDashboard = ({ profile }) => {
                       : "No activities match the selected filter."}
                   </p>
                 ) : (
-                  <table className="w-full table-fixed text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-800">
-                        <th className="pb-2 pt-2 pl-2 font-bold w-[32%]">
-                          Activity
-                        </th>
-                        <th className="pb-2 pt-2 font-bold text-center w-[15%]">
-                          Date
-                        </th>
-                        <th className="pb-2 pt-2 font-bold text-center w-[15%]">
-                          Status
-                        </th>
-                        <th className="pb-2 pt-2 font-bold text-center w-[18%]">
-                          Date Conducted
-                        </th>
-                        <th className="pb-2 pt-2 font-bold text-center w-[10%]">
-                          Actions
-                        </th>
-                        <th className="pb-2 pt-2 font-bold text-center w-[10%]">
-                          Link
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedSubmissions.map((sub) => (
-                        <tr key={sub.id} className="border-b border-slate-50">
-                          <td className="py-3 pl-2 font-medium text-slate-700">
-                            {sub.name}
-                          </td>
-                          <td className="py-3 text-center text-slate-500">
-                            {sub.due_date || "—"}
-                          </td>
-                          <td className="py-3 text-center">
-                            <StatusBadge status={sub.status} />
-                          </td>
-                          <td className="py-3 text-center text-slate-500">
-                            {sub.date_conducted || "—"}
-                          </td>
-                          <td className="py-3 text-center">
-                            <button
-                              onClick={() => setEditingSubmission(sub)}
-                              className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                              title="Edit activity"
-                            >
-                              <Eye size={18} />
-                            </button>
-                          </td>
-                          <td className="py-3 text-center">
-                            {sub.drive_link ? (
-                              <a
-                                href={sub.drive_link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex justify-center text-blue-600 hover:text-blue-800"
-                                title="Open Google Drive Link"
-                              >
-                                <GoogleDriveLogo size={18} />
-                              </a>
-                            ) : (
-                              "—"
-                            )}
-                          </td>
+                  <div className="max-h-90 overflow-y-auto rounded-lg">
+                    <table className="w-full table-fixed text-left text-sm">
+                      <colgroup>
+                        <col className="w-[32%]" />
+                        <col className="w-[15%]" />
+                        <col className="w-[15%]" />
+                        <col className="w-[18%]" />
+                        <col className="w-[10%]" />
+                        <col className="w-[10%]" />
+                      </colgroup>
+                      <thead className="sticky top-0 z-10 bg-slate-50">
+                        <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                          <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
+                          <th className="pb-2 pt-2 font-bold text-center">
+                            Date
+                          </th>
+                          <th className="pb-2 pt-2 font-bold text-center">
+                            Status
+                          </th>
+                          <th className="pb-2 pt-2 font-bold text-center">
+                            Date Conducted
+                          </th>
+                          <th className="pb-2 pt-2 font-bold text-center">
+                            Actions
+                          </th>
+                          <th className="pb-2 pt-2 font-bold text-center">
+                            Link
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {sortedSubmissions.map((sub) => (
+                          <tr key={sub.id} className="border-b border-slate-50">
+                            <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                              <span className="block" title={sub.name}>
+                                {sub.name}
+                              </span>
+                            </td>
+                            <td className="py-3 text-center text-slate-500">
+                              {sub.due_date || "—"}
+                            </td>
+                            <td className="py-3 text-center">
+                              <StatusBadge status={sub.status} />
+                            </td>
+                            <td className="py-3 text-center text-slate-500">
+                              {sub.date_conducted || "—"}
+                            </td>
+                            <td className="py-3 text-center">
+                              <button
+                                onClick={() => setEditingSubmission(sub)}
+                                className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                title="Edit activity"
+                              >
+                                <Eye size={18} />
+                              </button>
+                            </td>
+                            <td className="py-3 text-center">
+                              {sub.drive_link ? (
+                                <a
+                                  href={sub.drive_link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex justify-center text-blue-600 hover:text-blue-800"
+                                  title="Open Google Drive Link"
+                                >
+                                  <GoogleDriveLogo size={18} />
+                                </a>
+                              ) : (
+                                "—"
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
 

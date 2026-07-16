@@ -12,6 +12,7 @@ import {
   Eye,
   ChevronDown,
   LogOut,
+  School,
 } from "lucide-react";
 
 // ============================================
@@ -783,6 +784,9 @@ const AdminDashboard = ({ profile }) => {
   const [activeSchoolId, setActiveSchoolId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSubmission, setEditingSubmission] = useState(null);
+  const today = new Date();
+  const [filterMonth, setFilterMonth] = useState(today.getMonth() + 1); // 1-12, or "all"
+  const [filterYear, setFilterYear] = useState(today.getFullYear()); // number, or "all"
 
   useEffect(() => {
     async function loadSchools() {
@@ -858,14 +862,37 @@ const AdminDashboard = ({ profile }) => {
     completed: 2,
   };
 
-  const sortedSubmissions = [...activeSchool.submissions].sort((a, b) => {
+  // adds filtering + available years before the sort
+  const filteredSubmissions = activeSchool.submissions.filter((sub) => {
+    if (filterMonth === "all" && filterYear === "all") return true;
+    if (!sub.due_date) return false;
+
+    const dueDate = new Date(sub.due_date);
+    const matchesMonth =
+      filterMonth === "all" || dueDate.getMonth() + 1 === filterMonth;
+    const matchesYear =
+      filterYear === "all" || dueDate.getFullYear() === filterYear;
+
+    return matchesMonth && matchesYear;
+  });
+
+  const availableYears = [
+    ...new Set(
+      allSubmissions
+        .filter((s) => s.due_date)
+        .map((s) => new Date(s.due_date).getFullYear()),
+    ),
+  ];
+  if (!availableYears.includes(today.getFullYear())) {
+    availableYears.push(today.getFullYear());
+  }
+  availableYears.sort((a, b) => b - a);
+
+  const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
     const statusDiff = statusOrder[a.status] - statusOrder[b.status];
-
     if (statusDiff !== 0) return statusDiff;
-
     if (!a.due_date) return 1;
     if (!b.due_date) return -1;
-
     return new Date(a.due_date) - new Date(b.due_date);
   });
   return (
@@ -893,6 +920,64 @@ const AdminDashboard = ({ profile }) => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {(filterMonth !== "all" || filterYear !== "all") && (
+              <button
+                onClick={() => {
+                  setFilterMonth("all");
+                  setFilterYear("all");
+                }}
+                className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+              >
+                Clear filter
+              </button>
+            )}
+            <select
+              value={filterMonth}
+              onChange={(e) =>
+                setFilterMonth(
+                  e.target.value === "all" ? "all" : Number(e.target.value),
+                )
+              }
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+            >
+              <option value="all">All Months</option>
+              {[
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+              ].map((label, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filterYear}
+              onChange={(e) =>
+                setFilterYear(
+                  e.target.value === "all" ? "all" : Number(e.target.value),
+                )
+              }
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+            >
+              <option value="all">All Years</option>
+              {availableYears.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+
             <span className="text-sm text-slate-600">
               Welcome, {profile.full_name || "PDO"}
             </span>
@@ -906,12 +991,15 @@ const AdminDashboard = ({ profile }) => {
             <button
               key={school.id}
               onClick={() => setActiveSchoolId(school.id)}
-              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer ${
+              className={`inline-flex gap-3 items-center whitespace-nowrap rounded-lg px-10 py-3 text-sm font-semibold cursor-pointer ${
                 activeSchoolId === school.id
                   ? "bg-[#0b1c39] text-white"
                   : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               }`}
             >
+              <span>
+                <School size={24} />
+              </span>
               {school.name}
             </button>
           ))}
@@ -957,9 +1045,11 @@ const AdminDashboard = ({ profile }) => {
                 <p className="mb-4 text-sm font-semibold text-slate-800">
                   Activities Monitoring — {activeSchool.name}
                 </p>
-                {activeSchool.submissions.length === 0 ? (
+                {filteredSubmissions.length === 0 ? (
                   <p className="py-8 text-center text-sm italic text-slate-400">
-                    No activities assigned yet.
+                    {activeSchool.submissions.length === 0
+                      ? "No activities assigned yet."
+                      : "No activities match the selected filter."}
                   </p>
                 ) : (
                   <table className="w-full text-left text-sm">

@@ -245,6 +245,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   const [selectedSchoolIds, setSelectedSchoolIds] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [legalBasis, setLegalBasis] = useState("");
 
   function toggleSchool(id) {
     setSelectedSchoolIds((prev) =>
@@ -291,7 +292,11 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
     const { data: activity, error: activityError } = await supabase
       .from("activities")
-      .insert({ name, due_date: dueDate || null })
+      .insert({
+        name,
+        due_date: dueDate || null,
+        legal_basis: legalBasis || null,
+      })
       .select()
       .single();
 
@@ -308,6 +313,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       due_date: activity.due_date,
       drive_link: driveLink || null,
       status: "not_started",
+      legal_basis: activity.legal_basis,
     }));
 
     const { data: newSubmissions, error: submissionError } = await supabase
@@ -363,6 +369,19 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
               placeholder="e.g. Nutrition Month Celebration"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Legal Basis
+            </label>
+            <textarea
+              value={legalBasis}
+              onChange={(e) => setLegalBasis(e.target.value)}
+              rows={1}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="e.g. DepEd Order No. 12, s. 2024"
             />
           </div>
 
@@ -1148,9 +1167,9 @@ const AdminDashboard = ({ profile }) => {
                         <col className="w-[32%]" />
                         <col className="w-[15%]" />
                         <col className="w-[18%]" />
-                        <col className="w-[10%]" />
-                        <col className="w-[10%]" />
-                        <col className="w-[15%]" />
+                        <col className="w-[8%]" />
+                        <col className="w-[8%]" />
+                        <col className="w-[20%]" />
                       </colgroup>
                       <thead className="sticky top-0 z-10 bg-slate-50">
                         <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -1211,7 +1230,7 @@ const AdminDashboard = ({ profile }) => {
                               )}
                             </td>
                             <td className="py-3 text-center text-slate-500">
-                              {sub.activities?.legal_basis || "—"}
+                              {sub.legal_basis || "—"}
                             </td>
                           </tr>
                         ))}

@@ -262,7 +262,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
     }
 
     if (!dueDate) {
-      setError("Due date is required.");
+      setError("Date is required.");
       return;
     }
 
@@ -273,12 +273,12 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       const selectedDate = new Date(dueDate);
 
       if (isNaN(selectedDate.getTime())) {
-        setError("Due date is invalid.");
+        setError("Date is invalid.");
         return;
       }
 
       if (selectedDate < today) {
-        setError("Due date cannot be in the past.");
+        setError("Date cannot be in the past.");
         return;
       }
 
@@ -368,7 +368,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Due date <span className="text-red-500">*</span>
+              Date <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -482,7 +482,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
     }
 
     if (!dueDate) {
-      setError("Due date is required.");
+      setError("Date is required.");
       return;
     }
 
@@ -493,12 +493,12 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       const selectedDate = new Date(dueDate);
 
       if (isNaN(selectedDate.getTime())) {
-        setError("Due date is invalid.");
+        setError("Date is invalid.");
         return;
       }
 
       if (selectedDate < today) {
-        setError("Due date cannot be in the past.");
+        setError("Date cannot be in the past.");
         return;
       }
     }
@@ -569,7 +569,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Due date <span className="text-red-500">*</span>
+              Date <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -1146,7 +1146,7 @@ const AdminDashboard = ({ profile }) => {
                       <tr className="border-b border-slate-100 bg-slate-50 text-xs uppercase text-slate-800">
                         <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
                         <th className="pb-2 pt-2 font-bold text-center">
-                          Due Date
+                          Date
                         </th>
                         <th className="pb-2 pt-2 font-bold text-center">
                           Status

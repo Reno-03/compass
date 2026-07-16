@@ -456,6 +456,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   const [dueDate, setDueDate] = useState(submission.due_date || "");
   const [driveLink, setDriveLink] = useState(submission.drive_link || "");
   const [status, setStatus] = useState(submission.status);
+  const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
   const [dateConducted, setDateConducted] = useState(
     submission.date_conducted || "",
   );
@@ -528,6 +529,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       .from("submissions")
       .update({
         name,
+        legal_basis: legalBasis || null,  
         due_date: dueDate || null,
         drive_link: driveLink || null,
         status,
@@ -583,6 +585,19 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Legal Basis
+            </label>
+            <textarea
+              value={legalBasis}
+              onChange={(e) => setLegalBasis(e.target.value)}
+              rows={1}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              placeholder="e.g. DepEd Order No. 12, s. 2024"
             />
           </div>
 

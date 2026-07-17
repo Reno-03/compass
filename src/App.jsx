@@ -973,29 +973,28 @@ const AdminDashboard = ({ profile }) => {
   const activeSchool = schoolData.find((s) => s.id === activeSchoolId);
   const allSubmissions = schoolData.flatMap((s) => s.submissions);
   const overallCounts = countByStatus(allSubmissions);
-  const activeCounts = activeSchool
-    ? countByStatus(activeSchool.submissions)
-    : countByStatus([]);
 
+  const filteredSubmissions = activeSchool
+  ? activeSchool.submissions.filter((sub) => {
+      if (filterMonth === "all" && filterYear === "all") return true;
+      if (!sub.date) return false;
+
+      const date = new Date(sub.date);
+      const matchesMonth =
+        filterMonth === "all" || date.getMonth() + 1 === filterMonth;
+      const matchesYear =
+        filterYear === "all" || date.getFullYear() === filterYear;
+
+      return matchesMonth && matchesYear;
+    })
+  : [];
+
+  const activeCounts = countByStatus(filteredSubmissions);
   const statusOrder = {
     not_started: 0,
     ongoing: 1,
     completed: 2,
   };
-
-  // adds filtering + available years before the sort
-  const filteredSubmissions = activeSchool.submissions.filter((sub) => {
-    if (filterMonth === "all" && filterYear === "all") return true;
-    if (!sub.date) return false;
-
-    const date = new Date(sub.date);
-    const matchesMonth =
-      filterMonth === "all" || date.getMonth() + 1 === filterMonth;
-    const matchesYear =
-      filterYear === "all" || date.getFullYear() === filterYear;
-
-    return matchesMonth && matchesYear;
-  });
 
   const availableYears = [
     ...new Set(

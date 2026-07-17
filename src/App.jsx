@@ -416,7 +416,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Legal Basis
+              Legal Basis (optional)
             </label>
             <textarea
               value={legalBasis}
@@ -649,7 +649,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Legal Basis
+              Legal Basis (optional)
             </label>
             <textarea
               value={legalBasis}

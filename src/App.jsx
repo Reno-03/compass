@@ -240,12 +240,13 @@ const Sidebar = () => {
 // ============================================
 const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   const [name, setName] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [date, setDate] = useState("");
   const [driveLink, setDriveLink] = useState("");
   const [selectedSchoolIds, setSelectedSchoolIds] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [legalBasis, setLegalBasis] = useState("");
+  const [status, setStatus] = useState("");
 
   function toggleSchool(id) {
     setSelectedSchoolIds((prev) =>
@@ -262,16 +263,16 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       return;
     }
 
-    if (!dueDate) {
+    if (!date) {
       setError("Date is required.");
       return;
     }
 
-    if (dueDate) {
+    if (date) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const selectedDate = new Date(dueDate);
+      const selectedDate = new Date(date);
 
       if (isNaN(selectedDate.getTime())) {
         setError("Date is invalid.");
@@ -294,7 +295,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       .from("activities")
       .insert({
         name,
-        due_date: dueDate || null,
+        date: date || null,
         legal_basis: legalBasis || null,
       })
       .select()
@@ -310,9 +311,9 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       activity_id: activity.id,
       school_id: schoolId,
       name: activity.name,
-      due_date: activity.due_date,
+      date: activity.date,
       drive_link: driveLink || null,
-      status: "not_started",
+      status: status || "not_started",
       legal_basis: activity.legal_basis,
     }));
 
@@ -391,9 +392,30 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
             </label>
             <input
               type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none transition focus:ring-3 focus:ring-blue-500/20"
+            />
+          </div>
+
+            <div className="relative">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Status <span className="text-red-500">*</span>
+            </label>
+
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+            >
+              <option value="not_started">Not Started</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="completed">Completed</option>
+            </select>
+
+            <ChevronDown
+              size={18}
+              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
             />
           </div>
 
@@ -453,7 +475,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
 const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   const [name, setName] = useState(submission.name);
-  const [dueDate, setDueDate] = useState(submission.due_date || "");
+  const [date, setDate] = useState(submission.date || "");
   const [driveLink, setDriveLink] = useState(submission.drive_link || "");
   const [status, setStatus] = useState(submission.status);
   const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
@@ -501,16 +523,16 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       return;
     }
 
-    if (!dueDate) {
+    if (!date) {
       setError("Date is required.");
       return;
     }
 
-    if (dueDate) {
+    if (date) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const selectedDate = new Date(dueDate);
+      const selectedDate = new Date(date);
 
       if (isNaN(selectedDate.getTime())) {
         setError("Date is invalid.");
@@ -530,7 +552,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       .update({
         name,
         legal_basis: legalBasis || null,  
-        due_date: dueDate || null,
+        date: date || null,
         drive_link: driveLink || null,
         status,
         date_conducted: dateConducted || null,
@@ -607,8 +629,8 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             </label>
             <input
               type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
             />
           </div>
@@ -975,13 +997,13 @@ const AdminDashboard = ({ profile }) => {
   // adds filtering + available years before the sort
   const filteredSubmissions = activeSchool.submissions.filter((sub) => {
     if (filterMonth === "all" && filterYear === "all") return true;
-    if (!sub.due_date) return false;
+    if (!sub.date) return false;
 
-    const dueDate = new Date(sub.due_date);
+    const date = new Date(sub.date);
     const matchesMonth =
-      filterMonth === "all" || dueDate.getMonth() + 1 === filterMonth;
+      filterMonth === "all" || date.getMonth() + 1 === filterMonth;
     const matchesYear =
-      filterYear === "all" || dueDate.getFullYear() === filterYear;
+      filterYear === "all" || date.getFullYear() === filterYear;
 
     return matchesMonth && matchesYear;
   });
@@ -989,8 +1011,8 @@ const AdminDashboard = ({ profile }) => {
   const availableYears = [
     ...new Set(
       allSubmissions
-        .filter((s) => s.due_date)
-        .map((s) => new Date(s.due_date).getFullYear()),
+        .filter((s) => s.date)
+        .map((s) => new Date(s.date).getFullYear()),
     ),
   ];
   if (!availableYears.includes(today.getFullYear())) {
@@ -1001,9 +1023,9 @@ const AdminDashboard = ({ profile }) => {
   const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
     const statusDiff = statusOrder[a.status] - statusOrder[b.status];
     if (statusDiff !== 0) return statusDiff;
-    if (!a.due_date) return 1;
-    if (!b.due_date) return -1;
-    return new Date(a.due_date) - new Date(b.due_date);
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(a.date) - new Date(b.date);
   });
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
@@ -1202,7 +1224,7 @@ const AdminDashboard = ({ profile }) => {
                               </span>
                             </td>
                             <td className="py-3 text-center text-slate-500">
-                              {sub.due_date || "—"}
+                              {sub.date || "—"}
                             </td>
                             <td className="py-3 text-center">
                               <StatusBadge status={sub.status} />
@@ -1485,8 +1507,8 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <p className="font-semibold text-slate-800">{submission.name}</p>
-          {submission.due_date && (
-            <p className="text-xs text-slate-500">Due {submission.due_date}</p>
+          {submission.date && (
+            <p className="text-xs text-slate-500">Due {submission.date}</p>
           )}
         </div>
         <StatusBadge status={status} />

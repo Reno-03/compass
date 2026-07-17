@@ -390,7 +390,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
             />
           </div>
 
-            <div className="relative">
+          <div className="relative">
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Status <span className="text-red-500">*</span>
             </label>
@@ -553,7 +553,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       .from("submissions")
       .update({
         name,
-        legal_basis: legalBasis || null,  
+        legal_basis: legalBasis || null,
         date: date || null,
         drive_link: driveLink || null,
         status,
@@ -975,19 +975,19 @@ const AdminDashboard = ({ profile }) => {
   const overallCounts = countByStatus(allSubmissions);
 
   const filteredSubmissions = activeSchool
-  ? activeSchool.submissions.filter((sub) => {
-      if (filterMonth === "all" && filterYear === "all") return true;
-      if (!sub.date) return false;
+    ? activeSchool.submissions.filter((sub) => {
+        if (filterMonth === "all" && filterYear === "all") return true;
+        if (!sub.date) return false;
 
-      const date = new Date(sub.date);
-      const matchesMonth =
-        filterMonth === "all" || date.getMonth() + 1 === filterMonth;
-      const matchesYear =
-        filterYear === "all" || date.getFullYear() === filterYear;
+        const date = new Date(sub.date);
+        const matchesMonth =
+          filterMonth === "all" || date.getMonth() + 1 === filterMonth;
+        const matchesYear =
+          filterYear === "all" || date.getFullYear() === filterYear;
 
-      return matchesMonth && matchesYear;
-    })
-  : [];
+        return matchesMonth && matchesYear;
+      })
+    : [];
 
   const activeCounts = countByStatus(filteredSubmissions);
   const statusOrder = {
@@ -1015,6 +1015,32 @@ const AdminDashboard = ({ profile }) => {
     if (!b.date) return -1;
     return new Date(a.date) - new Date(b.date);
   });
+
+  const MONTH_NAMES = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const filterLabel = getFilterLabel(filterMonth, filterYear);
+
+  function getFilterLabel(filterMonth, filterYear) {
+    if (filterMonth === "all" && filterYear === "all") return "All time";
+    if (filterMonth === "all") return `All months, ${filterYear}`;
+    if (filterYear === "all")
+      return `${MONTH_NAMES[filterMonth - 1]}, all years`;
+    return `${MONTH_NAMES[filterMonth - 1]} ${filterYear}`;
+  }
+
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
       <div className="flex flex-col">
@@ -1132,7 +1158,7 @@ const AdminDashboard = ({ profile }) => {
               <StatCard
                 label="Total Activities"
                 value={activeCounts.total}
-                sublabel="This month"
+                sublabel={filterLabel}
                 color="slate"
                 icon={ClipboardList}
               />
@@ -1163,9 +1189,12 @@ const AdminDashboard = ({ profile }) => {
               {/* Activities table */}
               {/* Activities table */}
               <div className="rounded-xl border border-slate-200 bg-white p-5 lg:col-span-2">
-                <p className="mb-4 text-sm font-semibold text-slate-800">
-                  Activities Monitoring — {activeSchool.name}
-                </p>
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-800">
+                    Activities Monitoring — {activeSchool.name}
+                  </p>
+                  <p className="text-sm text-slate-500">{filterLabel}</p>
+                </div>
                 {filteredSubmissions.length === 0 ? (
                   <p className="py-8 text-center text-sm italic text-slate-400">
                     {activeSchool.submissions.length === 0

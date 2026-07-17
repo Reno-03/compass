@@ -99,7 +99,7 @@ const StatCard = ({ label, value, sublabel, color, icon: Icon }) => {
 // ============================================
 // Compliance donut
 // ============================================
-const ComplianceDonut = ({ counts }) => {
+const ComplianceDonut = ({ counts, filterLabel }) => {
   const data = [
     { name: "Completed", value: counts.completed, key: "completed" },
     { name: "Ongoing", value: counts.ongoing, key: "ongoing" },
@@ -112,9 +112,12 @@ const ComplianceDonut = ({ counts }) => {
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <p className="mb-3 text-sm font-semibold text-slate-800">
-        Compliance Overview
-      </p>
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-sm font-semibold text-slate-800">
+          Compliance Overview
+        </p>
+        <p className="text-sm text-slate-500">{filterLabel}</p>
+      </div>
       <div className="flex items-center gap-4">
         <div className="relative h-40 w-40 shrink-0">
           {data.length > 0 ? (
@@ -1283,7 +1286,10 @@ const AdminDashboard = ({ profile }) => {
 
               {/* Right column */}
               <div className="space-y-6">
-                <ComplianceDonut counts={activeCounts} />
+                <ComplianceDonut
+                  counts={activeCounts}
+                  filterLabel={filterLabel}
+                />
 
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
                   <p className="mb-3 text-sm font-semibold text-slate-800">

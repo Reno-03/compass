@@ -268,6 +268,11 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       return;
     }
 
+    if (!status) {
+      setError("Status is required.");
+      return;
+    }
+
     if (date) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);

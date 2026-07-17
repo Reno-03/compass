@@ -249,7 +249,8 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [legalBasis, setLegalBasis] = useState("");
-  const [status, setStatus] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [status, setStatus] = useState("not_started");
 
   function toggleSchool(id) {
     setSelectedSchoolIds((prev) =>
@@ -323,6 +324,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       drive_link: driveLink || null,
       status: status || "not_started",
       legal_basis: activity.legal_basis,
+      remarks: remarks || null,
     }));
 
     const { data: newSubmissions, error: submissionError } = await supabase
@@ -404,7 +406,9 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               >
-                <option value="not_started">Not Started</option>
+                <option value="not_started" selected>
+                  Not Started
+                </option>
                 <option value="ongoing">Ongoing</option>
                 <option value="completed">Completed</option>
               </select>
@@ -414,6 +418,19 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
                 className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Remarks
+            </label>
+            <input
+              type="text"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="e.g. Submitted"
+            />
           </div>
 
           <div>

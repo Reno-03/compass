@@ -380,19 +380,6 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Legal Basis
-            </label>
-            <textarea
-              value={legalBasis}
-              onChange={(e) => setLegalBasis(e.target.value)}
-              rows={1}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
-              placeholder="e.g. DepEd Order No. 12, s. 2024"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
               Date <span className="text-red-500">*</span>
             </label>
             <input
@@ -421,6 +408,19 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
             <ChevronDown
               size={18}
               className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Legal Basis
+            </label>
+            <textarea
+              value={legalBasis}
+              onChange={(e) => setLegalBasis(e.target.value)}
+              rows={1}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="e.g. DepEd Order No. 12, s. 2024"
             />
           </div>
 
@@ -484,9 +484,6 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   const [driveLink, setDriveLink] = useState(submission.drive_link || "");
   const [status, setStatus] = useState(submission.status);
   const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
-  const [dateConducted, setDateConducted] = useState(
-    submission.date_conducted || "",
-  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -560,7 +557,6 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
         date: date || null,
         drive_link: driveLink || null,
         status,
-        date_conducted: dateConducted || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", submission.id)
@@ -677,21 +673,9 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             />
           </div>
 
-          <div className="mb-6">
-            <label className="mb-1 block text-xs font-semibold text-slate-500">
-              Date conducted (optional)
-            </label>
-            <input
-              type="date"
-              value={dateConducted}
-              onChange={(e) => setDateConducted(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <div className="flex justify-between gap-3">
+          <div className="mt-6 flex justify-between gap-3">
             <button
               type="button"
               onClick={handleDelete}
@@ -1475,9 +1459,6 @@ const SchoolHeadDashboard = ({ profile }) => {
 const SubmissionEditRow = ({ submission, onUpdated }) => {
   const [status, setStatus] = useState(submission.status);
   const [remarks, setRemarks] = useState(submission.remarks || "");
-  const [dateConducted, setDateConducted] = useState(
-    submission.date_conducted || "",
-  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -1490,7 +1471,6 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
       .update({
         status,
         remarks,
-        date_conducted: dateConducted || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", submission.id)
@@ -1533,17 +1513,6 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
             <option value="ongoing">Ongoing</option>
             <option value="completed">Completed</option>
           </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-500">
-            Date conducted
-          </label>
-          <input
-            type="date"
-            value={dateConducted}
-            onChange={(e) => setDateConducted(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          />
         </div>
       </div>
 

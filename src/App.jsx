@@ -381,37 +381,39 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
             />
           </div>
 
-          <div>
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none transition focus:ring-3 focus:ring-blue-500/20"
-            />
-          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none transition focus:ring-3 focus:ring-blue-500/20"
+              />
+            </div>
 
-          <div className="relative">
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Status <span className="text-red-500">*</span>
-            </label>
+            <div className="relative">
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Status <span className="text-red-500">*</span>
+              </label>
 
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-            >
-              <option value="not_started">Not Started</option>
-              <option value="ongoing">Ongoing</option>
-              <option value="completed">Completed</option>
-            </select>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              >
+                <option value="not_started">Not Started</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+              </select>
 
-            <ChevronDown
-              size={18}
-              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
-            />
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+              />
+            </div>
           </div>
 
           <div>
@@ -614,37 +616,39 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             />
           </div>
 
-          <div>
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-            />
-          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              />
+            </div>
 
-          <div className="relative">
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Status <span className="text-red-500">*</span>
-            </label>
+            <div className="relative">
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Status <span className="text-red-500">*</span>
+              </label>
 
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-            >
-              <option value="not_started">Not Started</option>
-              <option value="ongoing">Ongoing</option>
-              <option value="completed">Completed</option>
-            </select>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              >
+                <option value="not_started">Not Started</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+              </select>
 
-            <ChevronDown
-              size={18}
-              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
-            />
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+              />
+            </div>
           </div>
 
           <div>

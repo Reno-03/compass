@@ -613,19 +613,6 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Legal Basis
-            </label>
-            <textarea
-              value={legalBasis}
-              onChange={(e) => setLegalBasis(e.target.value)}
-              rows={1}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-              placeholder="e.g. DepEd Order No. 12, s. 2024"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
               Date <span className="text-red-500">*</span>
             </label>
             <input
@@ -654,6 +641,19 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             <ChevronDown
               size={18}
               className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Legal Basis
+            </label>
+            <textarea
+              value={legalBasis}
+              onChange={(e) => setLegalBasis(e.target.value)}
+              rows={1}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              placeholder="e.g. DepEd Order No. 12, s. 2024"
             />
           </div>
 

@@ -1112,15 +1112,31 @@ const AdminDashboard = ({ profile }) => {
   const filteredSubmissions = activeSchool
     ? activeSchool.submissions.filter((sub) => {
         if (filterMonth === "all" && filterYear === "all") return true;
-        if (!sub.date) return false;
+        if (!sub.start_date) return false;
 
-        const date = new Date(sub.date);
-        const matchesMonth =
-          filterMonth === "all" || date.getMonth() + 1 === filterMonth;
-        const matchesYear =
-          filterYear === "all" || date.getFullYear() === filterYear;
+        const start = new Date(sub.start_date);
+        const end = new Date(sub.end_date || sub.start_date); // fallback for old rows
 
-        return matchesMonth && matchesYear;
+        const yearsToCheck =
+          filterYear === "all"
+            ? Array.from(
+                { length: end.getFullYear() - start.getFullYear() + 1 },
+                (_, i) => start.getFullYear() + i,
+              )
+            : [filterYear];
+
+        return yearsToCheck.some((year) => {
+          const monthsToCheck =
+            filterMonth === "all"
+              ? Array.from({ length: 12 }, (_, i) => i + 1)
+              : [filterMonth];
+
+          return monthsToCheck.some((month) => {
+            const windowStart = new Date(year, month - 1, 1);
+            const windowEnd = new Date(year, month, 0); // last day of that month
+            return start <= windowEnd && end >= windowStart;
+          });
+        });
       })
     : [];
 
@@ -1134,10 +1150,15 @@ const AdminDashboard = ({ profile }) => {
   const availableYears = [
     ...new Set(
       allSubmissions
-        .filter((s) => s.date)
-        .map((s) => new Date(s.date).getFullYear()),
+        .filter((s) => s.start_date)
+        .flatMap((s) => {
+          const startYear = new Date(s.start_date).getFullYear();
+          const endYear = new Date(s.end_date || s.start_date).getFullYear();
+          return startYear === endYear ? [startYear] : [startYear, endYear];
+        }),
     ),
   ];
+
   if (!availableYears.includes(today.getFullYear())) {
     availableYears.push(today.getFullYear());
   }
@@ -1146,9 +1167,9 @@ const AdminDashboard = ({ profile }) => {
   const sortedSubmissions = [...filteredSubmissions].sort((a, b) => {
     const statusDiff = statusOrder[a.status] - statusOrder[b.status];
     if (statusDiff !== 0) return statusDiff;
-    if (!a.date) return 1;
-    if (!b.date) return -1;
-    return new Date(a.date) - new Date(b.date);
+    if (!a.start_date) return 1;
+    if (!b.start_date) return -1;
+    return new Date(a.start_date) - new Date(b.start_date);
   });
 
   const MONTH_NAMES = [

@@ -1341,7 +1341,7 @@ const AdminDashboard = ({ profile }) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_1fr]">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
               {/* Activities table */}
               <div className="rounded-xl border border-slate-200 bg-white p-5">
                 <div className="mb-4 flex items-center justify-between">

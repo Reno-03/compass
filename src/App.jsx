@@ -2249,6 +2249,33 @@ const AdminDashboard = ({ profile }) => {
             onClose={() => setViewingRemarks(null)}
           />
         )}
+
+        {/* Create Report Modal */}
+        {showCreateReportModal && (
+          <CreateReport
+            allSchools={schoolData}
+            onReportCreated={handleReportCreated}
+            onClose={() => setShowCreateReportModal(false)}
+          />
+        )}
+
+        {/* Edit Report Modal */}
+        {editingReportSubmission && (
+          <EditReport
+            submission={editingReportSubmission}
+            onSaved={handleReportEdited}
+            onClose={() => setEditingReportSubmission(null)}
+            onDeleted={handleReportDeleted}
+          />
+        )}
+
+        {/* View Report Remarks Modal */}
+        {viewingReportRemarks && (
+          <RemarksModal
+            submission={viewingReportRemarks}
+            onClose={() => setViewingReportRemarks(null)}
+          />
+        )}
       </main>
     </div>
   );

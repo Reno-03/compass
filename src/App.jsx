@@ -2264,62 +2264,62 @@ const AdminDashboard = ({ profile }) => {
                 </div>
               </>
             )}
-
-            {/* Create Activity Modal */}
-            {showCreateModal && (
-              <CreateActivity
-                allSchools={schoolData}
-                onActivityCreated={handleActivityCreated}
-                onClose={() => setShowCreateModal(false)}
-              />
-            )}
-
-            {/* Edit Activity Modal */}
-            {editingSubmission && (
-              <EditActivity
-                submission={editingSubmission}
-                onSaved={handleActivityEdited}
-                onClose={() => setEditingSubmission(null)}
-                onDeleted={handleActivityDeleted}
-              />
-            )}
-
-            {/* View Remarks Modal */}
-            {viewingRemarks && (
-              <RemarksModal
-                submission={viewingRemarks}
-                onClose={() => setViewingRemarks(null)}
-              />
-            )}
-
-            {/* Create Report Modal */}
-            {showCreateReportModal && (
-              <CreateReport
-                allSchools={schoolData}
-                onReportCreated={handleReportCreated}
-                onClose={() => setShowCreateReportModal(false)}
-              />
-            )}
-
-            {/* Edit Report Modal */}
-            {editingReportSubmission && (
-              <EditReport
-                submission={editingReportSubmission}
-                onSaved={handleReportEdited}
-                onClose={() => setEditingReportSubmission(null)}
-                onDeleted={handleReportDeleted}
-              />
-            )}
-
-            {/* View Report Remarks Modal */}
-            {viewingReportRemarks && (
-              <RemarksModal
-                submission={viewingReportRemarks}
-                onClose={() => setViewingReportRemarks(null)}
-              />
-            )}
-          </main>{" "}
+          </main>
         </>
+      )}
+
+      {/* Create Activity Modal */}
+      {showCreateModal && (
+        <CreateActivity
+          allSchools={schoolData}
+          onActivityCreated={handleActivityCreated}
+          onClose={() => setShowCreateModal(false)}
+        />
+      )}
+
+      {/* Edit Activity Modal */}
+      {editingSubmission && (
+        <EditActivity
+          submission={editingSubmission}
+          onSaved={handleActivityEdited}
+          onClose={() => setEditingSubmission(null)}
+          onDeleted={handleActivityDeleted}
+        />
+      )}
+
+      {/* View Remarks Modal */}
+      {viewingRemarks && (
+        <RemarksModal
+          submission={viewingRemarks}
+          onClose={() => setViewingRemarks(null)}
+        />
+      )}
+
+      {/* Create Report Modal */}
+      {showCreateReportModal && (
+        <CreateReport
+          allSchools={schoolData}
+          onReportCreated={handleReportCreated}
+          onClose={() => setShowCreateReportModal(false)}
+        />
+      )}
+
+      {/* Edit Report Modal */}
+      {editingReportSubmission && (
+        <EditReport
+          submission={editingReportSubmission}
+          onSaved={handleReportEdited}
+          onClose={() => setEditingReportSubmission(null)}
+          onDeleted={handleReportDeleted}
+        />
+      )}
+
+      {/* View Report Remarks Modal */}
+      {viewingReportRemarks && (
+        <RemarksModal
+          submission={viewingReportRemarks}
+          onClose={() => setViewingReportRemarks(null)}
+        />
       )}
     </div>
   );

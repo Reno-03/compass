@@ -1347,7 +1347,7 @@ const AdminDashboard = ({ profile }) => {
                                 "—"
                               )}
                             </td>
-                            <td className="py-3 text-center text-slate-500">
+                            <td className="py-3 text-center text-slate-500 truncate" title={sub.legal_basis}>
                               {sub.legal_basis || "—"}
                             </td>
                           </tr>

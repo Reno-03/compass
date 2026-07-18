@@ -666,12 +666,18 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
         className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <div>
             <h3 className="text-2xl font-bold text-slate-800">Edit Activity</h3>
             <p className="text-sm text-slate-500">
               Fill in the details to edit the activity.
             </p>
+            {submission.schoolName && (
+              <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-blue-600">
+                <School size={14} />
+                {submission.schoolName}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -1626,9 +1632,12 @@ const AdminDashboard = ({ profile }) => {
 
   function handleCalendarEventClick(event) {
     if (event.type === "activity") {
-      setEditingSubmission(event.raw);
+      setEditingSubmission({ ...event.raw, schoolName: event.schoolName });
     } else {
-      setEditingReportSubmission(event.raw);
+      setEditingReportSubmission({
+        ...event.raw,
+        schoolName: event.schoolName,
+      });
     }
   }
 
@@ -2012,7 +2021,12 @@ const AdminDashboard = ({ profile }) => {
                                   </td>
                                   <td className="py-3 text-center">
                                     <button
-                                      onClick={() => setEditingSubmission(sub)}
+                                      onClick={() =>
+                                        setEditingSubmission({
+                                          ...sub,
+                                          schoolName: activeSchool.name,
+                                        })
+                                      }
                                       className="text-slate-400 hover:text-blue-600 cursor-pointer"
                                       title="Edit activity"
                                     >

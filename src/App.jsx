@@ -88,7 +88,7 @@ const StatCard = ({ label, value, sublabel, color, icon: Icon }) => {
         <div
           className={`flex h-12 w-12 sm:h-18 sm:w-18 shrink-0 items-center justify-center rounded-full ${iconBg}`}
         >
-          <Icon size={28} className="sm:w-[38px] sm:h-[38px]" />
+          <Icon size={28} className="sm:w-9.5 sm:h-9.5" />
         </div>
       )}
       <div>

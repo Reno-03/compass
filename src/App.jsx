@@ -826,6 +826,464 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   );
 };
 
+const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
+  const [name, setName] = useState("");
+  const [submissionDate, setSubmissionDate] = useState("");
+  const [driveLink, setDriveLink] = useState("");
+  const [selectedSchoolIds, setSelectedSchoolIds] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [legalBasis, setLegalBasis] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [status, setStatus] = useState("not_started");
+
+  function toggleSchool(id) {
+    setSelectedSchoolIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+    );
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+
+    if (name.trim() === "") {
+      setError("Report name field is required.");
+      return;
+    }
+    if (!submissionDate) {
+      setError("Submission date is required.");
+      return;
+    }
+    if (isNaN(new Date(submissionDate).getTime())) {
+      setError("Submission date is invalid.");
+      return;
+    }
+    if (selectedSchoolIds.length === 0) {
+      setError("At least one school is required to be selected.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    const { data: report, error: reportError } = await supabase
+      .from("reports")
+      .insert({
+        name,
+        submission_date: submissionDate,
+        legal_basis: legalBasis || null,
+      })
+      .select()
+      .single();
+
+    if (reportError) {
+      setError(reportError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    const submissionRows = selectedSchoolIds.map((schoolId) => ({
+      report_id: report.id,
+      school_id: schoolId,
+      name: report.name,
+      submission_date: report.submission_date,
+      drive_link: driveLink || null,
+      status: status || "not_started",
+      legal_basis: report.legal_basis,
+      remarks: remarks || null,
+    }));
+
+    const { data: newSubmissions, error: submissionError } = await supabase
+      .from("report_submissions")
+      .insert(submissionRows)
+      .select();
+
+    if (submissionError) {
+      setError(submissionError.message);
+      setSubmitting(false);
+      return;
+    }
+
+    onReportCreated(newSubmissions);
+    setSubmitting(false);
+    onClose();
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-1">
+              Add New Report
+            </h3>
+            <p className="text-sm text-slate-500">
+              Fill in the details to create a new report.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 cursor-pointer mr-2"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Report name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="e.g. Quarterly Accomplishment Report"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Submission Date <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              value={submissionDate}
+              onChange={(e) => setSubmissionDate(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none transition focus:ring-3 focus:ring-blue-500/20"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="relative">
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Status <span className="text-red-500">*</span>
+              </label>
+
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              >
+                <option value="not_started">Not Started</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+              </select>
+
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Remarks (optional)
+              </label>
+              <input
+                type="text"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+                placeholder="e.g. Submitted"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Legal Basis (optional)
+            </label>
+            <textarea
+              value={legalBasis}
+              onChange={(e) => setLegalBasis(e.target.value)}
+              rows={1}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="e.g. DepEd Order No. 12, s. 2024"
+            />
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <label className="block text-xs font-semibold text-slate-500">
+                OneDrive Link (optional)
+              </label>
+              <OneDriveLogo size={16} />
+            </div>
+
+            <input
+              type="url"
+              value={driveLink}
+              onChange={(e) => setDriveLink(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="https://drive.google.com/..."
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Assign to schools <span className="text-red-500">*</span>
+            </label>
+            <div className="space-y-1.5">
+              {allSchools.map((school) => (
+                <label
+                  key={school.id}
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSchoolIds.includes(school.id)}
+                    onChange={() => toggleSchool(school.id)}
+                    className="h-4 w-4 rounded border-slate-300 text-blue-600"
+                  />
+                  {school.name}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
+          >
+            {submitting ? "Creating..." : "Create Report"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
+  const [name, setName] = useState(submission.name);
+  const [submissionDate, setSubmissionDate] = useState(
+    submission.submission_date || "",
+  );
+  const [driveLink, setDriveLink] = useState(submission.drive_link || "");
+  const [status, setStatus] = useState(submission.status);
+  const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
+  const [remarks, setRemarks] = useState(submission.remarks || "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleDelete() {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this report?",
+    );
+    if (!confirmed) return;
+
+    setSaving(true);
+    const { error } = await supabase
+      .from("report_submissions")
+      .delete()
+      .eq("id", submission.id);
+
+    if (error) {
+      setError(error.message);
+      setSaving(false);
+      return;
+    }
+
+    onDeleted(submission.id);
+    onClose();
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+
+    if (name.trim() === "") {
+      setError("Report name field is required.");
+      return;
+    }
+    if (!status) {
+      setError("Status is required.");
+      return;
+    }
+    if (!submissionDate) {
+      setError("Submission date is required.");
+      return;
+    }
+    if (isNaN(new Date(submissionDate).getTime())) {
+      setError("Submission date is invalid.");
+      return;
+    }
+
+    setSaving(true);
+
+    const { data, error } = await supabase
+      .from("report_submissions")
+      .update({
+        name,
+        legal_basis: legalBasis || null,
+        submission_date: submissionDate,
+        drive_link: driveLink || null,
+        status,
+        updated_at: new Date().toISOString(),
+        remarks: remarks || null,
+      })
+      .eq("id", submission.id)
+      .select()
+      .single();
+
+    if (error) {
+      setError(error.message);
+      setSaving(false);
+      return;
+    }
+
+    onSaved(data);
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-slate-800">Edit Report</h3>
+            <p className="text-sm text-slate-500">
+              Fill in the details to edit the report.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 cursor-pointer mr-2"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Report name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Submission Date <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              value={submissionDate}
+              onChange={(e) => setSubmissionDate(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="relative">
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Status <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              >
+                <option value="not_started">Not Started</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+              </select>
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Remarks (optional)
+              </label>
+              <input
+                type="text"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+                placeholder="e.g. Submitted"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Legal Basis (optional)
+            </label>
+            <textarea
+              value={legalBasis}
+              onChange={(e) => setLegalBasis(e.target.value)}
+              rows={1}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              placeholder="e.g. DepEd Order No. 12, s. 2024"
+            />
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <label className="block text-xs font-semibold text-slate-500">
+                OneDrive Link (optional)
+              </label>
+              <OneDriveLogo size={16} />
+            </div>
+            <input
+              type="url"
+              value={driveLink}
+              placeholder="https://drive.google.com/..."
+              onChange={(e) => setDriveLink(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="mt-6 flex justify-between gap-3">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={saving}
+              className="rounded-lg border border-red-300 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60 cursor-pointer"
+            >
+              Delete
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const RemarksModal = ({ submission, onClose }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"

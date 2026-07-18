@@ -606,7 +606,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       setError("Date is invalid.");
       return;
     }
-    
+
     const resolvedEndDate = isMultiDay ? endDate : startDate;
 
     if (isMultiDay) {
@@ -1228,7 +1228,8 @@ const AdminDashboard = ({ profile }) => {
 
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
-      <div className="flex flex-col">
+      {/* using self-start sticky top-0 h-screen makes the sidebar sticky and not scrollable */}
+      <div className="sticky top-0 self-start flex h-screen flex-col overflow-hidden">
         <Sidebar />
         <div className="mt-0 bg-[#0b1c39] px-4 pb-77 pt-0 text-white">
           <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-white/50">

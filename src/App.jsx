@@ -244,7 +244,9 @@ const Sidebar = () => {
 // ============================================
 const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   const [name, setName] = useState("");
-  const [date, setDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [isMultiDay, setIsMultiDay] = useState(false);
+  const [endDate, setEndDate] = useState("");
   const [driveLink, setDriveLink] = useState("");
   const [selectedSchoolIds, setSelectedSchoolIds] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -267,45 +269,59 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       setError("Activity name field is required.");
       return;
     }
-
-    if (!date) {
+    if (!startDate) {
       setError("Date is required.");
       return;
     }
-
     if (!status) {
       setError("Status is required.");
       return;
     }
 
-    if (date) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(startDate);
 
-      const selectedDate = new Date(date);
+    if (isNaN(start.getTime())) {
+      setError("Date is invalid.");
+      return;
+    }
+    if (start < today) {
+      setError("Date cannot be in the past.");
+      return;
+    }
 
-      if (isNaN(selectedDate.getTime())) {
-        setError("Date is invalid.");
+    const resolvedEndDate = isMultiDay ? endDate : startDate;
+
+    if (isMultiDay) {
+      if (!endDate) {
+        setError("End date is required.");
         return;
       }
-
-      if (selectedDate < today) {
-        setError("Date cannot be in the past.");
+      const end = new Date(endDate);
+      if (isNaN(end.getTime())) {
+        setError("End date is invalid.");
         return;
       }
-
-      if (selectedSchoolIds.length === 0) {
-        setError("At least one school is required to be selected.");
+      if (end < start) {
+        setError("End date cannot be before the start date.");
         return;
       }
     }
+
+    if (selectedSchoolIds.length === 0) {
+      setError("At least one school is required to be selected.");
+      return;
+    }
+
     setSubmitting(true);
 
     const { data: activity, error: activityError } = await supabase
       .from("activities")
       .insert({
         name,
-        date: date || null,
+        start_date: startDate,
+        end_date: resolvedEndDate,
         legal_basis: legalBasis || null,
       })
       .select()
@@ -321,7 +337,8 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       activity_id: activity.id,
       school_id: schoolId,
       name: activity.name,
-      date: activity.date,
+      start_date: activity.start_date,
+      end_date: activity.end_date,
       drive_link: driveLink || null,
       status: status || "not_started",
       legal_basis: activity.legal_basis,
@@ -331,7 +348,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
     const { data: newSubmissions, error: submissionError } = await supabase
       .from("submissions")
       .insert(submissionRows)
-      .select(); // no more nested activities(*) needed
+      .select();
 
     if (submissionError) {
       setError(submissionError.message);
@@ -384,7 +401,50 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className={isMultiDay ? "grid grid-cols-2 gap-3" : ""}>
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                {isMultiDay ? "Start Date" : "Date"}{" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none transition focus:ring-3 focus:ring-blue-500/20"
+              />
+            </div>
+
+            {isMultiDay && (
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-slate-500">
+                  End Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate || undefined}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none transition focus:ring-3 focus:ring-blue-500/20"
+                />
+              </div>
+            )}
+          </div>
+
+          <label className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <input
+              type="checkbox"
+              checked={isMultiDay}
+              onChange={(e) => {
+                setIsMultiDay(e.target.checked);
+                if (!e.target.checked) setEndDate("");
+              }}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600"
+            />
+            This activity runs across multiple days
+          </label>
+
+          {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-2 block text-xs font-semibold text-slate-500">
                 Date <span className="text-red-500">*</span>
@@ -417,7 +477,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
                 className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
-          </div>
+          </div> */}
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
@@ -1260,8 +1320,7 @@ const AdminDashboard = ({ profile }) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              {/* Activities table */}
+            <div className="grid grid-cols-2 gap-6 lg:grid-cols-3">
               {/* Activities table */}
               <div className="rounded-xl border border-slate-200 bg-white p-5 lg:col-span-2">
                 <div className="mb-4 flex items-center justify-between">
@@ -1320,7 +1379,12 @@ const AdminDashboard = ({ profile }) => {
                               </span>
                             </td>
                             <td className="py-3 text-center text-slate-500">
-                              {sub.date || "—"}
+                              {sub.start_date
+                                ? !sub.end_date ||
+                                  sub.end_date === sub.start_date
+                                  ? sub.start_date
+                                  : `${sub.start_date} – ${sub.end_date}`
+                                : "—"}
                             </td>
                             <td className="py-3 text-center">
                               <StatusBadge status={sub.status} />
@@ -1362,7 +1426,10 @@ const AdminDashboard = ({ profile }) => {
                                 "—"
                               )}
                             </td>
-                            <td className="py-3 text-center text-slate-500 truncate" title={sub.legal_basis}>
+                            <td
+                              className="py-3 text-center text-slate-500 truncate"
+                              title={sub.legal_basis}
+                            >
                               {sub.legal_basis || "—"}
                             </td>
                           </tr>

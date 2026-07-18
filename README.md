@@ -1,8 +1,8 @@
-# COMPASS
+# COMPASS v0.1.0-beta
 
 **C**entralized **O**nline **M**onitoring of **P**rograms, **A**ctivities, and **S**chool **S**ubmissions
 
-A web-based compliance monitoring system built  to track school activities, compliance rates, and report submissions across Admin and School Head roles.
+COMPASS is a web-based compliance monitoring platform designed to help administrators and school heads track activities, monitor submission progress, and review compliance data from a single dashboard.
 
 ![Version](https://img.shields.io/badge/version-v0.1.0--beta-blue)
 
@@ -10,67 +10,102 @@ A web-based compliance monitoring system built  to track school activities, comp
 
 ## Overview
 
-COMPASS replaces manual, back-and-forth compliance tracking with a single dashboard where:
+This beta release focuses on the core workflow for monitoring school submissions and activity compliance:
 
-- **Admins (PDOs)** create activities, assign them to schools, monitor compliance in real time, and review submitted documentation.
-- **School Heads** update the status of their assigned activities, attach supporting documents, and add remarks — all from their own dashboard.
+- Admin/PDO users can create activities, assign them to schools, and monitor progress.
+- School Heads can view assigned activities, update statuses, add remarks, and submit supporting information.
+- Dashboards provide quick visibility into overall compliance through summary cards and charts.
 
-Built with **React**, **Tailwind CSS**, **Supabase** (Auth, Database, RLS), and **Recharts**.
+Built with React, Vite, Tailwind CSS, Supabase, and Recharts.
 
 ---
 
-## Features (v0.1.0-beta)
+## Key Features
 
-### Dashboards
-- Dedicated Admin Dashboard and School Head Dashboard, each with their own color theme and layout
-- Compliance overview with donut charts (Completed / Ongoing / Not Started)
-- Stat cards with icons for at-a-glance activity counts
-- Per-school tabs on the Admin Dashboard, with a mini compliance donut for all schools combined
+### Admin Dashboard
+- Overview of all schools and activity performance
+- Per-school tabs for focused monitoring
+- Compliance summary cards and donut charts
+- Filtering by month and year
+- Activity creation and management tools
 
 ### Activity Management
-- **Create Activity** modal — name, due date, and multi-school assignment, with full form validation
-- **Edit Activity** modal — update status, due date, date conducted, and remarks
-- Activities table sorted by status first, then due date
-- Delete Activity, with confirmation prompt
-- Filter activity listing by **Month** and **Year**, defaulting to the current month/year, with an "All" option to clear the filter
+- Create new activities with validation
+- Edit existing activity details and status
+- Assign activities to multiple schools
+- Add remarks and update completion state
+- Delete activities with confirmation
 
-### Google Drive Integration
-- Google Drive link field on both Create and Edit Activity, for attaching compliance documentation
-- Drive link column in the Admin activity table, rendered as a clickable icon that opens in a new tab
+### Submission Tracking
+- Track activity progress by status: Completed, Ongoing, and Not Started
+- View supporting links for documentation
+- Monitor school-level submission activity in one place
 
-### UI/UX
-- Modal backdrop blur (50% black) on Create/Edit Activity
-- Modals close on outside click
-- Hover and translate-up animation on primary CTA buttons
-- Logout button with icon
-- Sidebar branding (logo + app name)
-- COMPASS logo, favicon, and app icon
-- Redesigned login page: split-panel layout with branding, feature checklist, and a blue gradient background, using email/password sign-in
+### User Experience
+- Clean dashboard layout with sidebar navigation
+- Responsive tables and cards
+- Modal-based forms with clear feedback
+- Role-based views for Admin and School Head users
 
 ---
 
 ## Tech Stack
 
-| Layer      | Tech                                  |
-|------------|----------------------------------------|
-| Frontend   | React, Tailwind CSS, lucide-react      |
-| Charts     | Recharts                               |
-| Backend    | Supabase (Postgres, Auth, RLS)         |
-| Hosting    | Vercel                                 |
+- Frontend: React, Vite, Tailwind CSS, lucide-react
+- Charts: Recharts
+- Backend/Auth: Supabase
+- Styling: Tailwind CSS
+
+---
+
+## Project Structure
+
+- src/App.jsx — main application UI and dashboard logic
+- src/useAuth.js — authentication flow
+- src/supabaseClient.js — Supabase client configuration
+- public/images — branding and app assets
 
 ---
 
 ## Getting Started
 
-```bash
-# Install dependencies
-npm install
+### 1. Install dependencies
 
-# Set up environment variables
-# .env
+```bash
+npm install
+```
+
+### 2. Configure environment variables
+
+Create a .env file in the project root:
+
+```env
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-# Run locally
+### 3. Run the app locally
+
+```bash
 npm run dev
 ```
+
+The development server will start and usually be available at http://localhost:5173.
+
+---
+
+## Available Scripts
+
+```bash
+npm run dev     # start the Vite development server
+npm run build   # build the production bundle
+npm run preview # preview the production build locally
+npm run lint    # run static checks
+```
+
+---
+
+## Notes
+
+This is a beta release intended for testing and refinement of the core monitoring workflow. Supabase authentication, database tables, and row-level security should be configured in your own project environment before use.
+

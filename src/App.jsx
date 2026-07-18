@@ -81,7 +81,9 @@ const StatCard = ({ label, value, sublabel, color, icon: Icon }) => {
   }[color];
 
   return (
-    <div className={`flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5 rounded-xl border p-3 sm:p-4 ${palette}`}>
+    <div
+      className={`flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5 rounded-xl border p-3 sm:p-4 ${palette}`}
+    >
       {Icon && (
         <div
           className={`flex h-12 w-12 sm:h-18 sm:w-18 shrink-0 items-center justify-center rounded-full ${iconBg}`}
@@ -147,7 +149,9 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
             <div className="flex h-full w-full items-center justify-center rounded-full border-8 border-slate-100 text-xs text-slate-400"></div>
           )}
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl lg:text-2xl font-bold text-slate-800">{pct}%</span>
+            <span className="text-xl lg:text-2xl font-bold text-slate-800">
+              {pct}%
+            </span>
             <span className="text-[10px] text-slate-500">Overall</span>
           </div>
         </div>
@@ -247,7 +251,12 @@ const Sidebar = ({ currentView, onNavigate }) => {
 // ============================================
 // Mobile Header + Navigation
 // ============================================
-const MobileHeader = ({ isMenuOpen, onMenuToggle, currentView, onNavigate }) => {
+const MobileHeader = ({
+  isMenuOpen,
+  onMenuToggle,
+  currentView,
+  onNavigate,
+}) => {
   const navItems = [
     { key: "dashboard", label: "Dashboard" },
     { key: "calendar", label: "Calendar" },
@@ -1904,73 +1913,80 @@ const AdminDashboard = ({ profile }) => {
                     reports, and track compliance.
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-                  {(filterMonth !== "all" || filterYear !== "all") && (
-                    <button
-                      onClick={() => {
-                        setFilterMonth("all");
-                        setFilterYear("all");
-                      }}
-                      className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  {/* Filters */}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    {(filterMonth !== "all" || filterYear !== "all") && (
+                      <button
+                        onClick={() => {
+                          setFilterMonth("all");
+                          setFilterYear("all");
+                        }}
+                        className="cursor-pointer text-xs font-semibold text-blue-600 hover:underline"
+                      >
+                        Clear filter
+                      </button>
+                    )}
+
+                    <select
+                      value={filterMonth}
+                      onChange={(e) =>
+                        setFilterMonth(
+                          e.target.value === "all"
+                            ? "all"
+                            : Number(e.target.value),
+                        )
+                      }
+                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
                     >
-                      Clear filter
-                    </button>
-                  )}
-                  <select
-                    value={filterMonth}
-                    onChange={(e) =>
-                      setFilterMonth(
-                        e.target.value === "all"
-                          ? "all"
-                          : Number(e.target.value),
-                      )
-                    }
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-                  >
-                    <option value="all">All Months</option>
-                    {[
-                      "January",
-                      "February",
-                      "March",
-                      "April",
-                      "May",
-                      "June",
-                      "July",
-                      "August",
-                      "September",
-                      "October",
-                      "November",
-                      "December",
-                    ].map((label, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
+                      <option value="all">All Months</option>
+                      {[
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December",
+                      ].map((label, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
 
-                  <select
-                    value={filterYear}
-                    onChange={(e) =>
-                      setFilterYear(
-                        e.target.value === "all"
-                          ? "all"
-                          : Number(e.target.value),
-                      )
-                    }
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-                  >
-                    <option value="all">All Years</option>
-                    {availableYears.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
+                    <select
+                      value={filterYear}
+                      onChange={(e) =>
+                        setFilterYear(
+                          e.target.value === "all"
+                            ? "all"
+                            : Number(e.target.value),
+                        )
+                      }
+                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+                    >
+                      <option value="all">All Years</option>
+                      {availableYears.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                  <span className="text-xs sm:text-sm text-slate-600 whitespace-nowrap">
-                    Welcome, {profile.full_name || "PDO"}
-                  </span>
-                  <LogoutButton />
+                  {/* User */}
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="whitespace-nowrap text-xs sm:text-sm text-slate-600">
+                      Welcome, {profile.full_name || "PDO"}
+                    </span>
+                    <LogoutButton />
+                  </div>
                 </div>
               </div>
 
@@ -2040,7 +2056,9 @@ const AdminDashboard = ({ profile }) => {
                         <p className="text-sm font-semibold text-slate-800">
                           Activities Monitoring — {activeSchool.name}
                         </p>
-                        <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">
+                          {filterLabel}
+                        </p>
                       </div>
                       {filteredSubmissions.length === 0 ? (
                         <p className="py-8 text-center text-sm italic text-slate-400">
@@ -2228,7 +2246,9 @@ const AdminDashboard = ({ profile }) => {
                         <p className="text-sm font-semibold text-slate-800">
                           Reports Monitoring — {activeSchool.name}
                         </p>
-                        <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">
+                          {filterLabel}
+                        </p>
                       </div>
                       {filteredReportSubmissions.length === 0 ? (
                         <p className="py-8 text-center text-sm italic text-slate-400">
@@ -2294,7 +2314,10 @@ const AdminDashboard = ({ profile }) => {
                                   <td className="py-3 text-center">
                                     <button
                                       onClick={() =>
-                                        setEditingReportSubmission({...sub, schoolName: activeSchool.name})
+                                        setEditingReportSubmission({
+                                          ...sub,
+                                          schoolName: activeSchool.name,
+                                        })
                                       }
                                       className="text-slate-400 hover:text-blue-600 cursor-pointer"
                                       title="Edit report"

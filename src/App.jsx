@@ -289,28 +289,29 @@ const MobileHeader = ({
       </div>
 
       {/* Mobile Navigation Menu */}
-      {isMenuOpen && (
-        <div className="lg:hidden bg-[#0b1c39] border-b border-white/10">
-          <nav className="space-y-1 px-2 py-3">
-            {navItems.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => {
-                  onNavigate(item.key);
-                  onMenuToggle();
-                }}
-                className={`w-full text-left rounded-lg px-3 py-2.5 text-sm cursor-pointer ${
-                  currentView === item.key
-                    ? "bg-blue-600 font-semibold text-white"
-                    : "text-white/70 hover:bg-white/5"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      )}
+      <div
+        className={`fixed inset-x-0 top-16 z-50 overflow-hidden border-b border-white/10 bg-[#0b1c39] shadow-lg transition-all duration-300 ease-out lg:hidden
+    ${isMenuOpen ? "max-h-64" : "max-h-0  pointer-events-none"}`}
+      >
+        <nav className="space-y-1 px-2 py-3">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => {
+                onNavigate(item.key);
+                onMenuToggle();
+              }}
+              className={`w-full rounded-lg px-3 py-2.5 text-left text-sm ${
+                currentView === item.key
+                  ? "bg-blue-600 font-semibold text-white"
+                  : "text-white/70 hover:bg-white/5"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      </div>
     </>
   );
 };

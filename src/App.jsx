@@ -124,7 +124,7 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
         </p>
         <p className="text-xs lg:text-sm text-slate-500">{filterLabel}</p>
       </div>
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+      <div className="flex flex-row items-center justify-center gap-6">
         <div className="relative h-32 w-32 lg:h-40 lg:w-40 shrink-0">
           {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">

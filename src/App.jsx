@@ -286,10 +286,6 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       setError("Date is invalid.");
       return;
     }
-    if (start < today) {
-      setError("Date cannot be in the past.");
-      return;
-    }
 
     const resolvedEndDate = isMultiDay ? endDate : startDate;
 
@@ -610,11 +606,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       setError("Date is invalid.");
       return;
     }
-    if (start < today) {
-      setError("Date cannot be in the past.");
-      return;
-    }
-
+    
     const resolvedEndDate = isMultiDay ? endDate : startDate;
 
     if (isMultiDay) {

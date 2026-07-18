@@ -1249,8 +1249,8 @@ const AdminDashboard = ({ profile }) => {
                 Dashboard Overview
               </h1>
               <p className="text-sm text-slate-500">
-                Monitor accomplishments of central schools, generate reports, and
-                track compliance.
+                Monitor accomplishments of central schools, generate reports,
+                and track compliance.
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -1342,175 +1342,368 @@ const AdminDashboard = ({ profile }) => {
 
         {activeSchool && (
           <>
-            {/* Stat cards */}
-            <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-              <StatCard
-                label="Total Activities"
-                value={activeCounts.total}
-                sublabel={filterLabel}
-                color="slate"
-                icon={ClipboardList}
-              />
-              <StatCard
-                label="Completed"
-                value={activeCounts.completed}
-                sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
-                color="green"
-                icon={CheckCircle2}
-              />
-              <StatCard
-                label="Ongoing"
-                value={activeCounts.ongoing}
-                sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
-                color="amber"
-                icon={Hourglass}
-              />
-              <StatCard
-                label="Not Started"
-                value={activeCounts.not_started}
-                sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
-                color="red"
-                icon={XCircle}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-              {/* Activities table */}
-              <div className="rounded-xl border border-slate-200 bg-white p-5">
-                <div className="mb-4 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-slate-800">
-                    Activities Monitoring — {activeSchool.name}
-                  </p>
-                  <p className="text-sm text-slate-500">{filterLabel}</p>
-                </div>
-                {filteredSubmissions.length === 0 ? (
-                  <p className="py-8 text-center text-sm italic text-slate-400">
-                    {activeSchool.submissions.length === 0
-                      ? "No activities assigned yet."
-                      : "No activities match the selected filter."}
-                  </p>
-                ) : (
-                  <div className="max-h-90 overflow-y-auto rounded-lg">
-                    <table className="w-full table-fixed text-left text-sm">
-                      <colgroup>
-                        <col className="w-[28%]" />
-                        <col className="w-[15%]" />
-                        <col className="w-[18%]" />
-                        <col className="w-[10%]" />
-                        <col className="w-[10%]" />
-                        <col className="w-[10%]" />
-                        <col className="w-[15%]" />
-                      </colgroup>
-                      <thead className="sticky top-0 z-10 bg-slate-50">
-                        <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                          <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
-                          <th className="pb-2 pt-2 font-bold text-center">
-                            Date
-                          </th>
-                          <th className="pb-2 pt-2 font-bold text-center">
-                            Status
-                          </th>
-                          <th className="pb-2 pt-2 font-bold text-center">
-                            Actions
-                          </th>
-                          <th className="pb-2 pt-2 font-bold text-center">
-                            Remarks
-                          </th>
-                          <th className="pb-2 pt-2 font-bold text-center">
-                            Link
-                          </th>
-                          <th className="pb-2 pt-2 font-bold text-center">
-                            Legal Basis
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedSubmissions.map((sub) => (
-                          <tr key={sub.id} className="border-b border-slate-50">
-                            <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
-                              <span className="block" title={sub.name}>
-                                {sub.name}
-                              </span>
-                            </td>
-                            <td className="py-3 text-center text-slate-500">
-                              {sub.start_date
-                                ? !sub.end_date ||
-                                  sub.end_date === sub.start_date
-                                  ? sub.start_date
-                                  : `${sub.start_date} – ${sub.end_date}`
-                                : "—"}
-                            </td>
-                            <td className="py-3 text-center">
-                              <StatusBadge status={sub.status} />
-                            </td>
-                            <td className="py-3 text-center">
-                              <button
-                                onClick={() => setEditingSubmission(sub)}
-                                className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                title="Edit activity"
-                              >
-                                <Eye size={18} />
-                              </button>
-                            </td>
-                            <td className="py-3 text-center">
-                              {sub.remarks ? (
-                                <button
-                                  onClick={() => setViewingRemarks(sub)}
-                                  className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                  title={sub.remarks}
-                                >
-                                  <MessageSquareText size={18} />
-                                </button>
-                              ) : (
-                                "—"
-                              )}
-                            </td>
-                            <td className="py-3 text-center">
-                              {sub.drive_link ? (
-                                <a
-                                  href={sub.drive_link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex justify-center text-blue-600 hover:text-blue-800"
-                                  title="Open OneDrive Link"
-                                >
-                                  <OneDriveLogo size={18} />
-                                </a>
-                              ) : (
-                                "—"
-                              )}
-                            </td>
-                            <td
-                              className="py-3 text-center text-slate-500 truncate"
-                              title={sub.legal_basis}
-                            >
-                              {sub.legal_basis || "—"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+            <div className="mb-6">
+              <h2 className="mb-4 text-lg font-semibold text-slate-800">
+                Activity Summary
+              </h2>
+              {/* Stat cards */}
+              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <StatCard
+                  label="Total Activities"
+                  value={activeCounts.total}
+                  sublabel={filterLabel}
+                  color="slate"
+                  icon={ClipboardList}
+                />
+                <StatCard
+                  label="Completed"
+                  value={activeCounts.completed}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
+                  color="green"
+                  icon={CheckCircle2}
+                />
+                <StatCard
+                  label="Ongoing"
+                  value={activeCounts.ongoing}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
+                  color="amber"
+                  icon={Hourglass}
+                />
+                <StatCard
+                  label="Not Started"
+                  value={activeCounts.not_started}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
+                  color="red"
+                  icon={XCircle}
+                />
               </div>
 
-              {/* Right column */}
-              <div className="space-y-6">
-                <ComplianceDonut
-                  counts={activeCounts}
-                  filterLabel={filterLabel}
-                />
-
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                {/* Activities table */}
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <p className="mb-3 text-sm font-semibold text-slate-800">
-                    Quick Actions
-                  </p>
-                  <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
-                  >
-                    + Add New Activity
-                  </button>
+                  <div className="mb-4 flex items-center justify-between">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Activities Monitoring — {activeSchool.name}
+                    </p>
+                    <p className="text-sm text-slate-500">{filterLabel}</p>
+                  </div>
+                  {filteredSubmissions.length === 0 ? (
+                    <p className="py-8 text-center text-sm italic text-slate-400">
+                      {activeSchool.submissions.length === 0
+                        ? "No activities assigned yet."
+                        : "No activities match the selected filter."}
+                    </p>
+                  ) : (
+                    <div className="max-h-90 overflow-y-auto rounded-lg">
+                      <table className="w-full table-fixed text-left text-sm">
+                        <colgroup>
+                          <col className="w-[28%]" />
+                          <col className="w-[15%]" />
+                          <col className="w-[18%]" />
+                          <col className="w-[10%]" />
+                          <col className="w-[10%]" />
+                          <col className="w-[10%]" />
+                          <col className="w-[15%]" />
+                        </colgroup>
+                        <thead className="sticky top-0 z-10 bg-slate-50">
+                          <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                            <th className="pb-2 pt-2 pl-2 font-bold">
+                              Activity
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Date
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Status
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Actions
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Remarks
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Link
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Legal Basis
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedSubmissions.map((sub) => (
+                            <tr
+                              key={sub.id}
+                              className="border-b border-slate-50"
+                            >
+                              <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                <span className="block" title={sub.name}>
+                                  {sub.name}
+                                </span>
+                              </td>
+                              <td className="py-3 text-center text-slate-500">
+                                {sub.start_date
+                                  ? !sub.end_date ||
+                                    sub.end_date === sub.start_date
+                                    ? sub.start_date
+                                    : `${sub.start_date} – ${sub.end_date}`
+                                  : "—"}
+                              </td>
+                              <td className="py-3 text-center">
+                                <StatusBadge status={sub.status} />
+                              </td>
+                              <td className="py-3 text-center">
+                                <button
+                                  onClick={() => setEditingSubmission(sub)}
+                                  className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                  title="Edit activity"
+                                >
+                                  <Eye size={18} />
+                                </button>
+                              </td>
+                              <td className="py-3 text-center">
+                                {sub.remarks ? (
+                                  <button
+                                    onClick={() => setViewingRemarks(sub)}
+                                    className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                    title={sub.remarks}
+                                  >
+                                    <MessageSquareText size={18} />
+                                  </button>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                              <td className="py-3 text-center">
+                                {sub.drive_link ? (
+                                  <a
+                                    href={sub.drive_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex justify-center text-blue-600 hover:text-blue-800"
+                                    title="Open OneDrive Link"
+                                  >
+                                    <OneDriveLogo size={18} />
+                                  </a>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                              <td
+                                className="py-3 text-center text-slate-500 truncate"
+                                title={sub.legal_basis}
+                              >
+                                {sub.legal_basis || "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right column */}
+                <div className="space-y-6">
+                  <ComplianceDonut
+                    counts={activeCounts}
+                    filterLabel={filterLabel}
+                  />
+
+                  <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <p className="mb-3 text-sm font-semibold text-slate-800">
+                      Quick Actions
+                    </p>
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
+                    >
+                      + Add New Activity
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="mb-4 text-lg font-semibold text-slate-800">
+                Reports Summary
+              </h2>
+              {/* Stat cards */}
+              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <StatCard
+                  label="Total Activities"
+                  value={activeCounts.total}
+                  sublabel={filterLabel}
+                  color="slate"
+                  icon={ClipboardList}
+                />
+                <StatCard
+                  label="Completed"
+                  value={activeCounts.completed}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
+                  color="green"
+                  icon={CheckCircle2}
+                />
+                <StatCard
+                  label="Ongoing"
+                  value={activeCounts.ongoing}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
+                  color="amber"
+                  icon={Hourglass}
+                />
+                <StatCard
+                  label="Not Started"
+                  value={activeCounts.not_started}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
+                  color="red"
+                  icon={XCircle}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                {/* Activities table */}
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                  <div className="mb-4 flex items-center justify-between">
+                    <p className="text-sm font-semibold text-slate-800">
+                      Activities Monitoring — {activeSchool.name}
+                    </p>
+                    <p className="text-sm text-slate-500">{filterLabel}</p>
+                  </div>
+                  {filteredSubmissions.length === 0 ? (
+                    <p className="py-8 text-center text-sm italic text-slate-400">
+                      {activeSchool.submissions.length === 0
+                        ? "No activities assigned yet."
+                        : "No activities match the selected filter."}
+                    </p>
+                  ) : (
+                    <div className="max-h-90 overflow-y-auto rounded-lg">
+                      <table className="w-full table-fixed text-left text-sm">
+                        <colgroup>
+                          <col className="w-[28%]" />
+                          <col className="w-[15%]" />
+                          <col className="w-[18%]" />
+                          <col className="w-[10%]" />
+                          <col className="w-[10%]" />
+                          <col className="w-[10%]" />
+                          <col className="w-[15%]" />
+                        </colgroup>
+                        <thead className="sticky top-0 z-10 bg-slate-50">
+                          <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                            <th className="pb-2 pt-2 pl-2 font-bold">
+                              Activity
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Date
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Status
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Actions
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Remarks
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Link
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Legal Basis
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedSubmissions.map((sub) => (
+                            <tr
+                              key={sub.id}
+                              className="border-b border-slate-50"
+                            >
+                              <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                <span className="block" title={sub.name}>
+                                  {sub.name}
+                                </span>
+                              </td>
+                              <td className="py-3 text-center text-slate-500">
+                                {sub.start_date
+                                  ? !sub.end_date ||
+                                    sub.end_date === sub.start_date
+                                    ? sub.start_date
+                                    : `${sub.start_date} – ${sub.end_date}`
+                                  : "—"}
+                              </td>
+                              <td className="py-3 text-center">
+                                <StatusBadge status={sub.status} />
+                              </td>
+                              <td className="py-3 text-center">
+                                <button
+                                  onClick={() => setEditingSubmission(sub)}
+                                  className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                  title="Edit activity"
+                                >
+                                  <Eye size={18} />
+                                </button>
+                              </td>
+                              <td className="py-3 text-center">
+                                {sub.remarks ? (
+                                  <button
+                                    onClick={() => setViewingRemarks(sub)}
+                                    className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                    title={sub.remarks}
+                                  >
+                                    <MessageSquareText size={18} />
+                                  </button>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                              <td className="py-3 text-center">
+                                {sub.drive_link ? (
+                                  <a
+                                    href={sub.drive_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex justify-center text-blue-600 hover:text-blue-800"
+                                    title="Open OneDrive Link"
+                                  >
+                                    <OneDriveLogo size={18} />
+                                  </a>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                              <td
+                                className="py-3 text-center text-slate-500 truncate"
+                                title={sub.legal_basis}
+                              >
+                                {sub.legal_basis || "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right column */}
+                <div className="space-y-6">
+                  <ComplianceDonut
+                    counts={activeCounts}
+                    filterLabel={filterLabel}
+                  />
+
+                  <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <p className="mb-3 text-sm font-semibold text-slate-800">
+                      Quick Actions
+                    </p>
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
+                    >
+                      + Add New Activity
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1171,6 +1171,10 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
             <p className="text-sm text-slate-500">
               Fill in the details to edit the report.
             </p>
+            <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-blue-600">
+              <School size={14} />
+              {submission.schoolName}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -2204,7 +2208,7 @@ const AdminDashboard = ({ profile }) => {
                                   <td className="py-3 text-center">
                                     <button
                                       onClick={() =>
-                                        setEditingReportSubmission(sub)
+                                        setEditingReportSubmission({...sub, schoolName: activeSchool.name})
                                       }
                                       className="text-slate-400 hover:text-blue-600 cursor-pointer"
                                       title="Edit report"

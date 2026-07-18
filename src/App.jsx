@@ -507,6 +507,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [remarks, setRemarks] = useState(submission.remarks || "");
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -579,6 +580,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
         drive_link: driveLink || null,
         status,
         updated_at: new Date().toISOString(),
+        remarks: remarks || null,
       })
       .eq("id", submission.id)
       .select()
@@ -665,6 +667,19 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
                 className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Remarks
+            </label>
+            <input
+              type="text"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="e.g. Submitted"
+            />
           </div>
 
           <div>

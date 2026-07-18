@@ -1862,7 +1862,7 @@ const AdminDashboard = ({ profile }) => {
 
         {activeSchool && (
           <>
-            <div className="mb-6">
+            <div className="mb-10">
               <h2 className="mb-4 text-lg font-semibold text-slate-800">
                 Activity Summary
               </h2>
@@ -2047,7 +2047,7 @@ const AdminDashboard = ({ profile }) => {
             </div>
 
             <div>
-              <h2 className="mb-4 text-lg font-semibold text-slate-800">
+              <h2 className="mb-4 pt-4 text-lg font-semibold text-slate-800 border-t border-slate-200/80">
                 Reports Summary
               </h2>
               <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">

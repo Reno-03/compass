@@ -189,10 +189,10 @@ const Sidebar = ({ currentView, onNavigate }) => {
   const navItems = [
     { key: "dashboard", label: "Dashboard" },
     { key: "calendar", label: "Calendar" },
-    { key: "monitor", label: "Monitor Accomplishments" },
+    // { key: "monitor", label: "Monitor Accomplishments" },
     { key: "reports", label: "Consolidated Reports" },
-    { key: "analytics", label: "Analytics" },
-    { key: "reminders", label: "Send Reminders" },
+    // { key: "analytics", label: "Analytics" },
+    // { key: "reminders", label: "Send Reminders" },
     { key: "download", label: "Download Reports" },
   ];
 

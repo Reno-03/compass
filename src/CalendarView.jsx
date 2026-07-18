@@ -19,8 +19,18 @@ const EVENT_TYPE_META = {
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_NAMES_FULL = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 // Layout constants for the bar system
@@ -122,7 +132,9 @@ function computeWeekSegments(week, events) {
   const rowOccupancy = [];
   segments.forEach((seg) => {
     let rowIndex = rowOccupancy.findIndex((occRanges) =>
-      occRanges.every((r) => seg.endCol < r.startCol || seg.startCol > r.endCol),
+      occRanges.every(
+        (r) => seg.endCol < r.startCol || seg.startCol > r.endCol,
+      ),
     );
     if (rowIndex === -1) {
       rowIndex = rowOccupancy.length;
@@ -135,7 +147,12 @@ function computeWeekSegments(week, events) {
   return segments;
 }
 
-const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventClick }) => {
+const CalendarView = ({
+  schoolData,
+  schoolFilter,
+  onSchoolFilterChange,
+  onEventClick,
+}) => {
   const [viewDate, setViewDate] = useState(() => {
     const d = new Date();
     d.setDate(1);
@@ -173,8 +190,12 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
     });
   }
 
-  function goToPrevMonth() { setViewDate(new Date(year, month - 1, 1)); }
-  function goToNextMonth() { setViewDate(new Date(year, month + 1, 1)); }
+  function goToPrevMonth() {
+    setViewDate(new Date(year, month - 1, 1));
+  }
+  function goToNextMonth() {
+    setViewDate(new Date(year, month + 1, 1));
+  }
   function goToToday() {
     const d = new Date();
     d.setDate(1);
@@ -184,27 +205,47 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-slate-800">
-            {MONTH_NAMES_FULL[month]} {year}
-          </h2>
-          <div className="flex items-center gap-1">
-            <button onClick={goToPrevMonth} className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 cursor-pointer">
+        <div className="flex items-center">
+          {/* Fixed-width month label */}
+          <div className="w-40">
+            <h2 className="text-xl font-bold text-slate-800">
+              {MONTH_NAMES_FULL[month]} {year}
+            </h2>
+          </div>
+
+          {/* Navigation */}
+          <div className="ml-6 flex items-center gap-1">
+            <button
+              onClick={goToPrevMonth}
+              className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 cursor-pointer"
+            >
               <ChevronLeft size={16} />
             </button>
-            <button onClick={goToNextMonth} className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 cursor-pointer">
+
+            <button
+              onClick={goToNextMonth}
+              className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 cursor-pointer"
+            >
               <ChevronRight size={16} />
             </button>
           </div>
-          <button onClick={goToToday} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">
+
+          <button
+            onClick={goToToday}
+            className="ml-3 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+          >
             Today
           </button>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 text-xs text-slate-500">
-            <span className="flex items-center gap-1.5"><ClipboardList size={14} /> Activity</span>
-            <span className="flex items-center gap-1.5"><FileText size={14} /> Report</span>
+            <span className="flex items-center gap-1.5">
+              <ClipboardList size={14} /> Activity
+            </span>
+            <span className="flex items-center gap-1.5">
+              <FileText size={14} /> Report
+            </span>
           </div>
           <select
             value={schoolFilter}
@@ -213,7 +254,9 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
           >
             <option value="all">All Schools</option>
             {schoolData.map((school) => (
-              <option key={school.id} value={school.id}>{school.name}</option>
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
             ))}
           </select>
         </div>
@@ -221,15 +264,21 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
 
       <div className="grid grid-cols-7 gap-px overflow-hidden rounded-t-lg bg-slate-100 text-center text-xs font-semibold uppercase text-slate-500">
         {WEEKDAY_LABELS.map((label) => (
-          <div key={label} className="bg-slate-50 py-2">{label}</div>
+          <div key={label} className="bg-slate-50 py-2">
+            {label}
+          </div>
         ))}
       </div>
 
       <div className="overflow-hidden rounded-b-lg border-x border-b border-slate-100">
         {weeks.map((week, weekIdx) => {
           const segments = computeWeekSegments(week, events);
-          const visibleSegments = segments.filter((s) => s.row < MAX_VISIBLE_ROWS);
-          const hiddenSegments = segments.filter((s) => s.row >= MAX_VISIBLE_ROWS);
+          const visibleSegments = segments.filter(
+            (s) => s.row < MAX_VISIBLE_ROWS,
+          );
+          const hiddenSegments = segments.filter(
+            (s) => s.row >= MAX_VISIBLE_ROWS,
+          );
 
           return (
             <div
@@ -247,9 +296,15 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
                       className={`border-l border-slate-100 first:border-l-0 p-1.5 ${!inMonth ? "bg-slate-50/60" : ""}`}
                       style={{ minHeight: CELL_MIN_HEIGHT }}
                     >
-                      <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
-                        isToday ? "bg-blue-600 text-white" : inMonth ? "text-slate-700" : "text-slate-300"
-                      }`}>
+                      <span
+                        className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
+                          isToday
+                            ? "bg-blue-600 text-white"
+                            : inMonth
+                              ? "text-slate-700"
+                              : "text-slate-300"
+                        }`}
+                      >
                         {date.getDate()}
                       </span>
                     </div>
@@ -270,7 +325,9 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
                       onClick={() => onEventClick(seg.event)}
                       title={`${seg.event.title} — ${seg.event.schoolName}`}
                       className={`pointer-events-auto absolute flex items-center gap-1 overflow-hidden border px-1.5 text-[11px] font-medium cursor-pointer ${STATUS_STYLES[seg.event.status]} ${
-                        seg.continuesBefore ? "rounded-l-none border-l-0" : "rounded-l-md"
+                        seg.continuesBefore
+                          ? "rounded-l-none border-l-0"
+                          : "rounded-l-md"
                       } ${seg.continuesAfter ? "rounded-r-none border-r-0" : "rounded-r-md"}`}
                       style={{
                         left: `calc(${(seg.startCol / 7) * 100}% + 2px)`,
@@ -279,10 +336,20 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
                         height: BAR_HEIGHT,
                       }}
                     >
-                      {seg.continuesBefore && <ChevronLeft size={10} className="shrink-0 opacity-60" />}
+                      {seg.continuesBefore && (
+                        <ChevronLeft
+                          size={10}
+                          className="shrink-0 opacity-60"
+                        />
+                      )}
                       <Icon size={10} className="shrink-0" />
                       <span className="truncate">{seg.event.title}</span>
-                      {seg.continuesAfter && <ChevronRight size={10} className="ml-auto shrink-0 opacity-60" />}
+                      {seg.continuesAfter && (
+                        <ChevronRight
+                          size={10}
+                          className="ml-auto shrink-0 opacity-60"
+                        />
+                      )}
                     </button>
                   );
                 })}
@@ -319,7 +386,10 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
         <DayEventsModal
           date={dayModalDate}
           events={eventsForDay(dayModalDate)}
-          onEventClick={(event) => { setDayModalDate(null); onEventClick(event); }}
+          onEventClick={(event) => {
+            setDayModalDate(null);
+            onEventClick(event);
+          }}
           onClose={() => setDayModalDate(null)}
         />
       )}
@@ -328,13 +398,29 @@ const CalendarView = ({ schoolData, schoolFilter, onSchoolFilterChange, onEventC
 };
 
 const DayEventsModal = ({ date, events, onEventClick, onClose }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4" onClick={onClose}>
-    <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
+    onClick={onClose}
+  >
+    <div
+      className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="mb-4 flex items-start justify-between">
         <h3 className="text-lg font-bold text-slate-800">
-          {date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+          {date.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
         </h3>
-        <button onClick={onClose} className="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+        <button
+          onClick={onClose}
+          className="text-slate-400 hover:text-slate-600 cursor-pointer"
+        >
+          ✕
+        </button>
       </div>
       <div className="space-y-2">
         {events.map((event) => {

@@ -1239,102 +1239,105 @@ const AdminDashboard = ({ profile }) => {
         </div>
       </div>
 
-      <main className="flex-1 p-8">
-        {/* Header */}
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">
-              Dashboard Overview
-            </h1>
-            <p className="text-sm text-slate-500">
-              Monitor accomplishments of central schools, generate reports, and
-              track compliance.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {(filterMonth !== "all" || filterYear !== "all") && (
-              <button
-                onClick={() => {
-                  setFilterMonth("all");
-                  setFilterYear("all");
-                }}
-                className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+      <main className="flex-1 p-8 pt-0">
+        {/* Header + School Tabs sticky */}
+        <div className="sticky top-0 z-20 -mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-8 pb-4 pt-5 backdrop-blur-sm">
+          {/* Header */}
+          <div className="mb-4 flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-800">
+                Dashboard Overview
+              </h1>
+              <p className="text-sm text-slate-500">
+                Monitor accomplishments of central schools, generate reports, and
+                track compliance.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {(filterMonth !== "all" || filterYear !== "all") && (
+                <button
+                  onClick={() => {
+                    setFilterMonth("all");
+                    setFilterYear("all");
+                  }}
+                  className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+                >
+                  Clear filter
+                </button>
+              )}
+              <select
+                value={filterMonth}
+                onChange={(e) =>
+                  setFilterMonth(
+                    e.target.value === "all" ? "all" : Number(e.target.value),
+                  )
+                }
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
               >
-                Clear filter
-              </button>
-            )}
-            <select
-              value={filterMonth}
-              onChange={(e) =>
-                setFilterMonth(
-                  e.target.value === "all" ? "all" : Number(e.target.value),
-                )
-              }
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-            >
-              <option value="all">All Months</option>
-              {[
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December",
-              ].map((label, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {label}
-                </option>
-              ))}
-            </select>
+                <option value="all">All Months</option>
+                {[
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December",
+                ].map((label, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {label}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              value={filterYear}
-              onChange={(e) =>
-                setFilterYear(
-                  e.target.value === "all" ? "all" : Number(e.target.value),
-                )
-              }
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-            >
-              <option value="all">All Years</option>
-              {availableYears.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+              <select
+                value={filterYear}
+                onChange={(e) =>
+                  setFilterYear(
+                    e.target.value === "all" ? "all" : Number(e.target.value),
+                  )
+                }
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+              >
+                <option value="all">All Years</option>
+                {availableYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
 
-            <span className="text-sm text-slate-600">
-              Welcome, {profile.full_name || "PDO"}
-            </span>
-            <LogoutButton />
-          </div>
-        </div>
-
-        {/* School tabs */}
-        <div className="mb-6 flex gap-2 overflow-x-auto">
-          {schoolData.map((school) => (
-            <button
-              key={school.id}
-              onClick={() => setActiveSchoolId(school.id)}
-              className={`inline-flex gap-3 items-center whitespace-nowrap rounded-lg px-10 py-3 text-sm font-semibold cursor-pointer ${
-                activeSchoolId === school.id
-                  ? "bg-[#0b1c39] text-white"
-                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <span>
-                <School size={24} />
+              <span className="text-sm text-slate-600">
+                Welcome, {profile.full_name || "PDO"}
               </span>
-              {school.name}
-            </button>
-          ))}
+              <LogoutButton />
+            </div>
+          </div>
+
+          {/* School tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {schoolData.map((school) => (
+              <button
+                key={school.id}
+                onClick={() => setActiveSchoolId(school.id)}
+                className={`inline-flex gap-3 items-center whitespace-nowrap rounded-lg px-10 py-3 text-sm font-semibold cursor-pointer ${
+                  activeSchoolId === school.id
+                    ? "bg-[#0b1c39] text-white"
+                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <span>
+                  <School size={24} />
+                </span>
+                {school.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {activeSchool && (

@@ -15,6 +15,7 @@ import {
   School,
   MessageSquareText,
 } from "lucide-react";
+import CalendarView from "./CalendarView";
 
 // ============================================
 // Shared style tokens
@@ -115,7 +116,9 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-semibold text-slate-800">
-          {category === "activity" ? "Activities Compliance" : "Reports Compliance"}
+          {category === "activity"
+            ? "Activities Compliance"
+            : "Reports Compliance"}
         </p>
         <p className="text-sm text-slate-500">{filterLabel}</p>
       </div>
@@ -182,14 +185,15 @@ const LegendRow = ({ color, label, value }) => (
 // ============================================
 // Sidebar (mostly static for now — one working page)
 // ============================================
-const Sidebar = () => {
+const Sidebar = ({ currentView, onNavigate }) => {
   const navItems = [
-    { label: "Dashboard", active: true },
-    { label: "Monitor Accomplishments" },
-    { label: "Consolidated Reports" },
-    { label: "Analytics" },
-    { label: "Send Reminders" },
-    { label: "Download Reports" },
+    { key: "dashboard", label: "Dashboard" },
+    { key: "calendar", label: "Calendar" },
+    { key: "monitor", label: "Monitor Accomplishments" },
+    { key: "reports", label: "Consolidated Reports" },
+    { key: "analytics", label: "Analytics" },
+    { key: "reminders", label: "Send Reminders" },
+    { key: "download", label: "Download Reports" },
   ];
 
   return (
@@ -221,16 +225,17 @@ const Sidebar = () => {
 
       <nav className="flex-1 space-y-1">
         {navItems.map((item) => (
-          <div
-            key={item.label}
-            className={`rounded-lg px-3 py-2 text-sm ${
-              item.active
+          <button
+            key={item.key}
+            onClick={() => onNavigate(item.key)}
+            className={`w-full text-left rounded-lg px-3 py-2 text-sm cursor-pointer ${
+              currentView === item.key
                 ? "bg-blue-600 font-semibold text-white"
                 : "text-white/70 hover:bg-white/5"
             }`}
           >
             {item.label}
-          </div>
+          </button>
         ))}
       </nav>
     </aside>
@@ -1533,6 +1538,9 @@ const AdminDashboard = ({ profile }) => {
   const [editingReportSubmission, setEditingReportSubmission] = useState(null);
   const [viewingReportRemarks, setViewingReportRemarks] = useState(null);
 
+  const [view, setView] = useState("dashboard");
+  const [calendarSchoolFilter, setCalendarSchoolFilter] = useState("all");
+
   useEffect(() => {
     async function loadSchools() {
       const { data, error } = await supabase
@@ -1614,6 +1622,14 @@ const AdminDashboard = ({ profile }) => {
         ),
       })),
     );
+  }
+
+  function handleCalendarEventClick(event) {
+    if (event.type === "activity") {
+      setEditingSubmission(event.raw);
+    } else {
+      setEditingReportSubmission(event.raw);
+    }
   }
 
   if (loading)
@@ -1750,7 +1766,7 @@ const AdminDashboard = ({ profile }) => {
     <div className="flex min-h-screen bg-[#f4f6fb]">
       {/* using self-start sticky top-0 h-screen makes the sidebar sticky and not scrollable */}
       <div className="sticky top-0 self-start flex h-screen flex-col overflow-hidden">
-        <Sidebar />
+        <Sidebar currentView={view} onNavigate={setView} />
         <div className="mt-0 bg-[#0b1c39] px-4 pb-77 pt-0 text-white">
           <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-white/50">
             Monthly Progress (All Schools)
@@ -1759,524 +1775,552 @@ const AdminDashboard = ({ profile }) => {
         </div>
       </div>
 
-      <main className="flex-1 p-8 pt-0">
-        {/* Header + School Tabs sticky */}
-        <div className="sticky top-0 z-20 -mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-8 pb-4 pt-5 backdrop-blur-sm">
-          {/* Header */}
-          <div className="mb-4 flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">
-                Dashboard Overview
-              </h1>
-              <p className="text-sm text-slate-500">
-                Monitor accomplishments of central schools, generate reports,
-                and track compliance.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {(filterMonth !== "all" || filterYear !== "all") && (
-                <button
-                  onClick={() => {
-                    setFilterMonth("all");
-                    setFilterYear("all");
-                  }}
-                  className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
-                >
-                  Clear filter
-                </button>
-              )}
-              <select
-                value={filterMonth}
-                onChange={(e) =>
-                  setFilterMonth(
-                    e.target.value === "all" ? "all" : Number(e.target.value),
-                  )
-                }
-                className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-              >
-                <option value="all">All Months</option>
-                {[
-                  "January",
-                  "February",
-                  "March",
-                  "April",
-                  "May",
-                  "June",
-                  "July",
-                  "August",
-                  "September",
-                  "October",
-                  "November",
-                  "December",
-                ].map((label, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filterYear}
-                onChange={(e) =>
-                  setFilterYear(
-                    e.target.value === "all" ? "all" : Number(e.target.value),
-                  )
-                }
-                className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-              >
-                <option value="all">All Years</option>
-                {availableYears.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-
-              <span className="text-sm text-slate-600">
-                Welcome, {profile.full_name || "PDO"}
-              </span>
-              <LogoutButton />
-            </div>
+      {view === "calendar" ? (
+        <main className="flex-1 p-8 pt-0">
+          <div className="mb-4 mt-5">
+            <h1 className="text-2xl font-bold text-slate-800">Calendar</h1>
+            <p className="text-sm text-slate-500">
+              Visual timeline of activities and reports across all schools, by
+              date.
+            </p>
           </div>
+          <CalendarView
+            schoolData={schoolData}
+            schoolFilter={calendarSchoolFilter}
+            onSchoolFilterChange={setCalendarSchoolFilter}
+            onEventClick={handleCalendarEventClick}
+          />
+        </main>
+      ) : (
+        <>
+          <main className="flex-1 p-8 pt-0">
+            {/* Header + School Tabs sticky */}
+            <div className="sticky top-0 z-20 -mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-8 pb-4 pt-5 backdrop-blur-sm">
+              {/* Header */}
+              <div className="mb-4 flex items-start justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-800">
+                    Dashboard Overview
+                  </h1>
+                  <p className="text-sm text-slate-500">
+                    Monitor accomplishments of central schools, generate
+                    reports, and track compliance.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {(filterMonth !== "all" || filterYear !== "all") && (
+                    <button
+                      onClick={() => {
+                        setFilterMonth("all");
+                        setFilterYear("all");
+                      }}
+                      className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+                    >
+                      Clear filter
+                    </button>
+                  )}
+                  <select
+                    value={filterMonth}
+                    onChange={(e) =>
+                      setFilterMonth(
+                        e.target.value === "all"
+                          ? "all"
+                          : Number(e.target.value),
+                      )
+                    }
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="all">All Months</option>
+                    {[
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
+                    ].map((label, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
 
-          {/* School tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {schoolData.map((school) => (
-              <button
-                key={school.id}
-                onClick={() => setActiveSchoolId(school.id)}
-                className={`inline-flex gap-3 items-center whitespace-nowrap rounded-lg px-10 py-3 text-sm font-semibold cursor-pointer ${
-                  activeSchoolId === school.id
-                    ? "bg-[#0b1c39] text-white"
-                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <span>
-                  <School size={24} />
-                </span>
-                {school.name}
-              </button>
-            ))}
-          </div>
-        </div>
+                  <select
+                    value={filterYear}
+                    onChange={(e) =>
+                      setFilterYear(
+                        e.target.value === "all"
+                          ? "all"
+                          : Number(e.target.value),
+                      )
+                    }
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="all">All Years</option>
+                    {availableYears.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
 
-        {activeSchool && (
-          <>
-            <div className="mb-10">
-              <h2 className="mb-4 text-lg font-semibold text-slate-800">
-                Activity Summary
-              </h2>
-              {/* Stat cards */}
-              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-                <StatCard
-                  label="Total Activities"
-                  value={activeCounts.total}
-                  sublabel={filterLabel}
-                  color="slate"
-                  icon={ClipboardList}
-                />
-                <StatCard
-                  label="Completed"
-                  value={activeCounts.completed}
-                  sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
-                  color="green"
-                  icon={CheckCircle2}
-                />
-                <StatCard
-                  label="Ongoing"
-                  value={activeCounts.ongoing}
-                  sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
-                  color="amber"
-                  icon={Hourglass}
-                />
-                <StatCard
-                  label="Not Started"
-                  value={activeCounts.not_started}
-                  sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
-                  color="red"
-                  icon={XCircle}
-                />
+                  <span className="text-sm text-slate-600">
+                    Welcome, {profile.full_name || "PDO"}
+                  </span>
+                  <LogoutButton />
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-                {/* Activities table */}
-                <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <div className="mb-4 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-slate-800">
-                      Activities Monitoring — {activeSchool.name}
-                    </p>
-                    <p className="text-sm text-slate-500">{filterLabel}</p>
-                  </div>
-                  {filteredSubmissions.length === 0 ? (
-                    <p className="py-8 text-center text-sm italic text-slate-400">
-                      {activeSchool.submissions.length === 0
-                        ? "No activities assigned yet."
-                        : "No activities match the selected filter."}
-                    </p>
-                  ) : (
-                    <div className="max-h-90 overflow-y-auto rounded-lg">
-                      <table className="w-full table-fixed text-left text-sm">
-                        <colgroup>
-                          <col className="w-[28%]" />
-                          <col className="w-[15%]" />
-                          <col className="w-[18%]" />
-                          <col className="w-[10%]" />
-                          <col className="w-[10%]" />
-                          <col className="w-[10%]" />
-                          <col className="w-[15%]" />
-                        </colgroup>
-                        <thead className="sticky top-0 z-10 bg-slate-50">
-                          <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                            <th className="pb-2 pt-2 pl-2 font-bold">
-                              Activity
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Date
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Status
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Actions
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Remarks
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Link
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Legal Basis
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {sortedSubmissions.map((sub) => (
-                            <tr
-                              key={sub.id}
-                              className="border-b border-slate-50"
-                            >
-                              <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
-                                <span className="block" title={sub.name}>
-                                  {sub.name}
-                                </span>
-                              </td>
-                              <td className="py-3 text-center text-slate-500">
-                                {sub.start_date
-                                  ? !sub.end_date ||
-                                    sub.end_date === sub.start_date
-                                    ? sub.start_date
-                                    : `${sub.start_date} – ${sub.end_date}`
-                                  : "—"}
-                              </td>
-                              <td className="py-3 text-center">
-                                <StatusBadge status={sub.status} />
-                              </td>
-                              <td className="py-3 text-center">
-                                <button
-                                  onClick={() => setEditingSubmission(sub)}
-                                  className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                  title="Edit activity"
-                                >
-                                  <Eye size={18} />
-                                </button>
-                              </td>
-                              <td className="py-3 text-center">
-                                {sub.remarks ? (
-                                  <button
-                                    onClick={() => setViewingRemarks(sub)}
-                                    className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                    title={sub.remarks}
-                                  >
-                                    <MessageSquareText size={18} />
-                                  </button>
-                                ) : (
-                                  "—"
-                                )}
-                              </td>
-                              <td className="py-3 text-center">
-                                {sub.drive_link ? (
-                                  <a
-                                    href={sub.drive_link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex justify-center text-blue-600 hover:text-blue-800"
-                                    title="Open OneDrive Link"
-                                  >
-                                    <OneDriveLogo size={18} />
-                                  </a>
-                                ) : (
-                                  "—"
-                                )}
-                              </td>
-                              <td
-                                className="py-3 text-center text-slate-500 truncate"
-                                title={sub.legal_basis}
-                              >
-                                {sub.legal_basis || "—"}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-
-                {/* Right column */}
-                <div className="space-y-6">
-                  <ComplianceDonut
-                    counts={activeCounts}
-                    filterLabel={filterLabel}
-                    category={"activity"}
-                  />
-
-                  <div className="rounded-xl border border-slate-200 bg-white p-5">
-                    <p className="mb-3 text-sm font-semibold text-slate-800">
-                      Quick Actions
-                    </p>
-                    <button
-                      onClick={() => setShowCreateModal(true)}
-                      className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
-                    >
-                      + Add New Activity
-                    </button>
-                  </div>
-                </div>
+              {/* School tabs */}
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {schoolData.map((school) => (
+                  <button
+                    key={school.id}
+                    onClick={() => setActiveSchoolId(school.id)}
+                    className={`inline-flex gap-3 items-center whitespace-nowrap rounded-lg px-10 py-3 text-sm font-semibold cursor-pointer ${
+                      activeSchoolId === school.id
+                        ? "bg-[#0b1c39] text-white"
+                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span>
+                      <School size={24} />
+                    </span>
+                    {school.name}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div>
-              <h2 className="mb-4 pt-4 text-lg font-semibold text-slate-800 border-t border-slate-200/80">
-                Reports Summary
-              </h2>
-              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-                <StatCard
-                  label="Total Reports"
-                  value={reportCounts.total}
-                  sublabel={filterLabel}
-                  color="slate"
-                  icon={ClipboardList}
-                />
-                <StatCard
-                  label="Completed"
-                  value={reportCounts.completed}
-                  sublabel={`${reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}%`}
-                  color="green"
-                  icon={CheckCircle2}
-                />
-                <StatCard
-                  label="Ongoing"
-                  value={reportCounts.ongoing}
-                  sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
-                  color="amber"
-                  icon={Hourglass}
-                />
-                <StatCard
-                  label="Not Started"
-                  value={reportCounts.not_started}
-                  sublabel={`${reportCounts.total ? Math.round((reportCounts.not_started / reportCounts.total) * 100) : 0}%`}
-                  color="red"
-                  icon={XCircle}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-                <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <div className="mb-4 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-slate-800">
-                      Reports Monitoring — {activeSchool.name}
-                    </p>
-                    <p className="text-sm text-slate-500">{filterLabel}</p>
+            {activeSchool && (
+              <>
+                <div className="mb-10">
+                  <h2 className="mb-4 text-lg font-semibold text-slate-800">
+                    Activity Summary
+                  </h2>
+                  {/* Stat cards */}
+                  <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <StatCard
+                      label="Total Activities"
+                      value={activeCounts.total}
+                      sublabel={filterLabel}
+                      color="slate"
+                      icon={ClipboardList}
+                    />
+                    <StatCard
+                      label="Completed"
+                      value={activeCounts.completed}
+                      sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
+                      color="green"
+                      icon={CheckCircle2}
+                    />
+                    <StatCard
+                      label="Ongoing"
+                      value={activeCounts.ongoing}
+                      sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
+                      color="amber"
+                      icon={Hourglass}
+                    />
+                    <StatCard
+                      label="Not Started"
+                      value={activeCounts.not_started}
+                      sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
+                      color="red"
+                      icon={XCircle}
+                    />
                   </div>
-                  {filteredReportSubmissions.length === 0 ? (
-                    <p className="py-8 text-center text-sm italic text-slate-400">
-                      {activeSchool.report_submissions.length === 0
-                        ? "No reports assigned yet."
-                        : "No reports match the selected filter."}
-                    </p>
-                  ) : (
-                    <div className="max-h-90 overflow-y-auto rounded-lg">
-                      <table className="w-full table-fixed text-left text-sm">
-                        <colgroup>
-                          <col className="w-[28%]" />
-                          <col className="w-[15%]" />
-                          <col className="w-[18%]" />
-                          <col className="w-[10%]" />
-                          <col className="w-[10%]" />
-                          <col className="w-[10%]" />
-                          <col className="w-[15%]" />
-                        </colgroup>
-                        <thead className="sticky top-0 z-10 bg-slate-50">
-                          <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                            <th className="pb-2 pt-2 pl-2 font-bold">Report</th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Date
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Status
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Actions
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Remarks
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Link
-                            </th>
-                            <th className="pb-2 pt-2 font-bold text-center">
-                              Legal Basis
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {sortedReportSubmissions.map((sub) => (
-                            <tr
-                              key={sub.id}
-                              className="border-b border-slate-50"
-                            >
-                              <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
-                                <span className="block" title={sub.name}>
-                                  {sub.name}
-                                </span>
-                              </td>
-                              <td className="py-3 text-center text-slate-500">
-                                {sub.submission_date || "—"}
-                              </td>
-                              <td className="py-3 text-center">
-                                <StatusBadge status={sub.status} />
-                              </td>
-                              <td className="py-3 text-center">
-                                <button
-                                  onClick={() =>
-                                    setEditingReportSubmission(sub)
-                                  }
-                                  className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                  title="Edit report"
+
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                    {/* Activities table */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-5">
+                      <div className="mb-4 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-slate-800">
+                          Activities Monitoring — {activeSchool.name}
+                        </p>
+                        <p className="text-sm text-slate-500">{filterLabel}</p>
+                      </div>
+                      {filteredSubmissions.length === 0 ? (
+                        <p className="py-8 text-center text-sm italic text-slate-400">
+                          {activeSchool.submissions.length === 0
+                            ? "No activities assigned yet."
+                            : "No activities match the selected filter."}
+                        </p>
+                      ) : (
+                        <div className="max-h-90 overflow-y-auto rounded-lg">
+                          <table className="w-full table-fixed text-left text-sm">
+                            <colgroup>
+                              <col className="w-[28%]" />
+                              <col className="w-[15%]" />
+                              <col className="w-[18%]" />
+                              <col className="w-[10%]" />
+                              <col className="w-[10%]" />
+                              <col className="w-[10%]" />
+                              <col className="w-[15%]" />
+                            </colgroup>
+                            <thead className="sticky top-0 z-10 bg-slate-50">
+                              <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                                <th className="pb-2 pt-2 pl-2 font-bold">
+                                  Activity
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Date
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Status
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Actions
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Remarks
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Link
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Legal Basis
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sortedSubmissions.map((sub) => (
+                                <tr
+                                  key={sub.id}
+                                  className="border-b border-slate-50"
                                 >
-                                  <Eye size={18} />
-                                </button>
-                              </td>
-                              <td className="py-3 text-center">
-                                {sub.remarks ? (
-                                  <button
-                                    onClick={() => setViewingReportRemarks(sub)}
-                                    className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                    title={sub.remarks}
+                                  <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                    <span className="block" title={sub.name}>
+                                      {sub.name}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 text-center text-slate-500">
+                                    {sub.start_date
+                                      ? !sub.end_date ||
+                                        sub.end_date === sub.start_date
+                                        ? sub.start_date
+                                        : `${sub.start_date} – ${sub.end_date}`
+                                      : "—"}
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    <StatusBadge status={sub.status} />
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    <button
+                                      onClick={() => setEditingSubmission(sub)}
+                                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                      title="Edit activity"
+                                    >
+                                      <Eye size={18} />
+                                    </button>
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    {sub.remarks ? (
+                                      <button
+                                        onClick={() => setViewingRemarks(sub)}
+                                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                        title={sub.remarks}
+                                      >
+                                        <MessageSquareText size={18} />
+                                      </button>
+                                    ) : (
+                                      "—"
+                                    )}
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    {sub.drive_link ? (
+                                      <a
+                                        href={sub.drive_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex justify-center text-blue-600 hover:text-blue-800"
+                                        title="Open OneDrive Link"
+                                      >
+                                        <OneDriveLogo size={18} />
+                                      </a>
+                                    ) : (
+                                      "—"
+                                    )}
+                                  </td>
+                                  <td
+                                    className="py-3 text-center text-slate-500 truncate"
+                                    title={sub.legal_basis}
                                   >
-                                    <MessageSquareText size={18} />
-                                  </button>
-                                ) : (
-                                  "—"
-                                )}
-                              </td>
-                              <td className="py-3 text-center">
-                                {sub.drive_link ? (
-                                  <a
-                                    href={sub.drive_link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex justify-center text-blue-600 hover:text-blue-800"
-                                    title="Open OneDrive Link"
-                                  >
-                                    <OneDriveLogo size={18} />
-                                  </a>
-                                ) : (
-                                  "—"
-                                )}
-                              </td>
-                              <td
-                                className="py-3 text-center text-slate-500 truncate"
-                                title={sub.legal_basis}
-                              >
-                                {sub.legal_basis || "—"}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                                    {sub.legal_basis || "—"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
 
-                <div className="space-y-6">
-                  <ComplianceDonut
-                    counts={reportCounts}
-                    filterLabel={filterLabel}
-                    category={"report"}
-                  />
-                  <div className="rounded-xl border border-slate-200 bg-white p-5">
-                    <p className="mb-3 text-sm font-semibold text-slate-800">
-                      Quick Actions
-                    </p>
-                    <button
-                      onClick={() => setShowCreateReportModal(true)}
-                      className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
-                    >
-                      + Add New Report
-                    </button>
+                    {/* Right column */}
+                    <div className="space-y-6">
+                      <ComplianceDonut
+                        counts={activeCounts}
+                        filterLabel={filterLabel}
+                        category={"activity"}
+                      />
+
+                      <div className="rounded-xl border border-slate-200 bg-white p-5">
+                        <p className="mb-3 text-sm font-semibold text-slate-800">
+                          Quick Actions
+                        </p>
+                        <button
+                          onClick={() => setShowCreateModal(true)}
+                          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
+                        >
+                          + Add New Activity
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </>
-        )}
 
-        {/* Create Activity Modal */}
-        {showCreateModal && (
-          <CreateActivity
-            allSchools={schoolData}
-            onActivityCreated={handleActivityCreated}
-            onClose={() => setShowCreateModal(false)}
-          />
-        )}
+                <div>
+                  <h2 className="mb-4 pt-4 text-lg font-semibold text-slate-800 border-t border-slate-200/80">
+                    Reports Summary
+                  </h2>
+                  <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <StatCard
+                      label="Total Reports"
+                      value={reportCounts.total}
+                      sublabel={filterLabel}
+                      color="slate"
+                      icon={ClipboardList}
+                    />
+                    <StatCard
+                      label="Completed"
+                      value={reportCounts.completed}
+                      sublabel={`${reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}%`}
+                      color="green"
+                      icon={CheckCircle2}
+                    />
+                    <StatCard
+                      label="Ongoing"
+                      value={reportCounts.ongoing}
+                      sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
+                      color="amber"
+                      icon={Hourglass}
+                    />
+                    <StatCard
+                      label="Not Started"
+                      value={reportCounts.not_started}
+                      sublabel={`${reportCounts.total ? Math.round((reportCounts.not_started / reportCounts.total) * 100) : 0}%`}
+                      color="red"
+                      icon={XCircle}
+                    />
+                  </div>
 
-        {/* Edit Activity Modal */}
-        {editingSubmission && (
-          <EditActivity
-            submission={editingSubmission}
-            onSaved={handleActivityEdited}
-            onClose={() => setEditingSubmission(null)}
-            onDeleted={handleActivityDeleted}
-          />
-        )}
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                    <div className="rounded-xl border border-slate-200 bg-white p-5">
+                      <div className="mb-4 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-slate-800">
+                          Reports Monitoring — {activeSchool.name}
+                        </p>
+                        <p className="text-sm text-slate-500">{filterLabel}</p>
+                      </div>
+                      {filteredReportSubmissions.length === 0 ? (
+                        <p className="py-8 text-center text-sm italic text-slate-400">
+                          {activeSchool.report_submissions.length === 0
+                            ? "No reports assigned yet."
+                            : "No reports match the selected filter."}
+                        </p>
+                      ) : (
+                        <div className="max-h-90 overflow-y-auto rounded-lg">
+                          <table className="w-full table-fixed text-left text-sm">
+                            <colgroup>
+                              <col className="w-[28%]" />
+                              <col className="w-[15%]" />
+                              <col className="w-[18%]" />
+                              <col className="w-[10%]" />
+                              <col className="w-[10%]" />
+                              <col className="w-[10%]" />
+                              <col className="w-[15%]" />
+                            </colgroup>
+                            <thead className="sticky top-0 z-10 bg-slate-50">
+                              <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                                <th className="pb-2 pt-2 pl-2 font-bold">
+                                  Report
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Date
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Status
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Actions
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Remarks
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Link
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Legal Basis
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sortedReportSubmissions.map((sub) => (
+                                <tr
+                                  key={sub.id}
+                                  className="border-b border-slate-50"
+                                >
+                                  <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                    <span className="block" title={sub.name}>
+                                      {sub.name}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 text-center text-slate-500">
+                                    {sub.submission_date || "—"}
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    <StatusBadge status={sub.status} />
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    <button
+                                      onClick={() =>
+                                        setEditingReportSubmission(sub)
+                                      }
+                                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                      title="Edit report"
+                                    >
+                                      <Eye size={18} />
+                                    </button>
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    {sub.remarks ? (
+                                      <button
+                                        onClick={() =>
+                                          setViewingReportRemarks(sub)
+                                        }
+                                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                        title={sub.remarks}
+                                      >
+                                        <MessageSquareText size={18} />
+                                      </button>
+                                    ) : (
+                                      "—"
+                                    )}
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    {sub.drive_link ? (
+                                      <a
+                                        href={sub.drive_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex justify-center text-blue-600 hover:text-blue-800"
+                                        title="Open OneDrive Link"
+                                      >
+                                        <OneDriveLogo size={18} />
+                                      </a>
+                                    ) : (
+                                      "—"
+                                    )}
+                                  </td>
+                                  <td
+                                    className="py-3 text-center text-slate-500 truncate"
+                                    title={sub.legal_basis}
+                                  >
+                                    {sub.legal_basis || "—"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
 
-        {/* View Remarks Modal */}
-        {viewingRemarks && (
-          <RemarksModal
-            submission={viewingRemarks}
-            onClose={() => setViewingRemarks(null)}
-          />
-        )}
+                    <div className="space-y-6">
+                      <ComplianceDonut
+                        counts={reportCounts}
+                        filterLabel={filterLabel}
+                        category={"report"}
+                      />
+                      <div className="rounded-xl border border-slate-200 bg-white p-5">
+                        <p className="mb-3 text-sm font-semibold text-slate-800">
+                          Quick Actions
+                        </p>
+                        <button
+                          onClick={() => setShowCreateReportModal(true)}
+                          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
+                        >
+                          + Add New Report
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
-        {/* Create Report Modal */}
-        {showCreateReportModal && (
-          <CreateReport
-            allSchools={schoolData}
-            onReportCreated={handleReportCreated}
-            onClose={() => setShowCreateReportModal(false)}
-          />
-        )}
+            {/* Create Activity Modal */}
+            {showCreateModal && (
+              <CreateActivity
+                allSchools={schoolData}
+                onActivityCreated={handleActivityCreated}
+                onClose={() => setShowCreateModal(false)}
+              />
+            )}
 
-        {/* Edit Report Modal */}
-        {editingReportSubmission && (
-          <EditReport
-            submission={editingReportSubmission}
-            onSaved={handleReportEdited}
-            onClose={() => setEditingReportSubmission(null)}
-            onDeleted={handleReportDeleted}
-          />
-        )}
+            {/* Edit Activity Modal */}
+            {editingSubmission && (
+              <EditActivity
+                submission={editingSubmission}
+                onSaved={handleActivityEdited}
+                onClose={() => setEditingSubmission(null)}
+                onDeleted={handleActivityDeleted}
+              />
+            )}
 
-        {/* View Report Remarks Modal */}
-        {viewingReportRemarks && (
-          <RemarksModal
-            submission={viewingReportRemarks}
-            onClose={() => setViewingReportRemarks(null)}
-          />
-        )}
-      </main>
+            {/* View Remarks Modal */}
+            {viewingRemarks && (
+              <RemarksModal
+                submission={viewingRemarks}
+                onClose={() => setViewingRemarks(null)}
+              />
+            )}
+
+            {/* Create Report Modal */}
+            {showCreateReportModal && (
+              <CreateReport
+                allSchools={schoolData}
+                onReportCreated={handleReportCreated}
+                onClose={() => setShowCreateReportModal(false)}
+              />
+            )}
+
+            {/* Edit Report Modal */}
+            {editingReportSubmission && (
+              <EditReport
+                submission={editingReportSubmission}
+                onSaved={handleReportEdited}
+                onClose={() => setEditingReportSubmission(null)}
+                onDeleted={handleReportDeleted}
+              />
+            )}
+
+            {/* View Report Remarks Modal */}
+            {viewingReportRemarks && (
+              <RemarksModal
+                submission={viewingReportRemarks}
+                onClose={() => setViewingReportRemarks(null)}
+              />
+            )}
+          </main>{" "}
+        </>
+      )}
     </div>
   );
 };

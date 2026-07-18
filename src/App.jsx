@@ -139,9 +139,7 @@ const ComplianceDonut = ({ counts, filterLabel }) => {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-full w-full items-center justify-center rounded-full border-8 border-slate-100 text-xs text-slate-400">
-              No data
-            </div>
+            <div className="flex h-full w-full items-center justify-center rounded-full border-8 border-slate-100 text-xs text-slate-400"></div>
           )}
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-bold text-slate-800">{pct}%</span>

@@ -14,6 +14,8 @@ import {
   LogOut,
   School,
   MessageSquareText,
+  Menu,
+  X,
 } from "lucide-react";
 import CalendarView from "./CalendarView";
 
@@ -79,19 +81,19 @@ const StatCard = ({ label, value, sublabel, color, icon: Icon }) => {
   }[color];
 
   return (
-    <div className={`flex items-start gap-5 rounded-xl border p-4 ${palette}`}>
+    <div className={`flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5 rounded-xl border p-3 sm:p-4 ${palette}`}>
       {Icon && (
         <div
-          className={`flex h-18 w-18 shrink-0 items-center justify-center rounded-full ${iconBg}`}
+          className={`flex h-12 w-12 sm:h-18 sm:w-18 shrink-0 items-center justify-center rounded-full ${iconBg}`}
         >
-          <Icon size={38} />
+          <Icon size={28} className="sm:w-[38px] sm:h-[38px]" />
         </div>
       )}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide opacity-80">
           {label}
         </p>
-        <p className="mt-1 text-4xl font-bold">{value}</p>
+        <p className="mt-1 text-2xl sm:text-4xl font-bold">{value}</p>
         {sublabel && <p className="text-xs opacity-70">{sublabel}</p>}
       </div>
     </div>
@@ -114,24 +116,24 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
         <p className="text-sm font-semibold text-slate-800">
           {category === "activity"
             ? "Activities Compliance"
             : "Reports Compliance"}
         </p>
-        <p className="text-sm text-slate-500">{filterLabel}</p>
+        <p className="text-xs lg:text-sm text-slate-500">{filterLabel}</p>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="relative h-40 w-40 shrink-0">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div className="relative h-32 w-32 lg:h-40 lg:w-40 shrink-0">
           {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   dataKey="value"
-                  innerRadius={50}
-                  outerRadius={75}
+                  innerRadius={40}
+                  outerRadius={60}
                   paddingAngle={2}
                   stroke="none"
                 >
@@ -145,7 +147,7 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
             <div className="flex h-full w-full items-center justify-center rounded-full border-8 border-slate-100 text-xs text-slate-400"></div>
           )}
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-slate-800">{pct}%</span>
+            <span className="text-xl lg:text-2xl font-bold text-slate-800">{pct}%</span>
             <span className="text-[10px] text-slate-500">Overall</span>
           </div>
         </div>
@@ -197,7 +199,7 @@ const Sidebar = ({ currentView, onNavigate }) => {
   ];
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col bg-[#0b1c39] px-4 py-6 text-white">
+    <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-[#0b1c39] px-4 py-6 text-white">
       <div className="mb-8 flex items-center gap-5 px-1">
         <img
           src="/images/DEPED_logo.png"
@@ -239,6 +241,68 @@ const Sidebar = ({ currentView, onNavigate }) => {
         ))}
       </nav>
     </aside>
+  );
+};
+
+// ============================================
+// Mobile Header + Navigation
+// ============================================
+const MobileHeader = ({ isMenuOpen, onMenuToggle, currentView, onNavigate }) => {
+  const navItems = [
+    { key: "dashboard", label: "Dashboard" },
+    { key: "calendar", label: "Calendar" },
+    { key: "reports", label: "Consolidated Reports" },
+    { key: "download", label: "Download Reports" },
+  ];
+
+  return (
+    <>
+      {/* Mobile Header */}
+      <div className="sticky top-0 z-40 flex lg:hidden items-center justify-between bg-[#0b1c39] px-4 py-3 text-white">
+        <div className="flex items-center gap-2">
+          <img
+            src="/images/DEPED_logo.png"
+            alt="DEPED Logo"
+            className="h-8 w-8"
+          />
+          <img
+            src="/images/DEPED_torch_logo.png"
+            alt="DEPED Logo"
+            className="h-7"
+          />
+        </div>
+        <button
+          onClick={onMenuToggle}
+          className="flex items-center justify-center h-10 w-10 rounded-lg hover:bg-white/10 cursor-pointer"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Mobile Navigation Menu */}
+      {isMenuOpen && (
+        <div className="lg:hidden bg-[#0b1c39] border-b border-white/10">
+          <nav className="space-y-1 px-2 py-3">
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                onClick={() => {
+                  onNavigate(item.key);
+                  onMenuToggle();
+                }}
+                className={`w-full text-left rounded-lg px-3 py-2.5 text-sm cursor-pointer ${
+                  currentView === item.key
+                    ? "bg-blue-600 font-semibold text-white"
+                    : "text-white/70 hover:bg-white/5"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -1550,6 +1614,7 @@ const AdminDashboard = ({ profile }) => {
 
   const [view, setView] = useState("dashboard");
   const [calendarSchoolFilter, setCalendarSchoolFilter] = useState("all");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function loadSchools() {
@@ -1776,9 +1841,18 @@ const AdminDashboard = ({ profile }) => {
   );
 
   return (
-    <div className="flex min-h-screen bg-[#f4f6fb]">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f4f6fb]">
+      {/* Mobile Header (visible on mobile only) */}
+      <MobileHeader
+        isMenuOpen={mobileMenuOpen}
+        onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+        currentView={view}
+        onNavigate={setView}
+      />
+
+      {/* Desktop Sidebar (visible on lg and up) */}
       {/* using self-start sticky top-0 h-screen makes the sidebar sticky and not scrollable */}
-      <div className="sticky top-0 self-start flex h-screen flex-col overflow-hidden">
+      <div className="hidden lg:flex sticky top-0 self-start h-screen flex-col overflow-hidden">
         <Sidebar currentView={view} onNavigate={setView} />
         <div className="mt-0 bg-[#0b1c39] px-4 pb-77 pt-0 text-white">
           <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wide text-white/50">
@@ -1788,8 +1862,18 @@ const AdminDashboard = ({ profile }) => {
         </div>
       </div>
 
+      {/* Mobile Bottom Stat (visible on mobile only) */}
+      <div className="lg:hidden bg-[#0b1c39] px-4 py-3 text-white w-full">
+        <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-white/50">
+          Monthly Progress (All Schools)
+        </p>
+        <div className="w-full">
+          <ComplianceMiniDonut counts={overallCounts} />
+        </div>
+      </div>
+
       {view === "calendar" ? (
-        <main className="flex-1 p-8 pt-0">
+        <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <div className="mb-4 mt-5">
             <h1 className="text-2xl font-bold text-slate-800">Calendar</h1>
             <p className="text-sm text-slate-500">
@@ -1806,11 +1890,11 @@ const AdminDashboard = ({ profile }) => {
         </main>
       ) : (
         <>
-          <main className="flex-1 p-8 pt-0">
+          <main className="flex-1 p-4 lg:p-8 lg:pt-0">
             {/* Header + School Tabs sticky */}
-            <div className="sticky top-0 z-20 -mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-8 pb-4 pt-5 backdrop-blur-sm">
+            <div className="lg:sticky lg:top-0 z-20 -mx-4 lg:-mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-4 lg:px-8 pb-4 pt-5 backdrop-blur-sm">
               {/* Header */}
-              <div className="mb-4 flex items-start justify-between">
+              <div className="mb-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                 <div>
                   <h1 className="text-2xl font-bold text-slate-800">
                     Dashboard Overview
@@ -1820,7 +1904,7 @@ const AdminDashboard = ({ profile }) => {
                     reports, and track compliance.
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                   {(filterMonth !== "all" || filterYear !== "all") && (
                     <button
                       onClick={() => {
@@ -1883,7 +1967,7 @@ const AdminDashboard = ({ profile }) => {
                     ))}
                   </select>
 
-                  <span className="text-sm text-slate-600">
+                  <span className="text-xs sm:text-sm text-slate-600 whitespace-nowrap">
                     Welcome, {profile.full_name || "PDO"}
                   </span>
                   <LogoutButton />
@@ -1891,19 +1975,19 @@ const AdminDashboard = ({ profile }) => {
               </div>
 
               {/* School tabs */}
-              <div className="flex gap-2 overflow-x-auto pb-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:gap-2 lg:overflow-x-auto gap-2 pb-1">
                 {schoolData.map((school) => (
                   <button
                     key={school.id}
                     onClick={() => setActiveSchoolId(school.id)}
-                    className={`inline-flex gap-3 items-center whitespace-nowrap rounded-lg px-10 py-3 text-sm font-semibold cursor-pointer ${
+                    className={`flex gap-2 sm:gap-3 items-center justify-start lg:whitespace-nowrap rounded-lg px-4 sm:px-10 py-2 sm:py-3 text-xs sm:text-sm font-semibold cursor-pointer ${
                       activeSchoolId === school.id
                         ? "bg-[#0b1c39] text-white"
                         : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
                   >
                     <span>
-                      <School size={24} />
+                      <School size={20} className="sm:w-6 sm:h-6" />
                     </span>
                     {school.name}
                   </button>
@@ -1952,11 +2036,11 @@ const AdminDashboard = ({ profile }) => {
                   <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
                     {/* Activities table */}
                     <div className="rounded-xl border border-slate-200 bg-white p-5">
-                      <div className="mb-4 flex items-center justify-between">
+                      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <p className="text-sm font-semibold text-slate-800">
                           Activities Monitoring — {activeSchool.name}
                         </p>
-                        <p className="text-sm text-slate-500">{filterLabel}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
                       </div>
                       {filteredSubmissions.length === 0 ? (
                         <p className="py-8 text-center text-sm italic text-slate-400">
@@ -1965,8 +2049,9 @@ const AdminDashboard = ({ profile }) => {
                             : "No activities match the selected filter."}
                         </p>
                       ) : (
-                        <div className="max-h-90 overflow-y-auto rounded-lg">
-                          <table className="w-full table-fixed text-left text-sm">
+                        <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
+                          {/* setting min-w makes the table on mobile scrollable horizontally */}
+                          <table className="w-full min-w-180 table-fixed text-left text-sm">
                             <colgroup>
                               <col className="w-[28%]" />
                               <col className="w-[15%]" />
@@ -2139,11 +2224,11 @@ const AdminDashboard = ({ profile }) => {
 
                   <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
                     <div className="rounded-xl border border-slate-200 bg-white p-5">
-                      <div className="mb-4 flex items-center justify-between">
+                      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <p className="text-sm font-semibold text-slate-800">
                           Reports Monitoring — {activeSchool.name}
                         </p>
-                        <p className="text-sm text-slate-500">{filterLabel}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
                       </div>
                       {filteredReportSubmissions.length === 0 ? (
                         <p className="py-8 text-center text-sm italic text-slate-400">
@@ -2152,8 +2237,9 @@ const AdminDashboard = ({ profile }) => {
                             : "No reports match the selected filter."}
                         </p>
                       ) : (
-                        <div className="max-h-90 overflow-y-auto rounded-lg">
-                          <table className="w-full table-fixed text-left text-sm">
+                        <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
+                          {/* setting min-w makes the table on mobile scrollable horizontally */}
+                          <table className="w-full min-w-180 table-fixed text-left text-sm">
                             <colgroup>
                               <col className="w-[28%]" />
                               <col className="w-[15%]" />
@@ -2444,8 +2530,8 @@ const SchoolHeadDashboard = ({ profile }) => {
   const counts = countByStatus(submissions);
 
   return (
-    <div className="min-h-screen bg-[#f4f6fb] p-8">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="min-h-screen bg-[#f4f6fb] p-4 lg:p-8">
+      <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">
             My School's Activities

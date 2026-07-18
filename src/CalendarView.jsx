@@ -38,7 +38,7 @@ const CELL_MIN_HEIGHT = 85;
 const DATE_ROW_HEIGHT = 24;
 const BAR_HEIGHT = 16;
 const BAR_GAP = 2;
-const MAX_VISIBLE_ROWS = 3;
+const MAX_VISIBLE_ROWS = 2;
 const OVERFLOW_ROW_HEIGHT = 16;
 
 function buildCalendarEvents(schoolData) {

@@ -2051,7 +2051,7 @@ const AdminDashboard = ({ profile }) => {
                       ) : (
                         <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
                           {/* setting min-w makes the table on mobile scrollable horizontally */}
-                          <table className="w-full min-w-180 table-fixed text-left text-sm">
+                          <table className="w-full min-w-170 table-fixed text-left text-sm">
                             <colgroup>
                               <col className="w-[28%]" />
                               <col className="w-[15%]" />
@@ -2239,7 +2239,7 @@ const AdminDashboard = ({ profile }) => {
                       ) : (
                         <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
                           {/* setting min-w makes the table on mobile scrollable horizontally */}
-                          <table className="w-full min-w-180 table-fixed text-left text-sm">
+                          <table className="w-full min-w-170 table-fixed text-left text-sm">
                             <colgroup>
                               <col className="w-[28%]" />
                               <col className="w-[15%]" />

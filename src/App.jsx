@@ -549,7 +549,11 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
 
 const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   const [name, setName] = useState(submission.name);
-  const [date, setDate] = useState(submission.date || "");
+  const [startDate, setStartDate] = useState(submission.start_date || "");
+  const [isMultiDay, setIsMultiDay] = useState(
+    !!submission.end_date && submission.end_date !== submission.start_date,
+  );
+  const [endDate, setEndDate] = useState(submission.end_date || "");
   const [driveLink, setDriveLink] = useState(submission.drive_link || "");
   const [status, setStatus] = useState(submission.status);
   const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
@@ -589,30 +593,42 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       setError("Activity name field is required.");
       return;
     }
-
     if (!status) {
       setError("Status is required.");
       return;
     }
-
-    if (!date) {
+    if (!startDate) {
       setError("Date is required.");
       return;
     }
 
-    if (date) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(startDate);
 
-      const selectedDate = new Date(date);
+    if (isNaN(start.getTime())) {
+      setError("Date is invalid.");
+      return;
+    }
+    if (start < today) {
+      setError("Date cannot be in the past.");
+      return;
+    }
 
-      if (isNaN(selectedDate.getTime())) {
-        setError("Date is invalid.");
+    const resolvedEndDate = isMultiDay ? endDate : startDate;
+
+    if (isMultiDay) {
+      if (!endDate) {
+        setError("End date is required.");
         return;
       }
-
-      if (selectedDate < today) {
-        setError("Date cannot be in the past.");
+      const end = new Date(endDate);
+      if (isNaN(end.getTime())) {
+        setError("End date is invalid.");
+        return;
+      }
+      if (end < start) {
+        setError("End date cannot be before the start date.");
         return;
       }
     }
@@ -624,7 +640,8 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
       .update({
         name,
         legal_basis: legalBasis || null,
-        date: date || null,
+        start_date: startDate,
+        end_date: resolvedEndDate,
         drive_link: driveLink || null,
         status,
         updated_at: new Date().toISOString(),
@@ -682,19 +699,50 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className={isMultiDay ? "grid grid-cols-2 gap-3" : ""}>
             <div>
               <label className="mb-2 block text-xs font-semibold text-slate-500">
-                Date <span className="text-red-500">*</span>
+                {isMultiDay ? "Start Date" : "Date"}{" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               />
             </div>
 
+            {isMultiDay && (
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-slate-500">
+                  End Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate || undefined}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+                />
+              </div>
+            )}
+          </div>
+
+          <label className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-600">
+            <input
+              type="checkbox"
+              checked={isMultiDay}
+              onChange={(e) => {
+                setIsMultiDay(e.target.checked);
+                if (!e.target.checked) setEndDate("");
+              }}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600"
+            />
+            This activity runs across multiple days
+          </label>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="relative">
               <label className="mb-2 block text-xs font-semibold text-slate-500">
                 Status <span className="text-red-500">*</span>
@@ -715,19 +763,19 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
                 className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
-          </div>
 
-          <div>
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Remarks
-            </label>
-            <input
-              type="text"
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
-              placeholder="e.g. Submitted"
-            />
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Remarks (optional)
+              </label>
+              <input
+                type="text"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+                placeholder="e.g. Submitted"
+              />
+            </div>
           </div>
 
           <div>
@@ -754,6 +802,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
             <input
               type="url"
               value={driveLink}
+              placeholder="https://drive.google.com/..."
               onChange={(e) => setDriveLink(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
             />
@@ -1412,7 +1461,7 @@ const AdminDashboard = ({ profile }) => {
                                 <button
                                   onClick={() => setViewingRemarks(sub)}
                                   className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                  title="View Remarks"
+                                  title={sub.remarks}
                                 >
                                   <MessageSquareText size={18} />
                                 </button>

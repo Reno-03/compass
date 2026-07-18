@@ -1531,11 +1531,15 @@ const AdminDashboard = ({ profile }) => {
   const [filterYear, setFilterYear] = useState(today.getFullYear()); // number, or "all"
   const [viewingRemarks, setViewingRemarks] = useState(null);
 
+  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
+  const [editingReportSubmission, setEditingReportSubmission] = useState(null);
+  const [viewingReportRemarks, setViewingReportRemarks] = useState(null);
+
   useEffect(() => {
     async function loadSchools() {
       const { data, error } = await supabase
         .from("schools")
-        .select("*, submissions(*)")
+        .select("*, submissions(*), report_submissions(*)")
         .order("name");
 
       if (error) {
@@ -1575,6 +1579,41 @@ const AdminDashboard = ({ profile }) => {
       prev.map((school) => ({
         ...school,
         submissions: school.submissions.filter((sub) => sub.id !== id),
+      })),
+    );
+  }
+
+  function handleReportCreated(newSubmissions) {
+    setSchoolData((prev) =>
+      prev.map((school) => {
+        const match = newSubmissions.find((s) => s.school_id === school.id);
+        if (!match) return school;
+        return {
+          ...school,
+          report_submissions: [...school.report_submissions, match],
+        };
+      }),
+    );
+  }
+
+  function handleReportEdited(updatedSubmission) {
+    setSchoolData((prev) =>
+      prev.map((school) => ({
+        ...school,
+        report_submissions: school.report_submissions.map((sub) =>
+          sub.id === updatedSubmission.id ? updatedSubmission : sub,
+        ),
+      })),
+    );
+  }
+
+  function handleReportDeleted(id) {
+    setSchoolData((prev) =>
+      prev.map((school) => ({
+        ...school,
+        report_submissions: school.report_submissions.filter(
+          (sub) => sub.id !== id,
+        ),
       })),
     );
   }
@@ -1683,6 +1722,31 @@ const AdminDashboard = ({ profile }) => {
       return `${MONTH_NAMES[filterMonth - 1]}, all years`;
     return `${MONTH_NAMES[filterMonth - 1]} ${filterYear}`;
   }
+
+  const filteredReportSubmissions = activeSchool
+    ? activeSchool.report_submissions.filter((sub) => {
+        if (filterMonth === "all" && filterYear === "all") return true;
+        if (!sub.submission_date) return false;
+        const d = new Date(sub.submission_date);
+        const monthMatch =
+          filterMonth === "all" || d.getMonth() + 1 === filterMonth;
+        const yearMatch =
+          filterYear === "all" || d.getFullYear() === filterYear;
+        return monthMatch && yearMatch;
+      })
+    : [];
+
+  const reportCounts = countByStatus(filteredReportSubmissions);
+
+  const sortedReportSubmissions = [...filteredReportSubmissions].sort(
+    (a, b) => {
+      const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+      if (statusDiff !== 0) return statusDiff;
+      if (!a.submission_date) return 1;
+      if (!b.submission_date) return -1;
+      return new Date(a.submission_date) - new Date(b.submission_date);
+    },
+  );
 
   return (
     <div className="flex min-h-screen bg-[#f4f6fb]">
@@ -1987,52 +2051,50 @@ const AdminDashboard = ({ profile }) => {
               <h2 className="mb-4 text-lg font-semibold text-slate-800">
                 Reports Summary
               </h2>
-              {/* Stat cards */}
               <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
                 <StatCard
-                  label="Total Activities"
-                  value={activeCounts.total}
+                  label="Total Reports"
+                  value={reportCounts.total}
                   sublabel={filterLabel}
                   color="slate"
                   icon={ClipboardList}
                 />
                 <StatCard
                   label="Completed"
-                  value={activeCounts.completed}
-                  sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
+                  value={reportCounts.completed}
+                  sublabel={`${reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}%`}
                   color="green"
                   icon={CheckCircle2}
                 />
                 <StatCard
                   label="Ongoing"
-                  value={activeCounts.ongoing}
-                  sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
+                  value={reportCounts.ongoing}
+                  sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
                   color="amber"
                   icon={Hourglass}
                 />
                 <StatCard
                   label="Not Started"
-                  value={activeCounts.not_started}
-                  sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
+                  value={reportCounts.not_started}
+                  sublabel={`${reportCounts.total ? Math.round((reportCounts.not_started / reportCounts.total) * 100) : 0}%`}
                   color="red"
                   icon={XCircle}
                 />
               </div>
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-                {/* Activities table */}
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
                   <div className="mb-4 flex items-center justify-between">
                     <p className="text-sm font-semibold text-slate-800">
-                      Activities Monitoring — {activeSchool.name}
+                      Reports Monitoring — {activeSchool.name}
                     </p>
                     <p className="text-sm text-slate-500">{filterLabel}</p>
                   </div>
-                  {filteredSubmissions.length === 0 ? (
+                  {filteredReportSubmissions.length === 0 ? (
                     <p className="py-8 text-center text-sm italic text-slate-400">
-                      {activeSchool.submissions.length === 0
-                        ? "No activities assigned yet."
-                        : "No activities match the selected filter."}
+                      {activeSchool.report_submissions.length === 0
+                        ? "No reports assigned yet."
+                        : "No reports match the selected filter."}
                     </p>
                   ) : (
                     <div className="max-h-90 overflow-y-auto rounded-lg">
@@ -2048,9 +2110,7 @@ const AdminDashboard = ({ profile }) => {
                         </colgroup>
                         <thead className="sticky top-0 z-10 bg-slate-50">
                           <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                            <th className="pb-2 pt-2 pl-2 font-bold">
-                              Activity
-                            </th>
+                            <th className="pb-2 pt-2 pl-2 font-bold">Report</th>
                             <th className="pb-2 pt-2 font-bold text-center">
                               Date
                             </th>
@@ -2072,7 +2132,7 @@ const AdminDashboard = ({ profile }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {sortedSubmissions.map((sub) => (
+                          {sortedReportSubmissions.map((sub) => (
                             <tr
                               key={sub.id}
                               className="border-b border-slate-50"
@@ -2083,21 +2143,18 @@ const AdminDashboard = ({ profile }) => {
                                 </span>
                               </td>
                               <td className="py-3 text-center text-slate-500">
-                                {sub.start_date
-                                  ? !sub.end_date ||
-                                    sub.end_date === sub.start_date
-                                    ? sub.start_date
-                                    : `${sub.start_date} – ${sub.end_date}`
-                                  : "—"}
+                                {sub.submission_date || "—"}
                               </td>
                               <td className="py-3 text-center">
                                 <StatusBadge status={sub.status} />
                               </td>
                               <td className="py-3 text-center">
                                 <button
-                                  onClick={() => setEditingSubmission(sub)}
+                                  onClick={() =>
+                                    setEditingReportSubmission(sub)
+                                  }
                                   className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                  title="Edit activity"
+                                  title="Edit report"
                                 >
                                   <Eye size={18} />
                                 </button>
@@ -2105,7 +2162,7 @@ const AdminDashboard = ({ profile }) => {
                               <td className="py-3 text-center">
                                 {sub.remarks ? (
                                   <button
-                                    onClick={() => setViewingRemarks(sub)}
+                                    onClick={() => setViewingReportRemarks(sub)}
                                     className="text-slate-400 hover:text-blue-600 cursor-pointer"
                                     title={sub.remarks}
                                   >
@@ -2144,22 +2201,20 @@ const AdminDashboard = ({ profile }) => {
                   )}
                 </div>
 
-                {/* Right column */}
                 <div className="space-y-6">
                   <ComplianceDonut
-                    counts={activeCounts}
+                    counts={reportCounts}
                     filterLabel={filterLabel}
                   />
-
                   <div className="rounded-xl border border-slate-200 bg-white p-5">
                     <p className="mb-3 text-sm font-semibold text-slate-800">
                       Quick Actions
                     </p>
                     <button
-                      onClick={() => setShowCreateModal(true)}
+                      onClick={() => setShowCreateReportModal(true)}
                       className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
                     >
-                      + Add New Activity
+                      + Add New Report
                     </button>
                   </div>
                 </div>

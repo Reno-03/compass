@@ -13,6 +13,7 @@ import {
   ChevronDown,
   LogOut,
   School,
+  MessageSquareText,
 } from "lucide-react";
 
 // ============================================
@@ -406,9 +407,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               >
-                <option value="not_started" selected>
-                  Not Started
-                </option>
+                <option value="not_started">Not Started</option>
                 <option value="ongoing">Ongoing</option>
                 <option value="completed">Completed</option>
               </select>
@@ -723,6 +722,42 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   );
 };
 
+const RemarksModal = ({ submission, onClose }) => (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
+    onClick={onClose}
+  >
+    <div
+      className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h3 className="text-lg font-bold text-slate-800">Remarks</h3>
+          <p className="text-xs text-slate-500">{submission.name}</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-slate-400 hover:text-slate-600 cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <p className="whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm text-slate-700 mb-6">
+        {submission.remarks}
+      </p>
+
+      <button
+        className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 cursor-pointer transition-transform hover:-translate-y-0.5"
+        onClick={onClose}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+);
+
 // ============================================
 // Login
 // ============================================
@@ -932,6 +967,7 @@ const AdminDashboard = ({ profile }) => {
   const today = new Date();
   const [filterMonth, setFilterMonth] = useState(today.getMonth() + 1); // 1-12, or "all"
   const [filterYear, setFilterYear] = useState(today.getFullYear()); // number, or "all"
+  const [viewingRemarks, setViewingRemarks] = useState(null);
 
   useEffect(() => {
     async function loadSchools() {
@@ -1229,12 +1265,13 @@ const AdminDashboard = ({ profile }) => {
                   <div className="max-h-90 overflow-y-auto rounded-lg">
                     <table className="w-full table-fixed text-left text-sm">
                       <colgroup>
-                        <col className="w-[32%]" />
+                        <col className="w-[28%]" />
                         <col className="w-[15%]" />
                         <col className="w-[18%]" />
-                        <col className="w-[8%]" />
-                        <col className="w-[8%]" />
-                        <col className="w-[20%]" />
+                        <col className="w-[10%]" />
+                        <col className="w-[10%]" />
+                        <col className="w-[10%]" />
+                        <col className="w-[15%]" />
                       </colgroup>
                       <thead className="sticky top-0 z-10 bg-slate-50">
                         <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -1247,6 +1284,9 @@ const AdminDashboard = ({ profile }) => {
                           </th>
                           <th className="pb-2 pt-2 font-bold text-center">
                             Actions
+                          </th>
+                          <th className="pb-2 pt-2 font-bold text-center">
+                            Remarks
                           </th>
                           <th className="pb-2 pt-2 font-bold text-center">
                             Link
@@ -1278,6 +1318,19 @@ const AdminDashboard = ({ profile }) => {
                               >
                                 <Eye size={18} />
                               </button>
+                            </td>
+                            <td className="py-3 text-center">
+                              {sub.remarks ? (
+                                <button
+                                  onClick={() => setViewingRemarks(sub)}
+                                  className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                  title="View Remarks"
+                                >
+                                  <MessageSquareText size={18} />
+                                </button>
+                              ) : (
+                                "—"
+                              )}
                             </td>
                             <td className="py-3 text-center">
                               {sub.drive_link ? (
@@ -1344,6 +1397,14 @@ const AdminDashboard = ({ profile }) => {
             onSaved={handleActivityEdited}
             onClose={() => setEditingSubmission(null)}
             onDeleted={handleActivityDeleted}
+          />
+        )}
+
+        {/* View Remarks Modal */}
+        {viewingRemarks && (
+          <RemarksModal
+            submission={viewingRemarks}
+            onClose={() => setViewingRemarks(null)}
           />
         )}
       </main>

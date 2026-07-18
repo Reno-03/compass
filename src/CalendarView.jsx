@@ -24,7 +24,7 @@ const MONTH_NAMES_FULL = [
 ];
 
 // Layout constants for the bar system
-const CELL_MIN_HEIGHT = 118;
+const CELL_MIN_HEIGHT = 85;
 const DATE_ROW_HEIGHT = 24;
 const BAR_HEIGHT = 16;
 const BAR_GAP = 2;

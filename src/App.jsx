@@ -16,7 +16,7 @@ import {
   MessageSquareText,
   Menu,
   X,
-  Maximize2 
+  Maximize2,
 } from "lucide-react";
 import CalendarView from "./CalendarView";
 import ConsolidatedReports from "./ConsolidatedReports";
@@ -1379,7 +1379,13 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
   );
 };
 
-const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose, filterLabel }) => (
+const MaximizedReportsModal = ({
+  schoolName,
+  sorted,
+  onEdit,
+  onClose,
+  filterLabel,
+}) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 sm:p-8"
     onClick={onClose}
@@ -1425,7 +1431,9 @@ const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose, filterLabe
               <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
                 <th className="pb-2 pt-2 pl-2 font-bold">Report</th>
                 <th className="pb-2 pt-2 font-bold text-center">Date</th>
-                <th className="pb-2 pt-2 font-bold text-center">Date Submitted</th>
+                <th className="pb-2 pt-2 font-bold text-center">
+                  Date Submitted
+                </th>
                 <th className="pb-2 pt-2 font-bold text-center">Status</th>
                 <th className="pb-2 pt-2 font-bold text-center">Actions</th>
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
@@ -1484,7 +1492,14 @@ const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose, filterLabe
   </div>
 );
 
-const MaximizedActivitiesModal = ({ schoolName, sorted, onEdit, onViewRemarks, onClose, filterLabel }) => (
+const MaximizedActivitiesModal = ({
+  schoolName,
+  sorted,
+  onEdit,
+  onViewRemarks,
+  onClose,
+  filterLabel,
+}) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 sm:p-8"
     onClick={onClose}
@@ -1498,7 +1513,7 @@ const MaximizedActivitiesModal = ({ schoolName, sorted, onEdit, onViewRemarks, o
           <h3 className="text-lg font-bold text-slate-800">
             Activities Monitoring — {schoolName}
           </h3>
-           <p className="text-s text-slate-500">
+          <p className="text-s text-slate-500">
             {sorted.length} activity(ies) · {filterLabel}
           </p>
         </div>
@@ -2502,7 +2517,7 @@ const AdminDashboard = ({ profile }) => {
                       <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-semibold text-slate-800">
-                            Reports Monitoring 
+                            Reports Monitoring
                           </p>
                           <button
                             onClick={() => setMaximizedReports(true)}
@@ -2512,7 +2527,9 @@ const AdminDashboard = ({ profile }) => {
                             <Maximize2 size={16} />
                           </button>
                         </div>
-                        <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">
+                          {filterLabel}
+                        </p>
                       </div>
                       {filteredReportSubmissions.length === 0 ? (
                         <p className="py-8 text-center text-sm italic text-slate-400">
@@ -2541,7 +2558,7 @@ const AdminDashboard = ({ profile }) => {
                                 <th className="pb-2 pt-2 font-bold text-center">
                                   Date
                                 </th>
-                                 <th className="pb-2 pt-2 font-bold text-center">
+                                <th className="pb-2 pt-2 font-bold text-center">
                                   Date Submitted
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">

@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import CalendarView from "./CalendarView";
+import ConsolidatedReports from "./ConsolidatedReports";
 
 // ============================================
 // Shared style tokens
@@ -38,7 +39,7 @@ const DONUT_COLORS = {
   not_started: "#DC2626",
 };
 
-const StatusBadge = ({ status }) => (
+export const StatusBadge = ({ status }) => (
   <span
     className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
   >
@@ -1572,7 +1573,7 @@ const LogoutButton = () => {
   );
 };
 
-function OneDriveLogo({ size = 16 }) {
+export function OneDriveLogo({ size = 16 }) {
   return (
     <svg
       width={size}
@@ -1897,6 +1898,18 @@ const AdminDashboard = ({ profile }) => {
             onSchoolFilterChange={setCalendarSchoolFilter}
             onEventClick={handleCalendarEventClick}
           />
+        </main>
+      ) : view === "reports" ? (
+        <main className="flex-1 p-4 lg:p-8 lg:pt-0">
+          <div className="mb-6 mt-5">
+            <h1 className="text-2xl font-bold text-slate-800">
+              Consolidated Reports
+            </h1>
+            <p className="text-sm text-slate-500">
+              Consolidated reports by school and school year.
+            </p>
+          </div>
+          <ConsolidatedReports schoolData={schoolData} />
         </main>
       ) : (
         <>

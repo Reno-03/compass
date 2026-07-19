@@ -2258,7 +2258,7 @@ const AdminDashboard = ({ profile }) => {
                                   Report
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
-                                  Date
+                                  Submission Date
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
                                   Status

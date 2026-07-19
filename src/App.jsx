@@ -1142,6 +1142,9 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
   const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [dateSubmitted, setDateSubmitted] = useState(
+    submission.date_submitted || "",
+  );
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -1194,6 +1197,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
         name,
         legal_basis: legalBasis || null,
         submission_date: submissionDate,
+        date_submitted: dateSubmitted || null,
         drive_link: driveLink || null,
         status,
         updated_at: new Date().toISOString(),
@@ -1256,16 +1260,16 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Submission Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={submissionDate}
-              onChange={(e) => setSubmissionDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-            />
-          </div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Submission Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={submissionDate}
+                onChange={(e) => setSubmissionDate(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              />
+            </div>
             <div className="relative">
               <label className="mb-2 block text-xs font-semibold text-slate-500">
                 Status <span className="text-red-500">*</span>
@@ -1284,8 +1288,40 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
                 className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
+          </div>
 
-            
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Date Submitted <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={dateSubmitted}
+                onChange={(e) => setDateSubmitted(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setDateSubmitted(new Date().toISOString().split("T")[0]);
+                  setStatus("completed");
+                }}
+                disabled={!!dateSubmitted}
+                className="whitespace-nowrap rounded-lg bg-green-600 px-3 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Mark as Submitted
+              </button>
+            </div>
+            {dateSubmitted && (
+              <button
+                type="button"
+                onClick={() => setDateSubmitted("")}
+                className="mt-1 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
           </div>
 
           <div>
@@ -2246,10 +2282,11 @@ const AdminDashboard = ({ profile }) => {
                           <table className="w-full min-w-170 table-fixed text-left text-sm">
                             <colgroup>
                               <col className="w-[28%]" />
-                              <col className="w-[15%]" />
+                              <col className="w-[16%]" />
+                              <col className="w-[16%]" />
                               <col className="w-[18%]" />
-                              <col className="w-[10%]" />
-                              <col className="w-[10%]" />
+                              <col className="w-[9%]" />
+                              <col className="w-[9%]" />
                               <col className="w-[15%]" />
                             </colgroup>
                             <thead className="sticky top-0 z-10 bg-slate-50">
@@ -2258,7 +2295,10 @@ const AdminDashboard = ({ profile }) => {
                                   Report
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
-                                  Submission Date
+                                  Date
+                                </th>
+                                 <th className="pb-2 pt-2 font-bold text-center">
+                                  Date Submitted
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
                                   Status
@@ -2287,6 +2327,9 @@ const AdminDashboard = ({ profile }) => {
                                   </td>
                                   <td className="py-3 text-center text-slate-500">
                                     {sub.submission_date || "—"}
+                                  </td>
+                                  <td className="py-3 text-center text-slate-500">
+                                    {sub.date_submitted || "—"}
                                   </td>
                                   <td className="py-3 text-center">
                                     <StatusBadge status={sub.status} />

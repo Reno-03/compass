@@ -1,10 +1,10 @@
-# COMPASS v0.1.0-beta
+# COMPASS v0.2.0-beta
 
 **C**entralized **O**nline **M**onitoring of **P**rograms, **A**ctivities, and **S**chool **S**ubmissions
 
 COMPASS is a web-based compliance monitoring platform designed to help administrators and school heads track activities, monitor submission progress, and review compliance data from a single dashboard.
 
-![Version](https://img.shields.io/badge/version-v0.1.0--beta-blue)
+![Version](https://img.shields.io/badge/version-v0.2.0--beta-blue)
 
 ---
 
@@ -19,6 +19,17 @@ This beta release focuses on the core workflow for monitoring school submissions
 Built with React, Vite, Tailwind CSS, Supabase, and Recharts.
 
 ---
+
+## What's New in v0.2.0-beta
+
+- 📅 New Calendar View for activities and reports
+- 📄 Complete Reports Management module
+- 📊 Consolidated Reports dashboard
+- 🔍 Expandable Activities and Reports tables
+- 📱 Improved mobile responsiveness
+- 📅 Report submission date tracking
+- 🎨 Dashboard layout and UX improvements
+- ⚖️ MIT License added
 
 ## Key Features
 

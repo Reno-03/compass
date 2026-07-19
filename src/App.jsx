@@ -1482,6 +1482,125 @@ const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose }) => (
   </div>
 );
 
+const MaximizedActivitiesModal = ({ schoolName, sorted, onEdit, onViewRemarks, onClose, filterLabel }) => (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 sm:p-8"
+    onClick={onClose}
+  >
+    <div
+      className="flex h-full w-full max-w-6xl flex-col rounded-xl bg-white shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+        <div>
+          <h3 className="text-lg font-bold text-slate-800">
+            Activities Monitoring — {schoolName}
+          </h3>
+           <p className="text-s text-slate-500">
+            {sorted.length} activity(ies) · {filterLabel}
+          </p>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-slate-400 hover:text-slate-600 cursor-pointer"
+        >
+          <X size={22} />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-auto p-6">
+        {sorted.length === 0 ? (
+          <p className="py-8 text-center text-sm italic text-slate-400">
+            No activities assigned yet.
+          </p>
+        ) : (
+          <table className="w-full table-fixed text-left text-sm">
+            <colgroup>
+              <col className="w-[26%]" />
+              <col className="w-[16%]" />
+              <col className="w-[12%]" />
+              <col className="w-[9%]" />
+              <col className="w-[9%]" />
+              <col className="w-[9%]" />
+              <col className="w-[19%]" />
+            </colgroup>
+            <thead className="sticky top-0 z-10 bg-slate-50">
+              <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
+                <th className="pb-2 pt-2 font-bold text-center">Date</th>
+                <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
+                <th className="pb-2 pt-2 font-bold text-center">Link</th>
+                <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((sub) => (
+                <tr key={sub.id} className="border-b border-slate-50">
+                  <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                    {sub.name}
+                  </td>
+                  <td className="py-3 text-center text-slate-500">
+                    {sub.start_date
+                      ? !sub.end_date || sub.end_date === sub.start_date
+                        ? sub.start_date
+                        : `${sub.start_date} – ${sub.end_date}`
+                      : "—"}
+                  </td>
+                  <td className="py-3 text-center">
+                    <StatusBadge status={sub.status} />
+                  </td>
+                  <td className="py-3 text-center">
+                    <button
+                      onClick={() => onEdit({ ...sub, schoolName })}
+                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                      title="Edit activity"
+                    >
+                      <Eye size={18} />
+                    </button>
+                  </td>
+                  <td className="py-3 text-center">
+                    {sub.remarks ? (
+                      <button
+                        onClick={() => onViewRemarks(sub)}
+                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                        title={sub.remarks}
+                      >
+                        <MessageSquareText size={18} />
+                      </button>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className="py-3 text-center">
+                    {sub.drive_link ? (
+                      <a
+                        href={sub.drive_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex justify-center text-blue-600 hover:text-blue-800"
+                        title="Open OneDrive Link"
+                      >
+                        <OneDriveLogo size={18} />
+                      </a>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className="py-3 text-center text-slate-500">
+                    {sub.legal_basis || "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
 const RemarksModal = ({ submission, onClose }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
@@ -1738,6 +1857,7 @@ const AdminDashboard = ({ profile }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [maximizedReports, setMaximizedReports] = useState(false);
+  const [maximizedActivities, setMaximizedActivities] = useState(false);
 
   useEffect(() => {
     async function loadSchools() {
@@ -2179,9 +2299,18 @@ const AdminDashboard = ({ profile }) => {
                     {/* Activities table */}
                     <div className="rounded-xl border border-slate-200 bg-white p-5">
                       <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <p className="text-sm font-semibold text-slate-800">
-                          Activities Monitoring — {activeSchool.name}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-slate-800">
+                            Activities Monitoring — {activeSchool.name}
+                          </p>
+                          <button
+                            onClick={() => setMaximizedActivities(true)}
+                            className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                            title="View full table"
+                          >
+                            <Maximize2 size={16} />
+                          </button>
+                        </div>
                         <p className="text-xs sm:text-sm text-slate-500">
                           {filterLabel}
                         </p>
@@ -2570,6 +2699,7 @@ const AdminDashboard = ({ profile }) => {
         />
       )}
 
+      {/* Max View Report Table View Modal */}
       {maximizedReports && (
         <MaximizedReportsModal
           schoolName={activeSchool.name}
@@ -2579,6 +2709,24 @@ const AdminDashboard = ({ profile }) => {
             setEditingReportSubmission(sub);
           }}
           onClose={() => setMaximizedReports(false)}
+        />
+      )}
+
+      {/* Max View Actvities Table View Modal */}
+      {maximizedActivities && (
+        <MaximizedActivitiesModal
+          schoolName={activeSchool.name}
+          sorted={sortedSubmissions}
+          onEdit={(sub) => {
+            setMaximizedActivities(false);
+            setEditingSubmission(sub);
+          }}
+          onViewRemarks={(sub) => {
+            setMaximizedActivities(false);
+            setViewingRemarks(sub);
+          }}
+          onClose={() => setMaximizedActivities(false)}
+          filterLabel={filterLabel}
         />
       )}
     </div>

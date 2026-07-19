@@ -1417,7 +1417,7 @@ const MaximizedReportsModal = ({
             No reports assigned yet.
           </p>
         ) : (
-          <table className="w-full table-fixed text-left text-sm">
+          <table className="w-full min-w-220 table-fixed text-left text-sm">
             <colgroup>
               <col className="w-[28%]" />
               <col className="w-[15%]" />
@@ -1531,7 +1531,7 @@ const MaximizedActivitiesModal = ({
             No activities assigned yet.
           </p>
         ) : (
-          <table className="w-full table-fixed text-left text-sm">
+          <table className="w-full min-w-220 table-fixed text-left text-sm">
             <colgroup>
               <col className="w-[26%]" />
               <col className="w-[16%]" />

@@ -16,6 +16,7 @@ import {
   MessageSquareText,
   Menu,
   X,
+  Maximize2 
 } from "lucide-react";
 import CalendarView from "./CalendarView";
 import ConsolidatedReports from "./ConsolidatedReports";
@@ -1378,6 +1379,109 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
   );
 };
 
+const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose }) => (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 sm:p-8"
+    onClick={onClose}
+  >
+    <div
+      className="flex h-full w-full max-w-6xl flex-col rounded-xl bg-white shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+        <div>
+          <h3 className="text-lg font-bold text-slate-800">
+            Reports Monitoring — {schoolName}
+          </h3>
+          <p className="text-xs text-slate-500">{sorted.length} report(s)</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-slate-400 hover:text-slate-600 cursor-pointer"
+        >
+          <X size={22} />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-auto p-6">
+        {sorted.length === 0 ? (
+          <p className="py-8 text-center text-sm italic text-slate-400">
+            No reports assigned yet.
+          </p>
+        ) : (
+          <table className="w-full table-fixed text-left text-sm">
+            <colgroup>
+              <col className="w-[28%]" />
+              <col className="w-[15%]" />
+              <col className="w-[18%]" />
+              <col className="w-[18%]" />
+              <col className="w-[10%]" />
+              <col className="w-[10%]" />
+              <col className="w-[19%]" />
+            </colgroup>
+            <thead className="sticky top-0 z-10 bg-slate-50">
+              <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                <th className="pb-2 pt-2 pl-2 font-bold">Report</th>
+                <th className="pb-2 pt-2 font-bold text-center">Date</th>
+                <th className="pb-2 pt-2 font-bold text-center">Date Submitted</th>
+                <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                <th className="pb-2 pt-2 font-bold text-center">Link</th>
+                <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((sub) => (
+                <tr key={sub.id} className="border-b border-slate-50">
+                  <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                    {sub.name}
+                  </td>
+                  <td className="py-3 text-center text-slate-500">
+                    {sub.submission_date || "—"}
+                  </td>
+                  <td className="py-3 text-center text-slate-500">
+                    {sub.date_submitted || "—"}
+                  </td>
+                  <td className="py-3 text-center">
+                    <StatusBadge status={sub.status} />
+                  </td>
+                  <td className="py-3 text-center">
+                    <button
+                      onClick={() => onEdit({ ...sub, schoolName })}
+                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                      title="Edit report"
+                    >
+                      <Eye size={18} />
+                    </button>
+                  </td>
+                  <td className="py-3 text-center">
+                    {sub.drive_link ? (
+                      <a
+                        href={sub.drive_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex justify-center text-blue-600 hover:text-blue-800"
+                        title="Open OneDrive Link"
+                      >
+                        <OneDriveLogo size={18} />
+                      </a>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className="py-3 text-center text-slate-500">
+                    {sub.legal_basis || "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
 const RemarksModal = ({ submission, onClose }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
@@ -1632,6 +1736,8 @@ const AdminDashboard = ({ profile }) => {
   const [view, setView] = useState("dashboard");
   const [calendarSchoolFilter, setCalendarSchoolFilter] = useState("all");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [maximizedReports, setMaximizedReports] = useState(false);
 
   useEffect(() => {
     async function loadSchools() {
@@ -2263,12 +2369,19 @@ const AdminDashboard = ({ profile }) => {
                   <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
                     <div className="rounded-xl border border-slate-200 bg-white p-5">
                       <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <p className="text-sm font-semibold text-slate-800">
-                          Reports Monitoring — {activeSchool.name}
-                        </p>
-                        <p className="text-xs sm:text-sm text-slate-500">
-                          {filterLabel}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-slate-800">
+                            Reports Monitoring 
+                          </p>
+                          <button
+                            onClick={() => setMaximizedReports(true)}
+                            className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                            title="View full table"
+                          >
+                            <Maximize2 size={16} />
+                          </button>
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
                       </div>
                       {filteredReportSubmissions.length === 0 ? (
                         <p className="py-8 text-center text-sm italic text-slate-400">
@@ -2454,6 +2567,18 @@ const AdminDashboard = ({ profile }) => {
         <RemarksModal
           submission={viewingReportRemarks}
           onClose={() => setViewingReportRemarks(null)}
+        />
+      )}
+
+      {maximizedReports && (
+        <MaximizedReportsModal
+          schoolName={activeSchool.name}
+          sorted={sortedReportSubmissions}
+          onEdit={(sub) => {
+            setMaximizedReports(false);
+            setEditingReportSubmission(sub);
+          }}
+          onClose={() => setMaximizedReports(false)}
         />
       )}
     </div>

@@ -1379,7 +1379,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
   );
 };
 
-const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose }) => (
+const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose, filterLabel }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 sm:p-8"
     onClick={onClose}
@@ -1393,7 +1393,9 @@ const MaximizedReportsModal = ({ schoolName, sorted, onEdit, onClose }) => (
           <h3 className="text-lg font-bold text-slate-800">
             Reports Monitoring — {schoolName}
           </h3>
-          <p className="text-xs text-slate-500">{sorted.length} report(s)</p>
+          <p className="text-s text-slate-500">
+            {sorted.length} Report(s) · {filterLabel}
+          </p>
         </div>
         <button
           onClick={onClose}
@@ -2709,6 +2711,7 @@ const AdminDashboard = ({ profile }) => {
             setEditingReportSubmission(sub);
           }}
           onClose={() => setMaximizedReports(false)}
+          filterLabel={filterLabel}
         />
       )}
 

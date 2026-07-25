@@ -639,7 +639,7 @@ const PublicDashboard = () => {
         </main>
       ) : view === "reports" ? (
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
-          <div className="mb-6 mt-5">
+          <div className="mb-4 mt-5">
             <h1 className="text-2xl font-bold text-slate-800">
               Consolidated Reports
             </h1>

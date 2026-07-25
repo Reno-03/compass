@@ -1419,13 +1419,26 @@ const MaximizedReportsModal = ({
         ) : (
           <table className="w-full min-w-220 table-fixed text-left text-sm">
             <colgroup>
-              <col className="w-[28%]" />
-              <col className="w-[15%]" />
-              <col className="w-[18%]" />
-              <col className="w-[18%]" />
-              <col className="w-[10%]" />
-              <col className="w-[10%]" />
-              <col className="w-[19%]" />
+              {showActions ? (
+                <>
+                  <col className="w-[26%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[19%]" />
+                </>
+              ) : (
+                <>
+                  <col className="w-[30%]" />
+                  <col className="w-[17%]" />
+                  <col className="w-[13%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[18%]" />
+                </>
+              )}
             </colgroup>
             <thead className="sticky top-0 z-10 bg-slate-50">
               <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -1538,13 +1551,26 @@ const MaximizedActivitiesModal = ({
         ) : (
           <table className="w-full min-w-220 table-fixed text-left text-sm">
             <colgroup>
-              <col className="w-[26%]" />
-              <col className="w-[16%]" />
-              <col className="w-[12%]" />
-              <col className="w-[9%]" />
-              <col className="w-[9%]" />
-              <col className="w-[9%]" />
-              <col className="w-[19%]" />
+              {showActions ? (
+                <>
+                  <col className="w-[26%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[19%]" />
+                </>
+              ) : (
+                <>
+                  <col className="w-[30%]" />
+                  <col className="w-[17%]" />
+                  <col className="w-[13%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[11%]" />
+                  <col className="w-[18%]" />
+                </>
+              )}
             </colgroup>
             <thead className="sticky top-0 z-10 bg-slate-50">
               <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">

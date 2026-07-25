@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import CalendarView from "./CalendarView";
 import ConsolidatedReports from "./ConsolidatedReports";
+import PublicDashboard from "./PublicDashboard";
 
 // ============================================
 // Shared style tokens
@@ -193,14 +194,11 @@ const LegendRow = ({ color, label, value }) => (
 // ============================================
 // Sidebar (mostly static for now — one working page)
 // ============================================
-const Sidebar = ({ currentView, onNavigate }) => {
-  const navItems = [
+const Sidebar = ({ currentView, onNavigate, items }) => {
+  const navItems = items || [
     { key: "dashboard", label: "Dashboard" },
     { key: "calendar", label: "Calendar" },
-    // { key: "monitor", label: "Monitor Accomplishments" },
     { key: "reports", label: "Consolidated Reports" },
-    // { key: "analytics", label: "Analytics" },
-    // { key: "reminders", label: "Send Reminders" },
     { key: "download", label: "Download Reports" },
   ];
 
@@ -258,8 +256,9 @@ const MobileHeader = ({
   onMenuToggle,
   currentView,
   onNavigate,
+  items,
 }) => {
-  const navItems = [
+  const navItems = items || [
     { key: "dashboard", label: "Dashboard" },
     { key: "calendar", label: "Calendar" },
     { key: "reports", label: "Consolidated Reports" },
@@ -1385,6 +1384,7 @@ const MaximizedReportsModal = ({
   onEdit,
   onClose,
   filterLabel,
+  showActions = true,
 }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 sm:p-8"
@@ -1435,7 +1435,9 @@ const MaximizedReportsModal = ({
                   Date Submitted
                 </th>
                 <th className="pb-2 pt-2 font-bold text-center">Status</th>
-                <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                {showActions && (
+                  <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                )}
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
                 <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
               </tr>
@@ -1455,15 +1457,17 @@ const MaximizedReportsModal = ({
                   <td className="py-3 text-center">
                     <StatusBadge status={sub.status} />
                   </td>
-                  <td className="py-3 text-center">
-                    <button
-                      onClick={() => onEdit({ ...sub, schoolName })}
-                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                      title="Edit report"
-                    >
-                      <Eye size={18} />
-                    </button>
-                  </td>
+                  {showActions && (
+                    <td className="py-3 text-center">
+                      <button
+                        onClick={() => onEdit({ ...sub, schoolName })}
+                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                        title="Edit report"
+                      >
+                        <Eye size={18} />
+                      </button>
+                    </td>
+                  )}
                   <td className="py-3 text-center">
                     {sub.drive_link ? (
                       <a
@@ -1499,6 +1503,7 @@ const MaximizedActivitiesModal = ({
   onViewRemarks,
   onClose,
   filterLabel,
+  showActions = true,
 }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 sm:p-8"
@@ -1546,7 +1551,9 @@ const MaximizedActivitiesModal = ({
                 <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
                 <th className="pb-2 pt-2 font-bold text-center">Date</th>
                 <th className="pb-2 pt-2 font-bold text-center">Status</th>
-                <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                {showActions && (
+                  <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                )}
                 <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
                 <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
@@ -1568,15 +1575,17 @@ const MaximizedActivitiesModal = ({
                   <td className="py-3 text-center">
                     <StatusBadge status={sub.status} />
                   </td>
-                  <td className="py-3 text-center">
-                    <button
-                      onClick={() => onEdit({ ...sub, schoolName })}
-                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                      title="Edit activity"
-                    >
-                      <Eye size={18} />
-                    </button>
-                  </td>
+                  {showActions && (
+                    <td className="py-3 text-center">
+                      <button
+                        onClick={() => onEdit({ ...sub, schoolName })}
+                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                        title="Edit activity"
+                      >
+                        <Eye size={18} />
+                      </button>
+                    </td>
+                  )}
                   <td className="py-3 text-center">
                     {sub.remarks ? (
                       <button
@@ -1782,9 +1791,17 @@ const LoginPage = () => {
             </button>
           </form>
 
-          <p className="mt-8 text-xs text-slate-400">
-            Access is limited to authorized DepEd personnel.
-          </p>
+          <div className="mt-8 rounded-lg border border-slate-200 bg-slate-50 p-3 text-center">
+            <p className="text-xs text-slate-500">
+              Access is limited to authorized DepEd personnel.
+            </p>
+            <a
+              href="/public"
+              className="mt-2 inline-flex text-sm font-semibold text-blue-600 hover:text-blue-700"
+            >
+              Open public dashboard view
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -2723,30 +2740,20 @@ const AdminDashboard = ({ profile }) => {
         <MaximizedReportsModal
           schoolName={activeSchool.name}
           sorted={sortedReportSubmissions}
-          onEdit={(sub) => {
-            setMaximizedReports(false);
-            setEditingReportSubmission(sub);
-          }}
           onClose={() => setMaximizedReports(false)}
           filterLabel={filterLabel}
+          showActions={false}
         />
       )}
 
-      {/* Max View Actvities Table View Modal */}
+      {/* Max View Activities Table View Modal */}
       {maximizedActivities && (
         <MaximizedActivitiesModal
           schoolName={activeSchool.name}
           sorted={sortedSubmissions}
-          onEdit={(sub) => {
-            setMaximizedActivities(false);
-            setEditingSubmission(sub);
-          }}
-          onViewRemarks={(sub) => {
-            setMaximizedActivities(false);
-            setViewingRemarks(sub);
-          }}
           onClose={() => setMaximizedActivities(false)}
           filterLabel={filterLabel}
+          showActions={false}
         />
       )}
     </div>
@@ -3002,7 +3009,16 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
 // App root
 // ============================================
 function App() {
+  const [route, setRoute] = useState(() => window.location.pathname);
   const { session, profile, loading } = useAuth();
+
+  useEffect(() => {
+    const onPopState = () => setRoute(window.location.pathname);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const isPublicRoute = route === "/public" || route.startsWith("/public/");
 
   if (loading)
     return (
@@ -3010,6 +3026,7 @@ function App() {
         Loading...
       </div>
     );
+  if (isPublicRoute) return <PublicDashboard />;
   if (!session) return <LoginPage />;
   if (!profile)
     return (

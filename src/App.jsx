@@ -35,19 +35,27 @@ const STATUS_LABEL = {
   ongoing: "Ongoing",
   not_started: "Not Started",
 };
+// Activities use "Upcoming" instead of "Not Started" for the not_started status
+const ACTIVITY_STATUS_LABEL = {
+  ...STATUS_LABEL,
+  not_started: "Upcoming",
+};
 const DONUT_COLORS = {
   completed: "#16A34A",
   ongoing: "#D97706",
   not_started: "#DC2626",
 };
 
-export const StatusBadge = ({ status }) => (
-  <span
-    className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
-  >
-    {STATUS_LABEL[status] || status}
-  </span>
-);
+export const StatusBadge = ({ status, category }) => {
+  const labels = category === "activity" ? ACTIVITY_STATUS_LABEL : STATUS_LABEL;
+  return (
+    <span
+      className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
+    >
+      {labels[status] || status}
+    </span>
+  );
+};
 
 // ============================================
 // Compliance calc
@@ -119,6 +127,8 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
     ? Math.round((counts.completed / counts.total) * 100)
     : 0;
 
+  const notStartedLabel = category === "activity" ? "Upcoming" : "Not Started";
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="mb-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
@@ -171,7 +181,7 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
           />
           <LegendRow
             color={DONUT_COLORS.not_started}
-            label="Not Started"
+            label={notStartedLabel}
             value={counts.not_started}
           />
         </div>
@@ -529,7 +539,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               >
-                <option value="not_started">Not Started</option>
+                <option value="not_started">Upcoming</option>
                 <option value="ongoing">Ongoing</option>
                 <option value="completed">Completed</option>
               </select>
@@ -829,7 +839,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               >
-                <option value="not_started">Not Started</option>
+                <option value="not_started">Upcoming</option>
                 <option value="ongoing">Ongoing</option>
                 <option value="completed">Completed</option>
               </select>
@@ -1599,7 +1609,7 @@ const MaximizedActivitiesModal = ({
                       : "—"}
                   </td>
                   <td className="py-3 text-center">
-                    <StatusBadge status={sub.status} />
+                    <StatusBadge status={sub.status} category="activity" />
                   </td>
                   {showActions && (
                     <td className="py-3 text-center">
@@ -2347,7 +2357,7 @@ const AdminDashboard = ({ profile }) => {
                       icon={Hourglass}
                     />
                     <StatCard
-                      label="Not Started"
+                      label="Upcoming"
                       value={activeCounts.not_started}
                       sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
                       color="red"
@@ -2439,7 +2449,10 @@ const AdminDashboard = ({ profile }) => {
                                       : "—"}
                                   </td>
                                   <td className="py-3 text-center">
-                                    <StatusBadge status={sub.status} />
+                                    <StatusBadge
+                                      status={sub.status}
+                                      category="activity"
+                                    />
                                   </td>
                                   <td className="py-3 text-center">
                                     <button
@@ -2837,7 +2850,7 @@ const ComplianceMiniDonut = ({ counts }) => {
         </p>
         <p>
           <span className="mr-1 inline-block h-2 w-2 rounded-full bg-red-500" />
-          Not Started {counts.not_started}
+          Upcoming {counts.not_started}
         </p>
       </div>
     </div>
@@ -2922,7 +2935,7 @@ const SchoolHeadDashboard = ({ profile }) => {
           icon={Hourglass}
         />
         <StatCard
-          label="Not Started"
+          label="Upcoming"
           value={counts.not_started}
           color="red"
           icon={XCircle}
@@ -2988,7 +3001,7 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
             <p className="text-xs text-slate-500">Due {submission.date}</p>
           )}
         </div>
-        <StatusBadge status={status} />
+        <StatusBadge status={status} category="activity" />
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -3001,7 +3014,7 @@ const SubmissionEditRow = ({ submission, onUpdated }) => {
             onChange={(e) => setStatus(e.target.value)}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
           >
-            <option value="not_started">Not Started</option>
+            <option value="not_started">Upcoming</option>
             <option value="ongoing">Ongoing</option>
             <option value="completed">Completed</option>
           </select>

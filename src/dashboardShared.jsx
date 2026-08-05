@@ -1,3 +1,5 @@
+// dashboardShared.jsx
+
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import {
   ClipboardList,
@@ -20,19 +22,27 @@ const STATUS_LABEL = {
   not_started: "Not Started",
 };
 
+const ACTIVITY_STATUS_LABEL = {
+  ...STATUS_LABEL,
+  not_started: "Upcoming",
+};
+
 const DONUT_COLORS = {
   completed: "#16A34A",
   ongoing: "#D97706",
   not_started: "#DC2626",
 };
 
-export const StatusBadge = ({ status }) => (
-  <span
-    className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
-  >
-    {STATUS_LABEL[status] || status}
-  </span>
-);
+export const StatusBadge = ({ status, category }) => {
+  const labels = category === "activity" ? ACTIVITY_STATUS_LABEL : STATUS_LABEL;
+  return (
+    <span
+      className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
+    >
+      {labels[status] || status}
+    </span>
+  );
+};
 
 export const StatCard = ({ label, value, sublabel, color, icon: Icon }) => {
   const palette = {
@@ -134,7 +144,7 @@ export const ComplianceDonut = ({ counts, filterLabel, category }) => {
           />
           <LegendRow
             color={DONUT_COLORS.not_started}
-            label="Not Started"
+            label={category === "activity" ? "Upcoming" : "Not Started"}
             value={counts.not_started}
           />
         </div>
@@ -271,7 +281,6 @@ export const MobileHeader = ({
     </>
   );
 };
-
 
 export const ComplianceMiniDonut = ({ counts }) => {
   const data = [

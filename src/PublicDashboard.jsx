@@ -1,3 +1,5 @@
+// PublicDashboard.jsx
+
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import CalendarView from "./CalendarView";
@@ -253,7 +255,7 @@ const MaximizedActivitiesModal = ({
                       : "—"}
                   </td>
                   <td className="py-3 text-center">
-                    <StatusBadge status={sub.status} />
+                    <StatusBadge status={sub.status} category="activity" />
                   </td>
                   <td className="py-3 text-center">
                     {sub.remarks ? (
@@ -897,7 +899,7 @@ const PublicDashboard = () => {
                     icon={Hourglass}
                   />
                   <StatCard
-                    label="Not Started"
+                    label="Upcoming"
                     value={activeCounts.not_started}
                     sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
                     color="red"
@@ -971,7 +973,7 @@ const PublicDashboard = () => {
                                     : "—"}
                                 </td>
                                 <td className="py-3 text-center">
-                                  <StatusBadge status={sub.status} />
+                                  <StatusBadge status={sub.status} category="activity" />
                                 </td>
                                 <td className="py-3 text-center">
                                   {sub.remarks ? (

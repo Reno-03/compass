@@ -20,6 +20,7 @@ import {
 import CalendarView from "./CalendarView";
 import ConsolidatedReports from "./ConsolidatedReports";
 import PublicDashboard from "./PublicDashboard";
+import NotificationSettings from "./NotificationSettings";
 
 // ============================================
 // Shared style tokens
@@ -241,6 +242,7 @@ const Sidebar = ({ currentView, onNavigate, items }) => {
     { key: "dashboard", label: "Dashboard" },
     { key: "calendar", label: "Calendar" },
     { key: "reports", label: "Consolidated Reports" },
+    { key: "notifications", label: "Email Notifications" },
     { key: "download", label: "Download Reports" },
   ];
 
@@ -2295,6 +2297,8 @@ const AdminDashboard = ({ profile }) => {
           </div>
           <ConsolidatedReports schoolData={schoolData} />
         </main>
+      ) : view === "notifications" ? (
+        <NotificationSettings />
       ) : (
         <>
           <main className="flex-1 p-4 lg:p-8 lg:pt-0">

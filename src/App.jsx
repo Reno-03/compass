@@ -1616,10 +1616,10 @@ const MaximizedActivitiesModal = ({
                 <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
                 <th className="pb-2 pt-2 font-bold text-center">Date</th>
                 <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                <th className="pb-2 pt-2 font-bold text-center">Priority</th>
                 {showActions && (
                   <th className="pb-2 pt-2 font-bold text-center">Actions</th>
                 )}
-                <th className="pb-2 pt-2 font-bold text-center">Priority</th>
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
                 <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
               </tr>
@@ -1640,6 +1640,9 @@ const MaximizedActivitiesModal = ({
                   <td className="py-3 text-center">
                     <StatusBadge status={sub.status} category="activity" />
                   </td>
+                  <td className="py-3 text-center">
+                    <PriorityBadge priority={sub.priority} />
+                  </td>
                   {showActions && (
                     <td className="py-3 text-center">
                       <button
@@ -1651,9 +1654,6 @@ const MaximizedActivitiesModal = ({
                       </button>
                     </td>
                   )}
-                  <td className="py-3 text-center">
-                    <PriorityBadge priority={sub.priority} />
-                  </td>
                   <td className="py-3 text-center">
                     {sub.drive_link ? (
                       <a
@@ -2416,8 +2416,8 @@ const AdminDashboard = ({ profile }) => {
                             <colgroup>
                               <col className="w-[28%]" />
                               <col className="w-[15%]" />
-                              <col className="w-[18%]" />
-                              <col className="w-[10%]" />
+                              <col className="w-[14%]" />
+                              <col className="w-[14%]" />
                               <col className="w-[10%]" />
                               <col className="w-[10%]" />
                               <col className="w-[15%]" />
@@ -2434,10 +2434,10 @@ const AdminDashboard = ({ profile }) => {
                                   Status
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
-                                  Actions
+                                  Priority
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
-                                  Priority
+                                  Actions
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
                                   Link
@@ -2473,6 +2473,9 @@ const AdminDashboard = ({ profile }) => {
                                     />
                                   </td>
                                   <td className="py-3 text-center">
+                                    <PriorityBadge priority={sub.priority} />
+                                  </td>
+                                  <td className="py-3 text-center">
                                     <button
                                       onClick={() =>
                                         setEditingSubmission({
@@ -2485,9 +2488,6 @@ const AdminDashboard = ({ profile }) => {
                                     >
                                       <Eye size={18} />
                                     </button>
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    <PriorityBadge priority={sub.priority} />
                                   </td>
                                   <td className="py-3 text-center">
                                     {sub.drive_link ? (
@@ -2792,7 +2792,7 @@ const AdminDashboard = ({ profile }) => {
           sorted={sortedSubmissions}
           onClose={() => setMaximizedActivities(false)}
           filterLabel={filterLabel}
-          showActions={false}
+          showActions={true}
         />
       )}
     </div>

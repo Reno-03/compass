@@ -10,6 +10,12 @@ import {
   X,
 } from "lucide-react";
 
+const DONUT_COLORS = {
+  completed: "#16A34A",
+  ongoing: "#D97706",
+  not_started: "#DC2626",
+};
+
 const STATUS_STYLES = {
   completed: "bg-green-50 text-green-700 border-green-200",
   ongoing: "bg-amber-50 text-amber-700 border-amber-200",
@@ -28,27 +34,6 @@ const REPORT_STATUS_LABEL = {
   not_started: "Not Started",
 };
 
-const DONUT_COLORS = {
-  completed: "#16A34A",
-  ongoing: "#D97706",
-  not_started: "#DC2626",
-};
-
-const PRIORITY_STYLES = {
-  high: "bg-red-50 text-red-700 border-red-200",
-  medium: "bg-amber-50 text-amber-700 border-amber-200",
-  low: "bg-slate-50 text-slate-600 border-slate-200",
-};
-const PRIORITY_LABEL = { high: "High", medium: "Medium", low: "Low" };
-
-export const PriorityBadge = ({ priority }) => (
-  <span
-    className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${PRIORITY_STYLES[priority] || PRIORITY_STYLES.medium}`}
-  >
-    {PRIORITY_LABEL[priority] || "—"}
-  </span>
-);
-
 export const StatusBadge = ({ status, category }) => {
   const labels =
     category === "activity" ? ACTIVITY_STATUS_LABEL : REPORT_STATUS_LABEL;
@@ -60,6 +45,35 @@ export const StatusBadge = ({ status, category }) => {
     </span>
   );
 };
+
+const PRIORITY_STYLES = {
+  high: "bg-red-50 text-red-700 border-red-200",
+  medium: "bg-amber-50 text-amber-700 border-amber-200",
+  low: "bg-slate-50 text-slate-600 border-slate-200",
+};
+
+const PRIORITY_LABEL = { high: "High", medium: "Medium", low: "Low" };
+
+export const PriorityBadge = ({ priority }) => (
+  <span
+    className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${PRIORITY_STYLES[priority] || PRIORITY_STYLES.medium}`}
+  >
+    {PRIORITY_LABEL[priority] || "—"}
+  </span>
+);
+
+const FREQUENCY_LABEL = {
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  annual: "Annual",
+  one_time: "One-time",
+};
+
+export const FrequencyBadge = ({ frequency }) => (
+  <span className="inline-block rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+    {FREQUENCY_LABEL[frequency] || "One-time"}
+  </span>
+);
 
 export const StatCard = ({ label, value, sublabel, color, icon: Icon }) => {
   const palette = {

@@ -24,6 +24,12 @@ import PublicDashboard from "./PublicDashboard";
 // ============================================
 // Shared style tokens
 // ============================================
+const DONUT_COLORS = {
+  completed: "#16A34A",
+  ongoing: "#D97706",
+  not_started: "#DC2626",
+};
+
 const STATUS_STYLES = {
   completed: "bg-green-50 text-green-700 border-green-200",
   ongoing: "bg-amber-50 text-amber-700 border-amber-200",
@@ -42,12 +48,6 @@ const REPORT_STATUS_LABEL = {
   not_started: "Not Started",
 };
 
-const DONUT_COLORS = {
-  completed: "#16A34A",
-  ongoing: "#D97706",
-  not_started: "#DC2626",
-};
-
 export const StatusBadge = ({ status, category }) => {
   const labels = category === "activity" ? ACTIVITY_STATUS_LABEL : REPORT_STATUS_LABEL;
   return (
@@ -64,6 +64,7 @@ const PRIORITY_STYLES = {
   medium: "bg-amber-50 text-amber-700 border-amber-200",
   low: "bg-slate-50 text-slate-600 border-slate-200",
 };
+
 const PRIORITY_LABEL = { high: "High", medium: "Medium", low: "Low" };
 
 const PriorityBadge = ({ priority }) => (
@@ -71,6 +72,19 @@ const PriorityBadge = ({ priority }) => (
     className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${PRIORITY_STYLES[priority] || PRIORITY_STYLES.medium}`}
   >
     {PRIORITY_LABEL[priority] || "—"}
+  </span>
+);
+
+const FREQUENCY_LABEL = {
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  annual: "Annual",
+  one_time: "One-time",
+};
+
+const FrequencyBadge = ({ frequency }) => (
+  <span className="inline-block rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+    {FREQUENCY_LABEL[frequency] || "One-time"}
   </span>
 );
 
@@ -959,6 +973,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
   const [error, setError] = useState(null);
   const [legalBasis, setLegalBasis] = useState("");
   const [status, setStatus] = useState("not_started");
+  const [frequency, setFrequency] = useState("one_time");
 
   function toggleSchool(id) {
     setSelectedSchoolIds((prev) =>
@@ -1013,6 +1028,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
       drive_link: driveLink || null,
       status: status || "not_started",
       legal_basis: report.legal_basis,
+      frequency: frequency || "one_time",
     }));
 
     const { data: newSubmissions, error: submissionError } = await supabase
@@ -1105,6 +1121,26 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
             </div>
           </div>
 
+          <div className="relative">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Frequency
+            </label>
+            <select
+              value={frequency}
+              onChange={(e) => setFrequency(e.target.value)}
+              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+            >
+              <option value="one_time">One-time</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annual">Annual</option>
+            </select>
+            <ChevronDown
+              size={18}
+              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+            />
+          </div>
+
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Legal Basis (optional)
@@ -1185,6 +1221,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
   const [dateSubmitted, setDateSubmitted] = useState(
     submission.date_submitted || "",
   );
+  const [frequency, setFrequency] = useState(submission.frequency || "one_time");
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -1240,6 +1277,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
         date_submitted: dateSubmitted || null,
         drive_link: driveLink || null,
         status,
+        frequency: frequency || "one_time",
         updated_at: new Date().toISOString(),
       })
       .eq("id", submission.id)
@@ -1328,6 +1366,26 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
                 className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
+          </div>
+
+           <div className="relative">
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Frequency
+            </label>
+            <select
+              value={frequency}
+              onChange={(e) => setFrequency(e.target.value)}
+              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+            >
+              <option value="one_time">One-time</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annual">Annual</option>
+            </select>
+            <ChevronDown
+              size={18}
+              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+            />
           </div>
 
           <div>
@@ -1461,22 +1519,24 @@ const MaximizedReportsModal = ({
             <colgroup>
               {showActions ? (
                 <>
-                  <col className="w-[26%]" />
-                  <col className="w-[16%]" />
+                  <col className="w-[22%]" />
+                  <col className="w-[12%]" />
                   <col className="w-[12%]" />
                   <col className="w-[9%]" />
                   <col className="w-[9%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[19%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[20%]" />
                 </>
               ) : (
                 <>
-                  <col className="w-[30%]" />
-                  <col className="w-[17%]" />
+                  <col className="w-[24%]" />
+                  <col className="w-[14%]" />
                   <col className="w-[13%]" />
-                  <col className="w-[11%]" />
-                  <col className="w-[11%]" />
-                  <col className="w-[18%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[20%]" />
                 </>
               )}
             </colgroup>
@@ -1488,6 +1548,7 @@ const MaximizedReportsModal = ({
                   Date Submitted
                 </th>
                 <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                <th className="pb-2 pt-2 font-bold text-center">Frequency</th>
                 {showActions && (
                   <th className="pb-2 pt-2 font-bold text-center">Actions</th>
                 )}
@@ -1509,6 +1570,9 @@ const MaximizedReportsModal = ({
                   </td>
                   <td className="py-3 text-center">
                     <StatusBadge status={sub.status} />
+                  </td>
+                   <td className="py-3 text-center">
+                    <FrequencyBadge frequency={sub.frequency} />
                   </td>
                   {showActions && (
                     <td className="py-3 text-center">
@@ -2606,13 +2670,14 @@ const AdminDashboard = ({ profile }) => {
                           {/* setting min-w makes the table on mobile scrollable horizontally */}
                           <table className="w-full min-w-170 table-fixed text-left text-sm">
                             <colgroup>
-                              <col className="w-[28%]" />
-                              <col className="w-[16%]" />
-                              <col className="w-[16%]" />
-                              <col className="w-[18%]" />
-                              <col className="w-[9%]" />
-                              <col className="w-[9%]" />
-                              <col className="w-[15%]" />
+                              <col className="w-[22%]" />
+                              <col className="w-[12%]" />
+                              <col className="w-[12%]" />
+                              <col className="w-[14%]" />
+                              <col className="w-[14%]" />
+                              <col className="w-[8%]" />
+                              <col className="w-[8%]" />
+                              <col className="w-[13%]" />
                             </colgroup>
                             <thead className="sticky top-0 z-10 bg-slate-50">
                               <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -2627,6 +2692,9 @@ const AdminDashboard = ({ profile }) => {
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
                                   Status
+                                </th>
+                                <th className="pb-2 pt-2 font-bold text-center">
+                                  Frequency
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
                                   Actions
@@ -2658,6 +2726,9 @@ const AdminDashboard = ({ profile }) => {
                                   </td>
                                   <td className="py-3 text-center">
                                     <StatusBadge status={sub.status} />
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    <FrequencyBadge frequency={sub.frequency} />
                                   </td>
                                   <td className="py-3 text-center">
                                     <button

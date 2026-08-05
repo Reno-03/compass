@@ -30,16 +30,19 @@ const STATUS_STYLES = {
   ongoing: "bg-amber-50 text-amber-700 border-amber-200",
   not_started: "bg-red-50 text-red-700 border-red-200",
 };
-const STATUS_LABEL = {
+
+const ACTIVITY_STATUS_LABEL = {
   completed: "Completed",
   ongoing: "Ongoing",
-  not_started: "Not Started",
-};
-// Activities use "Upcoming" instead of "Not Started" for the not_started status
-const ACTIVITY_STATUS_LABEL = {
-  ...STATUS_LABEL,
   not_started: "Upcoming",
 };
+
+const REPORT_STATUS_LABEL = {
+  completed: "Completed",
+  ongoing: "In Progress",
+  not_started: "Not Started",
+};
+
 const DONUT_COLORS = {
   completed: "#16A34A",
   ongoing: "#D97706",
@@ -47,7 +50,7 @@ const DONUT_COLORS = {
 };
 
 export const StatusBadge = ({ status, category }) => {
-  const labels = category === "activity" ? ACTIVITY_STATUS_LABEL : STATUS_LABEL;
+  const labels = category === "activity" ? ACTIVITY_STATUS_LABEL : REPORT_STATUS_LABEL;
   return (
     <span
       className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
@@ -128,6 +131,7 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
     : 0;
 
   const notStartedLabel = category === "activity" ? "Upcoming" : "Not Started";
+  const ongoingLabel = category === "activity" ? "Ongoing" : "In Progress";
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
@@ -176,7 +180,7 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
           />
           <LegendRow
             color={DONUT_COLORS.ongoing}
-            label="Ongoing"
+            label={ongoingLabel}
             value={counts.ongoing}
           />
           <LegendRow
@@ -1064,7 +1068,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
                 className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               >
                 <option value="not_started">Not Started</option>
-                <option value="ongoing">Ongoing</option>
+                <option value="ongoing">In Progress</option>
                 <option value="completed">Completed</option>
               </select>
 
@@ -1290,7 +1294,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
                 className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
               >
                 <option value="not_started">Not Started</option>
-                <option value="ongoing">Ongoing</option>
+                <option value="ongoing">In Progress</option>
                 <option value="completed">Completed</option>
               </select>
               <ChevronDown
@@ -2553,7 +2557,7 @@ const AdminDashboard = ({ profile }) => {
                       icon={CheckCircle2}
                     />
                     <StatCard
-                      label="Ongoing"
+                      label="In Progress"
                       value={reportCounts.ongoing}
                       sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
                       color="amber"

@@ -16,15 +16,16 @@ const STATUS_STYLES = {
   not_started: "bg-red-50 text-red-700 border-red-200",
 };
 
-const STATUS_LABEL = {
+const ACTIVITY_STATUS_LABEL = {
   completed: "Completed",
   ongoing: "Ongoing",
-  not_started: "Not Started",
+  not_started: "Upcoming",
 };
 
-const ACTIVITY_STATUS_LABEL = {
-  ...STATUS_LABEL,
-  not_started: "Upcoming",
+const REPORT_STATUS_LABEL = {
+  completed: "Completed",
+  ongoing: "In Progress",
+  not_started: "Not Started",
 };
 
 const DONUT_COLORS = {
@@ -34,7 +35,8 @@ const DONUT_COLORS = {
 };
 
 export const StatusBadge = ({ status, category }) => {
-  const labels = category === "activity" ? ACTIVITY_STATUS_LABEL : STATUS_LABEL;
+  const labels =
+    category === "activity" ? ACTIVITY_STATUS_LABEL : REPORT_STATUS_LABEL;
   return (
     <span
       className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
@@ -88,6 +90,9 @@ export const ComplianceDonut = ({ counts, filterLabel, category }) => {
     { name: "Not Started", value: counts.not_started, key: "not_started" },
   ].filter((d) => d.value > 0);
 
+  const ongoingLabel = category === "activity" ? "Ongoing" : "In Progress";
+  const notStartedLabel = category === "activity" ? "Upcoming" : "Not Started";
+
   const pct = counts.total
     ? Math.round((counts.completed / counts.total) * 100)
     : 0;
@@ -139,12 +144,12 @@ export const ComplianceDonut = ({ counts, filterLabel, category }) => {
           />
           <LegendRow
             color={DONUT_COLORS.ongoing}
-            label="Ongoing"
+            label={ongoingLabel}
             value={counts.ongoing}
           />
           <LegendRow
             color={DONUT_COLORS.not_started}
-            label={category === "activity" ? "Upcoming" : "Not Started"}
+            label={notStartedLabel}
             value={counts.not_started}
           />
         </div>

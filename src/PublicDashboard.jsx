@@ -1044,7 +1044,7 @@ const PublicDashboard = () => {
                     icon={CheckCircle2}
                   />
                   <StatCard
-                    label="Ongoing"
+                    label="In Progress"
                     value={reportCounts.ongoing}
                     sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
                     color="amber"

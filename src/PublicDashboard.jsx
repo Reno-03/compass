@@ -21,6 +21,7 @@ import {
   Sidebar,
   MobileHeader,
   ComplianceMiniDonut,
+  PriorityBadge,
 } from "./dashboardShared";
 
 const STATUS_ORDER = {
@@ -187,7 +188,6 @@ const MaximizedReportsModal = ({
 const MaximizedActivitiesModal = ({
   schoolName,
   sorted,
-  onViewRemarks,
   onClose,
   filterLabel,
 }) => (
@@ -236,7 +236,7 @@ const MaximizedActivitiesModal = ({
                 <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
                 <th className="pb-2 pt-2 font-bold text-center">Date</th>
                 <th className="pb-2 pt-2 font-bold text-center">Status</th>
-                <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
+                <th className="pb-2 pt-2 font-bold text-center">Priority</th>
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
                 <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
               </tr>
@@ -258,17 +258,7 @@ const MaximizedActivitiesModal = ({
                     <StatusBadge status={sub.status} category="activity" />
                   </td>
                   <td className="py-3 text-center">
-                    {sub.remarks ? (
-                      <button
-                        onClick={() => onViewRemarks(sub)}
-                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                        title={sub.remarks}
-                      >
-                        <MessageSquareText size={18} />
-                      </button>
-                    ) : (
-                      "—"
-                    )}
+                    <PriorityBadge priority={sub.priority} />
                   </td>
                   <td className="py-3 text-center">
                     {sub.drive_link ? (
@@ -945,7 +935,7 @@ const PublicDashboard = () => {
                                 Status
                               </th>
                               <th className="pb-2 pt-2 font-bold text-center">
-                                Remarks
+                                Priority
                               </th>
                               <th className="pb-2 pt-2 font-bold text-center">
                                 Link
@@ -973,20 +963,13 @@ const PublicDashboard = () => {
                                     : "—"}
                                 </td>
                                 <td className="py-3 text-center">
-                                  <StatusBadge status={sub.status} category="activity" />
+                                  <StatusBadge
+                                    status={sub.status}
+                                    category="activity"
+                                  />
                                 </td>
                                 <td className="py-3 text-center">
-                                  {sub.remarks ? (
-                                    <button
-                                      onClick={() => setViewingRemarks(sub)}
-                                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                      title={sub.remarks}
-                                    >
-                                      <MessageSquareText size={18} />
-                                    </button>
-                                  ) : (
-                                    "—"
-                                  )}
+                                  <PriorityBadge priority={sub.priority} />
                                 </td>
                                 <td className="py-3 text-center">
                                   {sub.drive_link ? (
@@ -1187,7 +1170,6 @@ const PublicDashboard = () => {
           schoolName={activeSchool?.name || "Selected school"}
           sorted={sortedSubmissions}
           onClose={() => setMaximizedActivities(false)}
-          onViewRemarks={(sub) => setViewingRemarks(sub)}
           filterLabel={filterLabel}
         />
       )}

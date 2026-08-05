@@ -13,7 +13,6 @@ import {
   ChevronDown,
   LogOut,
   School,
-  MessageSquareText,
   Menu,
   X,
   Maximize2,
@@ -59,6 +58,21 @@ export const StatusBadge = ({ status, category }) => {
     </span>
   );
 };
+
+const PRIORITY_STYLES = {
+  high: "bg-red-50 text-red-700 border-red-200",
+  medium: "bg-amber-50 text-amber-700 border-amber-200",
+  low: "bg-slate-50 text-slate-600 border-slate-200",
+};
+const PRIORITY_LABEL = { high: "High", medium: "Medium", low: "Low" };
+
+const PriorityBadge = ({ priority }) => (
+  <span
+    className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${PRIORITY_STYLES[priority] || PRIORITY_STYLES.medium}`}
+  >
+    {PRIORITY_LABEL[priority] || "—"}
+  </span>
+);
 
 // ============================================
 // Compliance calc
@@ -344,7 +358,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [legalBasis, setLegalBasis] = useState("");
-  const [remarks, setRemarks] = useState("");
+  const [priority, setPriority] = useState("medium");
   const [status, setStatus] = useState("not_started");
 
   function toggleSchool(id) {
@@ -430,7 +444,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
       drive_link: driveLink || null,
       status: status || "not_started",
       legal_basis: activity.legal_basis,
-      remarks: remarks || null,
+      priority: priority || "medium",
     }));
 
     const { data: newSubmissions, error: submissionError } = await supabase
@@ -554,16 +568,22 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
               />
             </div>
 
-            <div>
+             <div className="relative">
               <label className="mb-2 block text-xs font-semibold text-slate-500">
-                Remarks (optional)
+                Priority
               </label>
-              <input
-                type="text"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
-                placeholder="e.g. Submitted"
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              >
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
           </div>
@@ -647,7 +667,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
   const [legalBasis, setLegalBasis] = useState(submission.legal_basis || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [remarks, setRemarks] = useState(submission.remarks || "");
+  const [priority, setPriority] = useState(submission.priority || "medium");
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -729,7 +749,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
         drive_link: driveLink || null,
         status,
         updated_at: new Date().toISOString(),
-        remarks: remarks || null,
+        priority: priority || "medium",
       })
       .eq("id", submission.id)
       .select()
@@ -854,16 +874,22 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
               />
             </div>
 
-            <div>
+             <div className="relative">
               <label className="mb-2 block text-xs font-semibold text-slate-500">
-                Remarks (optional)
+                Priority
               </label>
-              <input
-                type="text"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
-                placeholder="e.g. Submitted"
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              >
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
               />
             </div>
           </div>
@@ -1527,7 +1553,6 @@ const MaximizedActivitiesModal = ({
   schoolName,
   sorted,
   onEdit,
-  onViewRemarks,
   onClose,
   filterLabel,
   showActions = true,
@@ -1594,7 +1619,7 @@ const MaximizedActivitiesModal = ({
                 {showActions && (
                   <th className="pb-2 pt-2 font-bold text-center">Actions</th>
                 )}
-                <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
+                <th className="pb-2 pt-2 font-bold text-center">Priority</th>
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
                 <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
               </tr>
@@ -1627,17 +1652,7 @@ const MaximizedActivitiesModal = ({
                     </td>
                   )}
                   <td className="py-3 text-center">
-                    {sub.remarks ? (
-                      <button
-                        onClick={() => onViewRemarks(sub)}
-                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                        title={sub.remarks}
-                      >
-                        <MessageSquareText size={18} />
-                      </button>
-                    ) : (
-                      "—"
-                    )}
+                    <PriorityBadge priority={sub.priority} />
                   </td>
                   <td className="py-3 text-center">
                     {sub.drive_link ? (
@@ -1920,7 +1935,6 @@ const AdminDashboard = ({ profile }) => {
   const today = new Date();
   const [filterMonth, setFilterMonth] = useState(today.getMonth() + 1); // 1-12, or "all"
   const [filterYear, setFilterYear] = useState(today.getFullYear()); // number, or "all"
-  const [viewingRemarks, setViewingRemarks] = useState(null);
 
   const [showCreateReportModal, setShowCreateReportModal] = useState(false);
   const [editingReportSubmission, setEditingReportSubmission] = useState(null);
@@ -2423,7 +2437,7 @@ const AdminDashboard = ({ profile }) => {
                                   Actions
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
-                                  Remarks
+                                  Priority
                                 </th>
                                 <th className="pb-2 pt-2 font-bold text-center">
                                   Link
@@ -2473,17 +2487,7 @@ const AdminDashboard = ({ profile }) => {
                                     </button>
                                   </td>
                                   <td className="py-3 text-center">
-                                    {sub.remarks ? (
-                                      <button
-                                        onClick={() => setViewingRemarks(sub)}
-                                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                        title={sub.remarks}
-                                      >
-                                        <MessageSquareText size={18} />
-                                      </button>
-                                    ) : (
-                                      "—"
-                                    )}
+                                    <PriorityBadge priority={sub.priority} />
                                   </td>
                                   <td className="py-3 text-center">
                                     {sub.drive_link ? (
@@ -2743,14 +2747,6 @@ const AdminDashboard = ({ profile }) => {
         />
       )}
 
-      {/* View Remarks Modal */}
-      {viewingRemarks && (
-        <RemarksModal
-          submission={viewingRemarks}
-          onClose={() => setViewingRemarks(null)}
-        />
-      )}
-
       {/* Create Report Modal */}
       {showCreateReportModal && (
         <CreateReport
@@ -2786,7 +2782,6 @@ const AdminDashboard = ({ profile }) => {
           onClose={() => setMaximizedReports(false)}
           filterLabel={filterLabel}
           showActions={false}
-          onViewRemarks={(sub) => setViewingRemarks(sub)}
         />
       )}
 
@@ -2798,7 +2793,6 @@ const AdminDashboard = ({ profile }) => {
           onClose={() => setMaximizedActivities(false)}
           filterLabel={filterLabel}
           showActions={false}
-          onViewRemarks={(sub) => setViewingRemarks(sub)}
         />
       )}
     </div>

@@ -34,6 +34,21 @@ const DONUT_COLORS = {
   not_started: "#DC2626",
 };
 
+const PRIORITY_STYLES = {
+  high: "bg-red-50 text-red-700 border-red-200",
+  medium: "bg-amber-50 text-amber-700 border-amber-200",
+  low: "bg-slate-50 text-slate-600 border-slate-200",
+};
+const PRIORITY_LABEL = { high: "High", medium: "Medium", low: "Low" };
+
+export const PriorityBadge = ({ priority }) => (
+  <span
+    className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${PRIORITY_STYLES[priority] || PRIORITY_STYLES.medium}`}
+  >
+    {PRIORITY_LABEL[priority] || "—"}
+  </span>
+);
+
 export const StatusBadge = ({ status, category }) => {
   const labels =
     category === "activity" ? ACTIVITY_STATUS_LABEL : REPORT_STATUS_LABEL;

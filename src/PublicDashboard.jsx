@@ -582,8 +582,10 @@ const PublicDashboard = () => {
 
   const publicNavItems = [
     { key: "dashboard", label: "Dashboard" },
+    { key: "activities", label: "Activities" },
+    { key: "reports", label: "Reports" },
     { key: "calendar", label: "Calendar" },
-    { key: "reports", label: "Consolidated Reports" },
+    { key: "consolidated_reports", label: "Consolidated Reports" },
   ];
 
   return (
@@ -635,7 +637,451 @@ const PublicDashboard = () => {
             onEventClick={() => {}}
           />
         </main>
+      ) : view === "activities" ? (
+        <main className="flex-1 p-4 lg:p-8 lg:pt-0">
+          <div className="lg:sticky lg:top-0 z-20 -mx-4 lg:-mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-4 lg:px-8 pb-4 pt-5 backdrop-blur-sm">
+            <div className="mb-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-800">
+                  Activities
+                </h1>
+                <p className="text-sm text-slate-500">
+                  View all activities across schools in read-only mode.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                {(filterMonth !== "all" || filterYear !== "all") && (
+                  <button
+                    onClick={() => {
+                      setFilterMonth("all");
+                      setFilterYear("all");
+                    }}
+                    className="cursor-pointer text-xs font-semibold text-blue-600 hover:underline"
+                  >
+                    Clear filter
+                  </button>
+                )}
+                <select
+                  value={filterMonth}
+                  onChange={(e) =>
+                    setFilterMonth(
+                      e.target.value === "all" ? "all" : Number(e.target.value),
+                    )
+                  }
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="all">All Months</option>
+                  {MONTH_NAMES.map((label, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={filterYear}
+                  onChange={(e) =>
+                    setFilterYear(
+                      e.target.value === "all" ? "all" : Number(e.target.value),
+                    )
+                  }
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="all">All Years</option>
+                  {availableYears.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:gap-2 lg:overflow-x-auto gap-2 pb-1">
+              {schoolData.map((school) => (
+                <button
+                  key={school.id}
+                  onClick={() => setActiveSchoolId(school.id)}
+                  className={`flex items-center justify-start rounded-lg px-4 py-3 text-xs sm:text-sm font-semibold cursor-pointer ${
+                    activeSchoolId === school.id
+                      ? "bg-[#0b1c39] text-white"
+                      : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <School size={18} className="mr-2" />
+                  {school.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {activeSchool && (
+            <>
+              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <StatCard
+                  label="Total Activities"
+                  value={activeCounts.total}
+                  sublabel={filterLabel}
+                  color="slate"
+                  icon={ClipboardList}
+                />
+                <StatCard
+                  label="Completed"
+                  value={activeCounts.completed}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
+                  color="green"
+                  icon={CheckCircle2}
+                />
+                <StatCard
+                  label="Ongoing"
+                  value={activeCounts.ongoing}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
+                  color="amber"
+                  icon={Hourglass}
+                />
+                <StatCard
+                  label="Upcoming"
+                  value={activeCounts.not_started}
+                  sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
+                  color="red"
+                  icon={XCircle}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                  <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-slate-800">
+                        Activities Monitoring — {activeSchool.name}
+                      </p>
+                      <button
+                        onClick={() => setMaximizedActivities(true)}
+                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                        title="View full table"
+                      >
+                        <Maximize2 size={16} />
+                      </button>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      {filterLabel}
+                    </p>
+                  </div>
+                  {filteredSubmissions.length === 0 ? (
+                    <p className="py-8 text-center text-sm italic text-slate-400">
+                      {activeSchool.submissions.length === 0
+                        ? "No activities assigned yet."
+                        : "No activities match the selected filter."}
+                    </p>
+                  ) : (
+                    <div className="max-h-90 overflow-x-auto rounded-lg">
+                      <table className="w-full min-w-170 table-fixed text-left text-sm">
+                        <thead className="sticky top-0 z-10 bg-slate-50">
+                          <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                            <th className="pb-2 pt-2 pl-2 font-bold">
+                              Activity
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Date
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Status
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Priority
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Link
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Legal Basis
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedSubmissions.map((sub) => (
+                            <tr
+                              key={sub.id}
+                              className="border-b border-slate-50"
+                            >
+                              <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                {sub.name}
+                              </td>
+                              <td className="py-3 text-center text-slate-500">
+                                {sub.start_date
+                                  ? !sub.end_date ||
+                                    sub.end_date === sub.start_date
+                                    ? sub.start_date
+                                    : `${sub.start_date} – ${sub.end_date}`
+                                  : "—"}
+                              </td>
+                              <td className="py-3 text-center">
+                                <StatusBadge
+                                  status={sub.status}
+                                  category="activity"
+                                />
+                              </td>
+                              <td className="py-3 text-center">
+                                <PriorityBadge priority={sub.priority} />
+                              </td>
+                              <td className="py-3 text-center">
+                                {sub.drive_link ? (
+                                  <a
+                                    href={sub.drive_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex justify-center text-blue-600 hover:text-blue-800"
+                                    title="Open OneDrive Link"
+                                  >
+                                    <OneDriveLogo size={18} />
+                                  </a>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                              <td
+                                className="py-3 text-center text-slate-500"
+                                title={sub.legal_basis || undefined}
+                              >
+                                {sub.legal_basis || "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+                <ComplianceDonut
+                  counts={activeCounts}
+                  filterLabel={filterLabel}
+                  category="activity"
+                />
+              </div>
+            </>
+          )}
+        </main>
       ) : view === "reports" ? (
+        <main className="flex-1 p-4 lg:p-8 lg:pt-0">
+          <div className="lg:sticky lg:top-0 z-20 -mx-4 lg:-mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-4 lg:px-8 pb-4 pt-5 backdrop-blur-sm">
+            <div className="mb-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-800">
+                  Reports
+                </h1>
+                <p className="text-sm text-slate-500">
+                  View all reports across schools in read-only mode.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                {(filterMonth !== "all" || filterYear !== "all") && (
+                  <button
+                    onClick={() => {
+                      setFilterMonth("all");
+                      setFilterYear("all");
+                    }}
+                    className="cursor-pointer text-xs font-semibold text-blue-600 hover:underline"
+                  >
+                    Clear filter
+                  </button>
+                )}
+                <select
+                  value={filterMonth}
+                  onChange={(e) =>
+                    setFilterMonth(
+                      e.target.value === "all" ? "all" : Number(e.target.value),
+                    )
+                  }
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="all">All Months</option>
+                  {MONTH_NAMES.map((label, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={filterYear}
+                  onChange={(e) =>
+                    setFilterYear(
+                      e.target.value === "all" ? "all" : Number(e.target.value),
+                    )
+                  }
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="all">All Years</option>
+                  {availableYears.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:gap-2 lg:overflow-x-auto gap-2 pb-1">
+              {schoolData.map((school) => (
+                <button
+                  key={school.id}
+                  onClick={() => setActiveSchoolId(school.id)}
+                  className={`flex items-center justify-start rounded-lg px-4 py-3 text-xs sm:text-sm font-semibold cursor-pointer ${
+                    activeSchoolId === school.id
+                      ? "bg-[#0b1c39] text-white"
+                      : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <School size={18} className="mr-2" />
+                  {school.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {activeSchool && (
+            <>
+              <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <StatCard
+                  label="Total Reports"
+                  value={reportCounts.total}
+                  sublabel={filterLabel}
+                  color="slate"
+                  icon={ClipboardList}
+                />
+                <StatCard
+                  label="Completed"
+                  value={reportCounts.completed}
+                  sublabel={`${reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}%`}
+                  color="green"
+                  icon={CheckCircle2}
+                />
+                <StatCard
+                  label="In Progress"
+                  value={reportCounts.ongoing}
+                  sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
+                  color="amber"
+                  icon={Hourglass}
+                />
+                <StatCard
+                  label="Not Started"
+                  value={reportCounts.not_started}
+                  sublabel={`${reportCounts.total ? Math.round((reportCounts.not_started / reportCounts.total) * 100) : 0}%`}
+                  color="red"
+                  icon={XCircle}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                  <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-slate-800">
+                        Reports Monitoring — {activeSchool.name}
+                      </p>
+                      <button
+                        onClick={() => setMaximizedReports(true)}
+                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                        title="View full table"
+                      >
+                        <Maximize2 size={16} />
+                      </button>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      {filterLabel}
+                    </p>
+                  </div>
+                  {filteredReportSubmissions.length === 0 ? (
+                    <p className="py-8 text-center text-sm italic text-slate-400">
+                      {activeSchool.report_submissions.length === 0
+                        ? "No reports assigned yet."
+                        : "No reports match the selected filter."}
+                    </p>
+                  ) : (
+                    <div className="max-h-90 overflow-x-auto rounded-lg">
+                      <table className="w-full min-w-170 table-fixed text-left text-sm">
+                        <thead className="sticky top-0 z-10 bg-slate-50">
+                          <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                            <th className="pb-2 pt-2 pl-2 font-bold">
+                              Report
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Date
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Date Submitted
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Status
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Frequency
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Link
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
+                              Legal Basis
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedReportSubmissions.map((sub) => (
+                            <tr
+                              key={sub.id}
+                              className="border-b border-slate-50"
+                            >
+                              <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                {sub.name}
+                              </td>
+                              <td className="py-3 text-center text-slate-500">
+                                {sub.submission_date || "—"}
+                              </td>
+                              <td className="py-3 text-center text-slate-500">
+                                {sub.date_submitted || "—"}
+                              </td>
+                              <td className="py-3 text-center">
+                                <StatusBadge status={sub.status} />
+                              </td>
+                              <td className="py-3 text-center">
+                                <FrequencyBadge frequency={sub.frequency} />
+                              </td>
+                              <td className="py-3 text-center">
+                                {sub.drive_link ? (
+                                  <a
+                                    href={sub.drive_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex justify-center text-blue-600 hover:text-blue-800"
+                                    title="Open OneDrive Link"
+                                  >
+                                    <OneDriveLogo size={18} />
+                                  </a>
+                                ) : (
+                                  "—"
+                                )}
+                              </td>
+                              <td
+                                className="py-3 text-center text-slate-500"
+                                title={sub.legal_basis || undefined}
+                              >
+                                {sub.legal_basis || "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+                <ComplianceDonut
+                  counts={reportCounts}
+                  filterLabel={filterLabel}
+                  category="report"
+                />
+              </div>
+            </>
+          )}
+        </main>
+      ) : view === "consolidated_reports" ? (
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <div className="mb-4 mt-5">
             <h1 className="text-2xl font-bold text-slate-800">
@@ -789,6 +1235,7 @@ const PublicDashboard = () => {
           </div>
         </main>
       ) : (
+        // ===== "dashboard" — the combined view with both activities and reports =====
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <div className="lg:sticky lg:top-0 z-20 -mx-4 lg:-mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-4 lg:px-8 pb-4 pt-5 backdrop-blur-sm">
             <div className="mb-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
@@ -1174,6 +1621,7 @@ const PublicDashboard = () => {
           onViewRemarks={(sub) => setViewingRemarks(sub)}
           onClose={() => setMaximizedReports(false)}
           filterLabel={filterLabel}
+          showActions={false}
         />
       )}
 
@@ -1183,6 +1631,7 @@ const PublicDashboard = () => {
           sorted={sortedSubmissions}
           onClose={() => setMaximizedActivities(false)}
           filterLabel={filterLabel}
+          showActions={false}
         />
       )}
     </div>

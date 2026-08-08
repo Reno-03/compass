@@ -24,7 +24,7 @@ import {
   StatCard,
   ComplianceDonut,
   OneDriveLogo,
-} from "./DashboardShared";
+} from "./dashboardShared";
 
 // ============================================
 // Create Report — Admin only

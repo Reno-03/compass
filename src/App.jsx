@@ -22,6 +22,9 @@ import ConsolidatedReports from "./ConsolidatedReports";
 import PublicDashboard from "./PublicDashboard";
 import NotificationSettings from "./NotificationSettings";
 import { EmailLogsButton } from "./EmailLogs";
+import ActivitiesView from "./ActivitiesView";
+import ReportsView from "./ReportsView";
+import SharedFilterHeader from "./sharedFilter";
 
 // ============================================
 // Shared style tokens
@@ -241,8 +244,10 @@ const LegendRow = ({ color, label, value }) => (
 const Sidebar = ({ currentView, onNavigate, items }) => {
   const navItems = items || [
     { key: "dashboard", label: "Dashboard" },
+    { key: "activities", label: "Activities" },
+    { key: "reports", label: "Reports" },
     { key: "calendar", label: "Calendar" },
-    { key: "reports", label: "Consolidated Reports" },
+    { key: "consolidated_reports", label: "Consolidated Reports" },
     { key: "notifications", label: "Email Notifications" },
     { key: "download", label: "Download Reports" },
   ];
@@ -305,8 +310,10 @@ const MobileHeader = ({
 }) => {
   const navItems = items || [
     { key: "dashboard", label: "Dashboard" },
+    { key: "activities", label: "Activities" },
+    { key: "reports", label: "Reports" },
     { key: "calendar", label: "Calendar" },
-    { key: "reports", label: "Consolidated Reports" },
+    { key: "consolidated_reports", label: "Consolidated Reports" },
     { key: "download", label: "Download Reports" },
   ];
 
@@ -1997,22 +2004,23 @@ const AdminDashboard = ({ profile }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeSchoolId, setActiveSchoolId] = useState(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingSubmission, setEditingSubmission] = useState(null);
   const today = new Date();
-  const [filterMonth, setFilterMonth] = useState(today.getMonth() + 1); // 1-12, or "all"
-  const [filterYear, setFilterYear] = useState(today.getFullYear()); // number, or "all"
+  const [filterMonth, setFilterMonth] = useState(today.getMonth() + 1);
+  const [filterYear, setFilterYear] = useState(today.getFullYear());
 
-  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
-  const [editingReportSubmission, setEditingReportSubmission] = useState(null);
-  const [viewingReportRemarks, setViewingReportRemarks] = useState(null);
-
-  const [view, setView] = useState("dashboard");
+  const [view, setView] = useState("dashboard"); // back to the original default
   const [calendarSchoolFilter, setCalendarSchoolFilter] = useState("all");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [maximizedReports, setMaximizedReports] = useState(false);
+  // Modal state — only needed for the combined "dashboard" view now.
+  // ActivitiesView / ReportsView manage their own modal state internally.
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingSubmission, setEditingSubmission] = useState(null);
   const [maximizedActivities, setMaximizedActivities] = useState(false);
+  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
+  const [editingReportSubmission, setEditingReportSubmission] = useState(null);
+  const [viewingReportRemarks, setViewingReportRemarks] = useState(null);
+  const [maximizedReports, setMaximizedReports] = useState(false);
 
   useEffect(() => {
     async function loadSchools() {
@@ -2097,6 +2105,8 @@ const AdminDashboard = ({ profile }) => {
     );
   }
 
+  // Calendar clicks open the modal directly again — same as the original,
+  // since "dashboard" view keeps its own editingSubmission/editingReportSubmission state.
   function handleCalendarEventClick(event) {
     if (event.type === "activity") {
       setEditingSubmission({ ...event.raw, schoolName: event.schoolName });
@@ -2131,7 +2141,7 @@ const AdminDashboard = ({ profile }) => {
         if (!sub.start_date) return false;
 
         const start = new Date(sub.start_date);
-        const end = new Date(sub.end_date || sub.start_date); // fallback for old rows
+        const end = new Date(sub.end_date || sub.start_date);
 
         const yearsToCheck =
           filterYear === "all"
@@ -2149,7 +2159,7 @@ const AdminDashboard = ({ profile }) => {
 
           return monthsToCheck.some((month) => {
             const windowStart = new Date(year, month - 1, 1);
-            const windowEnd = new Date(year, month, 0); // last day of that month
+            const windowEnd = new Date(year, month, 0);
             return start <= windowEnd && end >= windowStart;
           });
         });
@@ -2157,11 +2167,7 @@ const AdminDashboard = ({ profile }) => {
     : [];
 
   const activeCounts = countByStatus(filteredSubmissions);
-  const statusOrder = {
-    not_started: 0,
-    ongoing: 1,
-    completed: 2,
-  };
+  const statusOrder = { not_started: 0, ongoing: 1, completed: 2 };
 
   const availableYears = [
     ...new Set(
@@ -2189,21 +2195,9 @@ const AdminDashboard = ({ profile }) => {
   });
 
   const MONTH_NAMES = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
-
-  const filterLabel = getFilterLabel(filterMonth, filterYear);
 
   function getFilterLabel(filterMonth, filterYear) {
     if (filterMonth === "all" && filterYear === "all") return "All time";
@@ -2212,6 +2206,8 @@ const AdminDashboard = ({ profile }) => {
       return `${MONTH_NAMES[filterMonth - 1]}, all years`;
     return `${MONTH_NAMES[filterMonth - 1]} ${filterYear}`;
   }
+
+  const filterLabel = getFilterLabel(filterMonth, filterYear);
 
   const filteredReportSubmissions = activeSchool
     ? activeSchool.report_submissions.filter((sub) => {
@@ -2240,7 +2236,6 @@ const AdminDashboard = ({ profile }) => {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#f4f6fb]">
-      {/* Mobile Header (visible on mobile only) */}
       <MobileHeader
         isMenuOpen={mobileMenuOpen}
         onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -2248,8 +2243,6 @@ const AdminDashboard = ({ profile }) => {
         onNavigate={setView}
       />
 
-      {/* Desktop Sidebar (visible on lg and up) */}
-      {/* using self-start sticky top-0 h-screen makes the sidebar sticky and not scrollable */}
       <div className="hidden lg:flex sticky top-0 self-start h-screen flex-col overflow-hidden">
         <Sidebar currentView={view} onNavigate={setView} />
         <div className="mt-0 bg-[#0b1c39] px-4 pb-77 pt-0 text-white">
@@ -2260,7 +2253,6 @@ const AdminDashboard = ({ profile }) => {
         </div>
       </div>
 
-      {/* Mobile Bottom Stat (visible on mobile only) */}
       <div className="lg:hidden bg-[#0b1c39] px-4 py-3 text-white w-full">
         <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-white/50">
           Monthly Progress (All Schools)
@@ -2275,8 +2267,7 @@ const AdminDashboard = ({ profile }) => {
           <div className="mb-4 mt-5">
             <h1 className="text-2xl font-bold text-slate-800">Calendar</h1>
             <p className="text-sm text-slate-500">
-              Visual timeline of activities and reports across all schools, by
-              date.
+              Visual timeline of activities and reports across all schools, by date.
             </p>
           </div>
           <CalendarView
@@ -2286,12 +2277,10 @@ const AdminDashboard = ({ profile }) => {
             onEventClick={handleCalendarEventClick}
           />
         </main>
-      ) : view === "reports" ? (
+      ) : view === "consolidated_reports" ? (
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <div className="mb-6 mt-5">
-            <h1 className="text-2xl font-bold text-slate-800">
-              Consolidated Reports
-            </h1>
+            <h1 className="text-2xl font-bold text-slate-800">Consolidated Reports</h1>
             <p className="text-sm text-slate-500">
               Consolidated reports by school and school year.
             </p>
@@ -2300,579 +2289,280 @@ const AdminDashboard = ({ profile }) => {
         </main>
       ) : view === "notifications" ? (
         <NotificationSettings />
+      ) : view === "activities" ? (
+        <main className="flex-1 p-4 lg:p-8 lg:pt-0">
+          <SharedFilterHeader
+            title="Activities"
+            profile={profile}
+            filterMonth={filterMonth}
+            setFilterMonth={setFilterMonth}
+            filterYear={filterYear}
+            setFilterYear={setFilterYear}
+            availableYears={availableYears}
+            monthNames={MONTH_NAMES}
+            schoolData={schoolData}
+            activeSchoolId={activeSchoolId}
+            setActiveSchoolId={setActiveSchoolId}
+          />
+          <ActivitiesView
+            activeSchool={activeSchool}
+            allSchools={schoolData}
+            filteredSubmissions={filteredSubmissions}
+            sortedSubmissions={sortedSubmissions}
+            activeCounts={activeCounts}
+            filterLabel={filterLabel}
+            onActivityCreated={handleActivityCreated}
+            onActivityEdited={handleActivityEdited}
+            onActivityDeleted={handleActivityDeleted}
+          />
+        </main>
+      ) : view === "reports" ? (
+        <main className="flex-1 p-4 lg:p-8 lg:pt-0">
+          <SharedFilterHeader
+            title="Reports"
+            profile={profile}
+            filterMonth={filterMonth}
+            setFilterMonth={setFilterMonth}
+            filterYear={filterYear}
+            setFilterYear={setFilterYear}
+            availableYears={availableYears}
+            monthNames={MONTH_NAMES}
+            schoolData={schoolData}
+            activeSchoolId={activeSchoolId}
+            setActiveSchoolId={setActiveSchoolId}
+          />
+          <ReportsView
+            activeSchool={activeSchool}
+            allSchools={schoolData}
+            filteredReportSubmissions={filteredReportSubmissions}
+            sortedReportSubmissions={sortedReportSubmissions}
+            reportCounts={reportCounts}
+            filterLabel={filterLabel}
+            onReportCreated={handleReportCreated}
+            onReportEdited={handleReportEdited}
+            onReportDeleted={handleReportDeleted}
+          />
+        </main>
       ) : (
-        <>
-          <main className="flex-1 p-4 lg:p-8 lg:pt-0">
-            {/* Header + School Tabs sticky */}
-            <div className="lg:sticky lg:top-0 z-20 -mx-4 lg:-mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-4 lg:px-8 pb-4 pt-5 backdrop-blur-sm">
-              {/* Header */}
-              <div className="mb-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-slate-800">
-                    Dashboard Overview
-                  </h1>
-                  <p className="text-sm text-slate-500">
-                    Monitor accomplishments of central schools, generate
-                    reports, and track compliance.
-                  </p>
+        // ===== "dashboard" — the ORIGINAL combined view, unchanged =====
+        <main className="flex-1 p-4 lg:p-8 lg:pt-0">
+          <SharedFilterHeader
+            title="Dashboard Overview"
+            subtitle="Monitor accomplishments of central schools, generate reports, and track compliance."
+            profile={profile}
+            filterMonth={filterMonth}
+            setFilterMonth={setFilterMonth}
+            filterYear={filterYear}
+            setFilterYear={setFilterYear}
+            availableYears={availableYears}
+            monthNames={MONTH_NAMES}
+            schoolData={schoolData}
+            activeSchoolId={activeSchoolId}
+            setActiveSchoolId={setActiveSchoolId}
+          />
+
+          {activeSchool && (
+            <>
+              <div className="mb-10">
+                <h2 className="mb-4 text-lg font-semibold text-slate-800">Activity Summary</h2>
+                <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <StatCard label="Total Activities" value={activeCounts.total} sublabel={filterLabel} color="slate" icon={ClipboardList} />
+                  <StatCard label="Completed" value={activeCounts.completed} sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`} color="green" icon={CheckCircle2} />
+                  <StatCard label="Ongoing" value={activeCounts.ongoing} sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`} color="amber" icon={Hourglass} />
+                  <StatCard label="Upcoming" value={activeCounts.not_started} sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`} color="red" icon={XCircle} />
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  {/* Filters */}
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    {(filterMonth !== "all" || filterYear !== "all") && (
-                      <button
-                        onClick={() => {
-                          setFilterMonth("all");
-                          setFilterYear("all");
-                        }}
-                        className="cursor-pointer text-xs font-semibold text-blue-600 hover:underline"
-                      >
-                        Clear filter
-                      </button>
+
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                  <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-slate-800">
+                          Activities Monitoring — {activeSchool.name}
+                        </p>
+                        <button onClick={() => setMaximizedActivities(true)} className="text-slate-400 hover:text-blue-600 cursor-pointer" title="View full table">
+                          <Maximize2 size={16} />
+                        </button>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
+                    </div>
+                    {filteredSubmissions.length === 0 ? (
+                      <p className="py-8 text-center text-sm italic text-slate-400">
+                        {activeSchool.submissions.length === 0 ? "No activities assigned yet." : "No activities match the selected filter."}
+                      </p>
+                    ) : (
+                      <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
+                        <table className="w-full min-w-170 table-fixed text-left text-sm">
+                          <colgroup>
+                            <col className="w-[28%]" /><col className="w-[15%]" /><col className="w-[14%]" />
+                            <col className="w-[14%]" /><col className="w-[10%]" /><col className="w-[10%]" /><col className="w-[15%]" />
+                          </colgroup>
+                          <thead className="sticky top-0 z-10 bg-slate-50">
+                            <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                              <th className="pb-2 pt-2 pl-2 font-bold">Activity</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Date</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Priority</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Link</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sortedSubmissions.map((sub) => (
+                              <tr key={sub.id} className="border-b border-slate-50">
+                                <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                  <span className="block" title={sub.name}>{sub.name}</span>
+                                </td>
+                                <td className="py-3 text-center text-slate-500">
+                                  {sub.start_date ? (!sub.end_date || sub.end_date === sub.start_date ? sub.start_date : `${sub.start_date} – ${sub.end_date}`) : "—"}
+                                </td>
+                                <td className="py-3 text-center"><StatusBadge status={sub.status} category="activity" /></td>
+                                <td className="py-3 text-center"><PriorityBadge priority={sub.priority} /></td>
+                                <td className="py-3 text-center">
+                                  <button onClick={() => setEditingSubmission({ ...sub, schoolName: activeSchool.name })} className="text-slate-400 hover:text-blue-600 cursor-pointer" title="Edit activity">
+                                    <Eye size={18} />
+                                  </button>
+                                </td>
+                                <td className="py-3 text-center">
+                                  {sub.drive_link ? (
+                                    <a href={sub.drive_link} target="_blank" rel="noopener noreferrer" className="flex justify-center text-blue-600 hover:text-blue-800" title="Open OneDrive Link">
+                                      <OneDriveLogo size={18} />
+                                    </a>
+                                  ) : "—"}
+                                </td>
+                                <td className="py-3 text-center text-slate-500 truncate" title={sub.legal_basis}>{sub.legal_basis || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     )}
-
-                    <select
-                      value={filterMonth}
-                      onChange={(e) =>
-                        setFilterMonth(
-                          e.target.value === "all"
-                            ? "all"
-                            : Number(e.target.value),
-                        )
-                      }
-                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-                    >
-                      <option value="all">All Months</option>
-                      {[
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                        "August",
-                        "September",
-                        "October",
-                        "November",
-                        "December",
-                      ].map((label, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={filterYear}
-                      onChange={(e) =>
-                        setFilterYear(
-                          e.target.value === "all"
-                            ? "all"
-                            : Number(e.target.value),
-                        )
-                      }
-                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
-                    >
-                      <option value="all">All Years</option>
-                      {availableYears.map((year) => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
-                  {/* User */}
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <span className="whitespace-nowrap text-xs sm:text-sm text-slate-600">
-                      Welcome, {profile.full_name || "PDO"}
-                    </span>
-                    <EmailLogsButton />
-                    <LogoutButton />
+                  <div className="space-y-6">
+                    <ComplianceDonut counts={activeCounts} filterLabel={filterLabel} category="activity" />
+                    <div className="rounded-xl border border-slate-200 bg-white p-5">
+                      <p className="mb-3 text-sm font-semibold text-slate-800">Quick Actions</p>
+                      <button onClick={() => setShowCreateModal(true)} className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5">
+                        + Add New Activity
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* School tabs */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:gap-2 lg:overflow-x-auto gap-2 pb-1">
-                {schoolData.map((school) => (
-                  <button
-                    key={school.id}
-                    onClick={() => setActiveSchoolId(school.id)}
-                    className={`flex gap-2 sm:gap-3 items-center justify-start lg:whitespace-nowrap rounded-lg px-4 sm:px-10 py-2 sm:py-3 text-xs sm:text-sm font-semibold cursor-pointer ${
-                      activeSchoolId === school.id
-                        ? "bg-[#0b1c39] text-white"
-                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <span>
-                      <School size={20} className="sm:w-6 sm:h-6" />
-                    </span>
-                    {school.name}
-                  </button>
-                ))}
+              <div>
+                <h2 className="mb-4 pt-4 text-lg font-semibold text-slate-800 border-t border-slate-200/80">Reports Summary</h2>
+                <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <StatCard label="Total Reports" value={reportCounts.total} sublabel={filterLabel} color="slate" icon={ClipboardList} />
+                  <StatCard label="Completed" value={reportCounts.completed} sublabel={`${reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}%`} color="green" icon={CheckCircle2} />
+                  <StatCard label="In Progress" value={reportCounts.ongoing} sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`} color="amber" icon={Hourglass} />
+                  <StatCard label="Not Started" value={reportCounts.not_started} sublabel={`${reportCounts.total ? Math.round((reportCounts.not_started / reportCounts.total) * 100) : 0}%`} color="red" icon={XCircle} />
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+                  <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-slate-800">Reports Monitoring</p>
+                        <button onClick={() => setMaximizedReports(true)} className="text-slate-400 hover:text-blue-600 cursor-pointer" title="View full table">
+                          <Maximize2 size={16} />
+                        </button>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-500">{filterLabel}</p>
+                    </div>
+                    {filteredReportSubmissions.length === 0 ? (
+                      <p className="py-8 text-center text-sm italic text-slate-400">
+                        {activeSchool.report_submissions.length === 0 ? "No reports assigned yet." : "No reports match the selected filter."}
+                      </p>
+                    ) : (
+                      <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
+                        <table className="w-full min-w-170 table-fixed text-left text-sm">
+                          <colgroup>
+                            <col className="w-[22%]" /><col className="w-[12%]" /><col className="w-[12%]" />
+                            <col className="w-[14%]" /><col className="w-[14%]" /><col className="w-[8%]" />
+                            <col className="w-[8%]" /><col className="w-[13%]" />
+                          </colgroup>
+                          <thead className="sticky top-0 z-10 bg-slate-50">
+                            <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
+                              <th className="pb-2 pt-2 pl-2 font-bold">Report</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Date</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Date Submitted</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Frequency</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Link</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sortedReportSubmissions.map((sub) => (
+                              <tr key={sub.id} className="border-b border-slate-50">
+                                <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
+                                  <span className="block" title={sub.name}>{sub.name}</span>
+                                </td>
+                                <td className="py-3 text-center text-slate-500">{sub.submission_date || "—"}</td>
+                                <td className="py-3 text-center text-slate-500">{sub.date_submitted || "—"}</td>
+                                <td className="py-3 text-center"><StatusBadge status={sub.status} /></td>
+                                <td className="py-3 text-center"><FrequencyBadge frequency={sub.frequency} /></td>
+                                <td className="py-3 text-center">
+                                  <button onClick={() => setEditingReportSubmission({ ...sub, schoolName: activeSchool.name })} className="text-slate-400 hover:text-blue-600 cursor-pointer" title="Edit report">
+                                    <Eye size={18} />
+                                  </button>
+                                </td>
+                                <td className="py-3 text-center">
+                                  {sub.drive_link ? (
+                                    <a href={sub.drive_link} target="_blank" rel="noopener noreferrer" className="flex justify-center text-blue-600 hover:text-blue-800" title="Open OneDrive Link">
+                                      <OneDriveLogo size={18} />
+                                    </a>
+                                  ) : "—"}
+                                </td>
+                                <td className="py-3 text-center text-slate-500 truncate" title={sub.legal_basis}>{sub.legal_basis || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-6">
+                    <ComplianceDonut counts={reportCounts} filterLabel={filterLabel} category="report" />
+                    <div className="rounded-xl border border-slate-200 bg-white p-5">
+                      <p className="mb-3 text-sm font-semibold text-slate-800">Quick Actions</p>
+                      <button onClick={() => setShowCreateReportModal(true)} className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5">
+                        + Add New Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {activeSchool && (
-              <>
-                <div className="mb-10">
-                  <h2 className="mb-4 text-lg font-semibold text-slate-800">
-                    Activity Summary
-                  </h2>
-                  {/* Stat cards */}
-                  <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-                    <StatCard
-                      label="Total Activities"
-                      value={activeCounts.total}
-                      sublabel={filterLabel}
-                      color="slate"
-                      icon={ClipboardList}
-                    />
-                    <StatCard
-                      label="Completed"
-                      value={activeCounts.completed}
-                      sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
-                      color="green"
-                      icon={CheckCircle2}
-                    />
-                    <StatCard
-                      label="Ongoing"
-                      value={activeCounts.ongoing}
-                      sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
-                      color="amber"
-                      icon={Hourglass}
-                    />
-                    <StatCard
-                      label="Upcoming"
-                      value={activeCounts.not_started}
-                      sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
-                      color="red"
-                      icon={XCircle}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-                    {/* Activities table */}
-                    <div className="rounded-xl border border-slate-200 bg-white p-5">
-                      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-slate-800">
-                            Activities Monitoring — {activeSchool.name}
-                          </p>
-                          <button
-                            onClick={() => setMaximizedActivities(true)}
-                            className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                            title="View full table"
-                          >
-                            <Maximize2 size={16} />
-                          </button>
-                        </div>
-                        <p className="text-xs sm:text-sm text-slate-500">
-                          {filterLabel}
-                        </p>
-                      </div>
-                      {filteredSubmissions.length === 0 ? (
-                        <p className="py-8 text-center text-sm italic text-slate-400">
-                          {activeSchool.submissions.length === 0
-                            ? "No activities assigned yet."
-                            : "No activities match the selected filter."}
-                        </p>
-                      ) : (
-                        <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
-                          {/* setting min-w makes the table on mobile scrollable horizontally */}
-                          <table className="w-full min-w-170 table-fixed text-left text-sm">
-                            <colgroup>
-                              <col className="w-[28%]" />
-                              <col className="w-[15%]" />
-                              <col className="w-[14%]" />
-                              <col className="w-[14%]" />
-                              <col className="w-[10%]" />
-                              <col className="w-[10%]" />
-                              <col className="w-[15%]" />
-                            </colgroup>
-                            <thead className="sticky top-0 z-10 bg-slate-50">
-                              <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                                <th className="pb-2 pt-2 pl-2 font-bold">
-                                  Activity
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Date
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Status
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Priority
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Actions
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Link
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Legal Basis
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {sortedSubmissions.map((sub) => (
-                                <tr
-                                  key={sub.id}
-                                  className="border-b border-slate-50"
-                                >
-                                  <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
-                                    <span className="block" title={sub.name}>
-                                      {sub.name}
-                                    </span>
-                                  </td>
-                                  <td className="py-3 text-center text-slate-500">
-                                    {sub.start_date
-                                      ? !sub.end_date ||
-                                        sub.end_date === sub.start_date
-                                        ? sub.start_date
-                                        : `${sub.start_date} – ${sub.end_date}`
-                                      : "—"}
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    <StatusBadge
-                                      status={sub.status}
-                                      category="activity"
-                                    />
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    <PriorityBadge priority={sub.priority} />
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    <button
-                                      onClick={() =>
-                                        setEditingSubmission({
-                                          ...sub,
-                                          schoolName: activeSchool.name,
-                                        })
-                                      }
-                                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                      title="Edit activity"
-                                    >
-                                      <Eye size={18} />
-                                    </button>
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    {sub.drive_link ? (
-                                      <a
-                                        href={sub.drive_link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex justify-center text-blue-600 hover:text-blue-800"
-                                        title="Open OneDrive Link"
-                                      >
-                                        <OneDriveLogo size={18} />
-                                      </a>
-                                    ) : (
-                                      "—"
-                                    )}
-                                  </td>
-                                  <td
-                                    className="py-3 text-center text-slate-500 truncate"
-                                    title={sub.legal_basis}
-                                  >
-                                    {sub.legal_basis || "—"}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right column */}
-                    <div className="space-y-6">
-                      <ComplianceDonut
-                        counts={activeCounts}
-                        filterLabel={filterLabel}
-                        category={"activity"}
-                      />
-
-                      <div className="rounded-xl border border-slate-200 bg-white p-5">
-                        <p className="mb-3 text-sm font-semibold text-slate-800">
-                          Quick Actions
-                        </p>
-                        <button
-                          onClick={() => setShowCreateModal(true)}
-                          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
-                        >
-                          + Add New Activity
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="mb-4 pt-4 text-lg font-semibold text-slate-800 border-t border-slate-200/80">
-                    Reports Summary
-                  </h2>
-                  <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-                    <StatCard
-                      label="Total Reports"
-                      value={reportCounts.total}
-                      sublabel={filterLabel}
-                      color="slate"
-                      icon={ClipboardList}
-                    />
-                    <StatCard
-                      label="Completed"
-                      value={reportCounts.completed}
-                      sublabel={`${reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}%`}
-                      color="green"
-                      icon={CheckCircle2}
-                    />
-                    <StatCard
-                      label="In Progress"
-                      value={reportCounts.ongoing}
-                      sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
-                      color="amber"
-                      icon={Hourglass}
-                    />
-                    <StatCard
-                      label="Not Started"
-                      value={reportCounts.not_started}
-                      sublabel={`${reportCounts.total ? Math.round((reportCounts.not_started / reportCounts.total) * 100) : 0}%`}
-                      color="red"
-                      icon={XCircle}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-                    <div className="rounded-xl border border-slate-200 bg-white p-5">
-                      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-slate-800">
-                            Reports Monitoring
-                          </p>
-                          <button
-                            onClick={() => setMaximizedReports(true)}
-                            className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                            title="View full table"
-                          >
-                            <Maximize2 size={16} />
-                          </button>
-                        </div>
-                        <p className="text-xs sm:text-sm text-slate-500">
-                          {filterLabel}
-                        </p>
-                      </div>
-                      {filteredReportSubmissions.length === 0 ? (
-                        <p className="py-8 text-center text-sm italic text-slate-400">
-                          {activeSchool.report_submissions.length === 0
-                            ? "No reports assigned yet."
-                            : "No reports match the selected filter."}
-                        </p>
-                      ) : (
-                        <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
-                          {/* setting min-w makes the table on mobile scrollable horizontally */}
-                          <table className="w-full min-w-170 table-fixed text-left text-sm">
-                            <colgroup>
-                              <col className="w-[22%]" />
-                              <col className="w-[12%]" />
-                              <col className="w-[12%]" />
-                              <col className="w-[14%]" />
-                              <col className="w-[14%]" />
-                              <col className="w-[8%]" />
-                              <col className="w-[8%]" />
-                              <col className="w-[13%]" />
-                            </colgroup>
-                            <thead className="sticky top-0 z-10 bg-slate-50">
-                              <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                                <th className="pb-2 pt-2 pl-2 font-bold">
-                                  Report
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Date
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Date Submitted
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Status
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Frequency
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Actions
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Link
-                                </th>
-                                <th className="pb-2 pt-2 font-bold text-center">
-                                  Legal Basis
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {sortedReportSubmissions.map((sub) => (
-                                <tr
-                                  key={sub.id}
-                                  className="border-b border-slate-50"
-                                >
-                                  <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
-                                    <span className="block" title={sub.name}>
-                                      {sub.name}
-                                    </span>
-                                  </td>
-                                  <td className="py-3 text-center text-slate-500">
-                                    {sub.submission_date || "—"}
-                                  </td>
-                                  <td className="py-3 text-center text-slate-500">
-                                    {sub.date_submitted || "—"}
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    <StatusBadge status={sub.status} />
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    <FrequencyBadge frequency={sub.frequency} />
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    <button
-                                      onClick={() =>
-                                        setEditingReportSubmission({
-                                          ...sub,
-                                          schoolName: activeSchool.name,
-                                        })
-                                      }
-                                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                      title="Edit report"
-                                    >
-                                      <Eye size={18} />
-                                    </button>
-                                  </td>
-                                  <td className="py-3 text-center">
-                                    {sub.drive_link ? (
-                                      <a
-                                        href={sub.drive_link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex justify-center text-blue-600 hover:text-blue-800"
-                                        title="Open OneDrive Link"
-                                      >
-                                        <OneDriveLogo size={18} />
-                                      </a>
-                                    ) : (
-                                      "—"
-                                    )}
-                                  </td>
-                                  <td
-                                    className="py-3 text-center text-slate-500 truncate"
-                                    title={sub.legal_basis}
-                                  >
-                                    {sub.legal_basis || "—"}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-6">
-                      <ComplianceDonut
-                        counts={reportCounts}
-                        filterLabel={filterLabel}
-                        category={"report"}
-                      />
-                      <div className="rounded-xl border border-slate-200 bg-white p-5">
-                        <p className="mb-3 text-sm font-semibold text-slate-800">
-                          Quick Actions
-                        </p>
-                        <button
-                          onClick={() => setShowCreateReportModal(true)}
-                          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
-                        >
-                          + Add New Report
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </main>
-        </>
+            </>
+          )}
+        </main>
       )}
 
-      {/* Create Activity Modal */}
+      {/* Modals for the "dashboard" combined view only */}
       {showCreateModal && (
-        <CreateActivity
-          allSchools={schoolData}
-          onActivityCreated={handleActivityCreated}
-          onClose={() => setShowCreateModal(false)}
-        />
+        <CreateActivity allSchools={schoolData} onActivityCreated={handleActivityCreated} onClose={() => setShowCreateModal(false)} />
       )}
-
-      {/* Edit Activity Modal */}
       {editingSubmission && (
-        <EditActivity
-          submission={editingSubmission}
-          onSaved={handleActivityEdited}
-          onClose={() => setEditingSubmission(null)}
-          onDeleted={handleActivityDeleted}
-        />
+        <EditActivity submission={editingSubmission} onSaved={handleActivityEdited} onClose={() => setEditingSubmission(null)} onDeleted={handleActivityDeleted} />
       )}
-
-      {/* Create Report Modal */}
       {showCreateReportModal && (
-        <CreateReport
-          allSchools={schoolData}
-          onReportCreated={handleReportCreated}
-          onClose={() => setShowCreateReportModal(false)}
-        />
+        <CreateReport allSchools={schoolData} onReportCreated={handleReportCreated} onClose={() => setShowCreateReportModal(false)} />
       )}
-
-      {/* Edit Report Modal */}
       {editingReportSubmission && (
-        <EditReport
-          submission={editingReportSubmission}
-          onSaved={handleReportEdited}
-          onClose={() => setEditingReportSubmission(null)}
-          onDeleted={handleReportDeleted}
-        />
+        <EditReport submission={editingReportSubmission} onSaved={handleReportEdited} onClose={() => setEditingReportSubmission(null)} onDeleted={handleReportDeleted} />
       )}
-
-      {/* View Report Remarks Modal */}
       {viewingReportRemarks && (
-        <RemarksModal
-          submission={viewingReportRemarks}
-          onClose={() => setViewingReportRemarks(null)}
-        />
+        <RemarksModal submission={viewingReportRemarks} onClose={() => setViewingReportRemarks(null)} />
       )}
-
-      {/* Max View Report Table View Modal */}
-      {maximizedReports && (
-        <MaximizedReportsModal
-          schoolName={activeSchool.name}
-          sorted={sortedReportSubmissions}
-          onClose={() => setMaximizedReports(false)}
-          filterLabel={filterLabel}
-          showActions={true}
-          onEdit={setEditingReportSubmission}
-        />
+      {maximizedReports && activeSchool && (
+        <MaximizedReportsModal schoolName={activeSchool.name} sorted={sortedReportSubmissions} onClose={() => setMaximizedReports(false)} filterLabel={filterLabel} onEdit={setEditingReportSubmission} />
       )}
-
-      {/* Max View Activities Table View Modal */}
-      {maximizedActivities && (
-        <MaximizedActivitiesModal
-          schoolName={activeSchool.name}
-          sorted={sortedSubmissions}
-          onClose={() => setMaximizedActivities(false)}
-          filterLabel={filterLabel}
-          showActions={true}
-          onEdit={setEditingSubmission}
-        />
+      {maximizedActivities && activeSchool && (
+        <MaximizedActivitiesModal schoolName={activeSchool.name} sorted={sortedSubmissions} onClose={() => setMaximizedActivities(false)} filterLabel={filterLabel} onEdit={setEditingSubmission} />
       )}
     </div>
   );

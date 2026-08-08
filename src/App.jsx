@@ -26,6 +26,7 @@ import { EmailLogsButton } from "./EmailLogs";
 import ActivitiesView from "./ActivitiesView";
 import ReportsView from "./ReportsView";
 import SharedFilterHeader from "./sharedFilter";
+import EvidenceVault from "./EvidenceVault";
 
 // ============================================
 // Shared style tokens
@@ -250,7 +251,7 @@ const Sidebar = ({ currentView, onNavigate, items }) => {
     { key: "calendar", label: "Calendar" },
     { key: "consolidated_reports", label: "Consolidated Reports" },
     { key: "notifications", label: "Email Notifications" },
-    { key: "download", label: "Download Reports" },
+    { key: "evidence_vault", label: "Evidence Vault" },
   ];
 
   return (
@@ -2337,6 +2338,8 @@ const AdminDashboard = ({ profile }) => {
         </main>
       ) : view === "notifications" ? (
         <NotificationSettings />
+      ) : view === "evidence_vault" ? (
+        <EvidenceVault />
       ) : view === "activities" ? (
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <SharedFilterHeader

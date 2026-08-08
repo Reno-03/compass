@@ -39,6 +39,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
   const [legalBasis, setLegalBasis] = useState("");
   const [status, setStatus] = useState("not_started");
   const [frequency, setFrequency] = useState("one_time");
+  const [remarks, setRemarks] = useState("");
 
   function toggleSchool(id) {
     setSelectedSchoolIds((prev) =>
@@ -94,6 +95,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
       status: status || "not_started",
       legal_basis: report.legal_basis,
       frequency: frequency || "one_time",
+      remarks: remarks || null,
     }));
 
     const { data: newSubmissions, error: submissionError } = await supabase
@@ -186,36 +188,49 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
             </div>
           </div>
 
-          <div className="relative">
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Frequency
-            </label>
-            <select
-              value={frequency}
-              onChange={(e) => setFrequency(e.target.value)}
-              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
-            >
-              <option value="one_time">One-time</option>
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="annual">Annual</option>
-            </select>
-            <ChevronDown
-              size={18}
-              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
-            />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="relative">
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Frequency
+              </label>
+              <select
+                value={frequency}
+                onChange={(e) => setFrequency(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              >
+                <option value="one_time">One-time</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="annual">Annual</option>
+              </select>
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Legal Basis (optional)
+              </label>
+              <input
+                value={legalBasis}
+                onChange={(e) => setLegalBasis(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+                placeholder="e.g. DepEd Order No. 12, s. 2024"
+              />
+            </div>
           </div>
 
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Legal Basis (optional)
+              Remarks (optional)
             </label>
             <textarea
-              value={legalBasis}
-              onChange={(e) => setLegalBasis(e.target.value)}
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
               rows={1}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
-              placeholder="e.g. DepEd Order No. 12, s. 2024"
+              placeholder="Add any additional notes or comments..."
             />
           </div>
 
@@ -289,7 +304,10 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
   const [dateSubmitted, setDateSubmitted] = useState(
     submission.date_submitted || "",
   );
-  const [frequency, setFrequency] = useState(submission.frequency || "one_time");
+  const [frequency, setFrequency] = useState(
+    submission.frequency || "one_time",
+  );
+  const [remarks, setRemarks] = useState(submission.remarks || "");
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -347,6 +365,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
         status,
         frequency: frequency || "one_time",
         updated_at: new Date().toISOString(),
+        remarks: remarks || null,
       })
       .eq("id", submission.id)
       .select()
@@ -436,26 +455,6 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
             </div>
           </div>
 
-          <div className="relative">
-            <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Frequency
-            </label>
-            <select
-              value={frequency}
-              onChange={(e) => setFrequency(e.target.value)}
-              className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-            >
-              <option value="one_time">One-time</option>
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="annual">Annual</option>
-            </select>
-            <ChevronDown
-              size={18}
-              className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
-            />
-          </div>
-
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Date Submitted <span className="text-red-500">*</span>
@@ -490,16 +489,49 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
             )}
           </div>
 
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="relative">
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Frequency
+              </label>
+              <select
+                value={frequency}
+                onChange={(e) => setFrequency(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-slate-300 px-3 pr-10 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              >
+                <option value="one_time">One-time</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="annual">Annual</option>
+              </select>
+              <ChevronDown
+                size={18}
+                className="pointer-events-none absolute right-3 top-1/2 translate-y-1 text-slate-500"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Legal Basis (optional)
+              </label>
+              <input
+                value={legalBasis}
+                onChange={(e) => setLegalBasis(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+                placeholder="e.g. DepEd Order No. 12, s. 2024"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="mb-2 block text-xs font-semibold text-slate-500">
-              Legal Basis (optional)
+              Remarks (optional)
             </label>
             <textarea
-              value={legalBasis}
-              onChange={(e) => setLegalBasis(e.target.value)}
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
               rows={1}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-              placeholder="e.g. DepEd Order No. 12, s. 2024"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="Add any additional notes or comments..."
             />
           </div>
 
@@ -807,12 +839,18 @@ export default function ReportsView({
                       <th className="pb-2 pt-2 font-bold text-center">
                         Date Submitted
                       </th>
-                      <th className="pb-2 pt-2 font-bold text-center">Status</th>
+                      <th className="pb-2 pt-2 font-bold text-center">
+                        Status
+                      </th>
                       <th className="pb-2 pt-2 font-bold text-center">
                         Frequency
                       </th>
-                      <th className="pb-2 pt-2 font-bold text-center">Actions</th>
-                      <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
+                      <th className="pb-2 pt-2 font-bold text-center">
+                        Actions
+                      </th>
+                      <th className="pb-2 pt-2 font-bold text-center">
+                        Remarks
+                      </th>
                       <th className="pb-2 pt-2 font-bold text-center">Link</th>
                       <th className="pb-2 pt-2 font-bold text-center">
                         Legal Basis

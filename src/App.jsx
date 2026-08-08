@@ -1116,7 +1116,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
               <label className="mb-2 block text-xs font-semibold text-slate-500">
                 Status <span className="text-red-500">*</span>
               </label>
-
+                     
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}

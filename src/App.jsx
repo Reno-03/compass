@@ -1116,7 +1116,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
               <label className="mb-2 block text-xs font-semibold text-slate-500">
                 Status <span className="text-red-500">*</span>
               </label>
-                     
+
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
@@ -2473,7 +2473,7 @@ const AdminDashboard = ({ profile }) => {
                                 <span className="font-semibold">{3 + idx}. In Progress Report:</span> The{" "}
                                 <span className="font-bold">{report.name}</span> is currently{" "}
                                 <span className="font-bold">in progress</span>, with a deadline of{" "}
-                                <span className="font-bold">{report.submission_date}</span>. {report.remarks || "No remarks added yet."}
+                                <span className="font-bold">{report.submission_date}</span>.{" "} {report.remarks ? `Remarks: ${report.remarks}` : "No remarks added yet."}
                               </p>
                             </div>
                           ))}

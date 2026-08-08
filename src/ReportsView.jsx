@@ -16,6 +16,7 @@ import {
   Maximize2,
   School,
   X,
+  MessageSquareText,
 } from "lucide-react";
 import {
   StatusBadge,
@@ -789,14 +790,15 @@ export default function ReportsView({
               <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
                 <table className="w-full min-w-170 table-fixed text-left text-sm">
                   <colgroup>
-                    <col className="w-[22%]" />
-                    <col className="w-[12%]" />
-                    <col className="w-[12%]" />
-                    <col className="w-[14%]" />
-                    <col className="w-[14%]" />
-                    <col className="w-[8%]" />
-                    <col className="w-[8%]" />
+                    <col className="w-[20%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
                     <col className="w-[13%]" />
+                    <col className="w-[13%]" />
+                    <col className="w-[8%]" />
+                    <col className="w-[8%]" />
+                    <col className="w-[8%]" />
+                    <col className="w-[12%]" />
                   </colgroup>
                   <thead className="sticky top-0 z-10 bg-slate-50">
                     <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -810,6 +812,7 @@ export default function ReportsView({
                         Frequency
                       </th>
                       <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                      <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
                       <th className="pb-2 pt-2 font-bold text-center">Link</th>
                       <th className="pb-2 pt-2 font-bold text-center">
                         Legal Basis
@@ -849,6 +852,19 @@ export default function ReportsView({
                           >
                             <Eye size={18} />
                           </button>
+                        </td>
+                        <td className="py-3 text-center">
+                          {sub.remarks ? (
+                            <button
+                              onClick={() => setViewingReportRemarks(sub)}
+                              className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                              title={sub.remarks}
+                            >
+                              <MessageSquareText size={18} />
+                            </button>
+                          ) : (
+                            "—"
+                          )}
                         </td>
                         <td className="py-3 text-center">
                           {sub.drive_link ? (

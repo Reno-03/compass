@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   Maximize2,
+  MessageSquareText,
 } from "lucide-react";
 import CalendarView from "./CalendarView";
 import ConsolidatedReports from "./ConsolidatedReports";
@@ -984,6 +985,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
   const [legalBasis, setLegalBasis] = useState("");
   const [status, setStatus] = useState("not_started");
   const [frequency, setFrequency] = useState("one_time");
+  const [remarks, setRemarks] = useState("");
 
   function toggleSchool(id) {
     setSelectedSchoolIds((prev) =>
@@ -1039,6 +1041,7 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
       status: status || "not_started",
       legal_basis: report.legal_basis,
       frequency: frequency || "one_time",
+      remarks: remarks || null,
     }));
 
     const { data: newSubmissions, error: submissionError } = await supabase
@@ -1165,6 +1168,19 @@ const CreateReport = ({ allSchools, onReportCreated, onClose }) => {
           </div>
 
           <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Remarks (optional)
+            </label>
+            <textarea
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              rows={2}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/20"
+              placeholder="Add any additional notes or comments..."
+            />
+          </div>
+
+          <div>
             <div className="mb-2 flex items-center gap-2">
               <label className="block text-xs font-semibold text-slate-500">
                 OneDrive Link (optional)
@@ -1232,6 +1248,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
     submission.date_submitted || "",
   );
   const [frequency, setFrequency] = useState(submission.frequency || "one_time");
+  const [remarks, setRemarks] = useState(submission.remarks || "");
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -1288,6 +1305,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
         drive_link: driveLink || null,
         status,
         frequency: frequency || "one_time",
+        remarks: remarks || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", submission.id)
@@ -1446,6 +1464,19 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
           </div>
 
           <div>
+            <label className="mb-2 block text-xs font-semibold text-slate-500">
+              Remarks (optional)
+            </label>
+            <textarea
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              rows={2}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+              placeholder="Add any additional notes or comments..."
+            />
+          </div>
+
+          <div>
             <div className="mb-2 flex items-center gap-2">
               <label className="block text-xs font-semibold text-slate-500">
                 OneDrive Link (optional)
@@ -1492,6 +1523,7 @@ const MaximizedReportsModal = ({
   onEdit,
   onClose,
   filterLabel,
+  onViewRemarks,
   showActions = true,
 }) => (
   <div
@@ -1529,24 +1561,26 @@ const MaximizedReportsModal = ({
             <colgroup>
               {showActions ? (
                 <>
-                  <col className="w-[22%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[12%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[8%]" />
                   <col className="w-[20%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[10%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[19%]" />
                 </>
               ) : (
                 <>
-                  <col className="w-[24%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[13%]" />
+                  <col className="w-[22%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[12%]" />
                   <col className="w-[10%]" />
                   <col className="w-[10%]" />
-                  <col className="w-[9%]" />
-                  <col className="w-[20%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[18%]" />
                 </>
               )}
             </colgroup>
@@ -1562,6 +1596,7 @@ const MaximizedReportsModal = ({
                 {showActions && (
                   <th className="pb-2 pt-2 font-bold text-center">Actions</th>
                 )}
+                <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
                 <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
               </tr>
@@ -1595,6 +1630,19 @@ const MaximizedReportsModal = ({
                       </button>
                     </td>
                   )}
+                  <td className="py-3 text-center">
+                    {sub.remarks ? (
+                      <button
+                        onClick={() => onViewRemarks(sub)}
+                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                        title={sub.remarks}
+                      >
+                        <MessageSquareText size={18} />
+                      </button>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="py-3 text-center">
                     {sub.drive_link ? (
                       <a
@@ -2479,9 +2527,9 @@ const AdminDashboard = ({ profile }) => {
                       <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
                         <table className="w-full min-w-170 table-fixed text-left text-sm">
                           <colgroup>
-                            <col className="w-[22%]" /><col className="w-[12%]" /><col className="w-[12%]" />
-                            <col className="w-[14%]" /><col className="w-[14%]" /><col className="w-[8%]" />
-                            <col className="w-[8%]" /><col className="w-[13%]" />
+                            <col className="w-[20%]" /><col className="w-[10%]" /><col className="w-[10%]" />
+                            <col className="w-[12%]" /><col className="w-[12%]" /><col className="w-[8%]" />
+                            <col className="w-[8%]" /><col className="w-[8%]" /><col className="w-[12%]" />
                           </colgroup>
                           <thead className="sticky top-0 z-10 bg-slate-50">
                             <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -2491,6 +2539,7 @@ const AdminDashboard = ({ profile }) => {
                               <th className="pb-2 pt-2 font-bold text-center">Status</th>
                               <th className="pb-2 pt-2 font-bold text-center">Frequency</th>
                               <th className="pb-2 pt-2 font-bold text-center">Actions</th>
+                              <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
                               <th className="pb-2 pt-2 font-bold text-center">Link</th>
                               <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
                             </tr>
@@ -2509,6 +2558,15 @@ const AdminDashboard = ({ profile }) => {
                                   <button onClick={() => setEditingReportSubmission({ ...sub, schoolName: activeSchool.name })} className="text-slate-400 hover:text-blue-600 cursor-pointer" title="Edit report">
                                     <Eye size={18} />
                                   </button>
+                                </td>
+                                <td className="py-3 text-center">
+                                  {sub.remarks ? (
+                                    <button onClick={() => setViewingReportRemarks(sub)} className="text-slate-400 hover:text-blue-600 cursor-pointer" title={sub.remarks}>
+                                      <MessageSquareText size={18} />
+                                    </button>
+                                  ) : (
+                                    "—"
+                                  )}
                                 </td>
                                 <td className="py-3 text-center">
                                   {sub.drive_link ? (
@@ -2559,7 +2617,7 @@ const AdminDashboard = ({ profile }) => {
         <RemarksModal submission={viewingReportRemarks} onClose={() => setViewingReportRemarks(null)} />
       )}
       {maximizedReports && activeSchool && (
-        <MaximizedReportsModal schoolName={activeSchool.name} sorted={sortedReportSubmissions} onClose={() => setMaximizedReports(false)} filterLabel={filterLabel} onEdit={setEditingReportSubmission} />
+        <MaximizedReportsModal schoolName={activeSchool.name} sorted={sortedReportSubmissions} onClose={() => setMaximizedReports(false)} filterLabel={filterLabel} onEdit={setEditingReportSubmission} onViewRemarks={setViewingReportRemarks} />
       )}
       {maximizedActivities && activeSchool && (
         <MaximizedActivitiesModal schoolName={activeSchool.name} sorted={sortedSubmissions} onClose={() => setMaximizedActivities(false)} filterLabel={filterLabel} onEdit={setEditingSubmission} />

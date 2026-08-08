@@ -125,12 +125,13 @@ const MaximizedReportsModal = ({
           <table className="w-full min-w-220 table-fixed text-left text-sm">
             <colgroup>
               <col className="w-[22%]" />
-              <col className="w-[13%]" />
-              <col className="w-[14%]" />
               <col className="w-[12%]" />
-              <col className="w-[11%]" />
-              <col className="w-[9%]" />
-              <col className="w-[19%]" />
+              <col className="w-[12%]" />
+              <col className="w-[10%]" />
+              <col className="w-[10%]" />
+              <col className="w-[8%]" />
+              <col className="w-[8%]" />
+              <col className="w-[18%]" />
             </colgroup>
             <thead className="sticky top-0 z-10 bg-slate-50">
               <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -141,6 +142,7 @@ const MaximizedReportsModal = ({
                 </th>
                 <th className="pb-2 pt-2 font-bold text-center">Status</th>
                 <th className="pb-2 pt-2 font-bold text-center">Frequency</th>
+                <th className="pb-2 pt-2 font-bold text-center">Remarks</th>
                 <th className="pb-2 pt-2 font-bold text-center">Link</th>
                 <th className="pb-2 pt-2 font-bold text-center">Legal Basis</th>
               </tr>
@@ -162,6 +164,19 @@ const MaximizedReportsModal = ({
                   </td>
                   <td className="py-3 text-center">
                     <FrequencyBadge frequency={sub.frequency} />
+                  </td>
+                  <td className="py-3 text-center">
+                    {sub.remarks ? (
+                      <button
+                        onClick={() => onViewRemarks(sub)}
+                        className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                        title={sub.remarks}
+                      >
+                        <MessageSquareText size={18} />
+                      </button>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td className="py-3 text-center">
                     {sub.drive_link ? (
@@ -1016,6 +1031,9 @@ const PublicDashboard = () => {
                               Frequency
                             </th>
                             <th className="pb-2 pt-2 font-bold text-center">
+                              Remarks
+                            </th>
+                            <th className="pb-2 pt-2 font-bold text-center">
                               Link
                             </th>
                             <th className="pb-2 pt-2 font-bold text-center">
@@ -1043,6 +1061,19 @@ const PublicDashboard = () => {
                               </td>
                               <td className="py-3 text-center">
                                 <FrequencyBadge frequency={sub.frequency} />
+                              </td>
+                              <td className="py-3 text-center">
+                                {sub.remarks ? (
+                                  <button
+                                    onClick={() => setViewingRemarks(sub)}
+                                    className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                    title={sub.remarks}
+                                  >
+                                    <MessageSquareText size={18} />
+                                  </button>
+                                ) : (
+                                  "—"
+                                )}
                               </td>
                               <td className="py-3 text-center">
                                 {sub.drive_link ? (
@@ -1535,8 +1566,11 @@ const PublicDashboard = () => {
                               <th className="pb-2 pt-2 font-bold text-center">
                                 Status
                               </th>
-                               <th className="pb-2 pt-2 font-bold text-center">
+                              <th className="pb-2 pt-2 font-bold text-center">
                                 Frequency
+                              </th>
+                              <th className="pb-2 pt-2 font-bold text-center">
+                                Remarks
                               </th>
                               <th className="pb-2 pt-2 font-bold text-center">
                                 Link
@@ -1564,8 +1598,21 @@ const PublicDashboard = () => {
                                 <td className="py-3 text-center">
                                   <StatusBadge status={sub.status} />
                                 </td>
-                                 <td className="py-3 text-center">
+                                <td className="py-3 text-center">
                                   <FrequencyBadge frequency={sub.frequency} />
+                                </td>
+                                <td className="py-3 text-center">
+                                  {sub.remarks ? (
+                                    <button
+                                      onClick={() => setViewingRemarks(sub)}
+                                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
+                                      title={sub.remarks}
+                                    >
+                                      <MessageSquareText size={18} />
+                                    </button>
+                                  ) : (
+                                    "—"
+                                  )}
                                 </td>
                                 <td className="py-3 text-center">
                                   {sub.drive_link ? (

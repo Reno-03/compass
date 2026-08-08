@@ -880,9 +880,7 @@ const PublicDashboard = () => {
           <div className="lg:sticky lg:top-0 z-20 -mx-4 lg:-mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-4 lg:px-8 pb-4 pt-5 backdrop-blur-sm">
             <div className="mb-4 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-slate-800">
-                  Reports
-                </h1>
+                <h1 className="text-2xl font-bold text-slate-800">Reports</h1>
                 <p className="text-sm text-slate-500">
                   View all reports across schools in read-only mode.
                 </p>
@@ -1015,9 +1013,7 @@ const PublicDashboard = () => {
                       <table className="w-full min-w-170 table-fixed text-left text-sm">
                         <thead className="sticky top-0 z-10 bg-slate-50">
                           <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                            <th className="pb-2 pt-2 pl-2 font-bold">
-                              Report
-                            </th>
+                            <th className="pb-2 pt-2 pl-2 font-bold">Report</th>
                             <th className="pb-2 pt-2 font-bold text-center">
                               Date
                             </th>
@@ -1346,307 +1342,179 @@ const PublicDashboard = () => {
 
           {activeSchool && (
             <>
+              {/* Executive Analytics Dashboard */}
               <div className="mb-10">
-                <h2 className="mb-4 text-lg font-semibold text-slate-800">
-                  Activity Summary
+                <h2 className="mb-6 text-2xl font-bold text-slate-800">
+                  Executive Analytics
                 </h2>
-                <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-                  <StatCard
-                    label="Total Activities"
-                    value={activeCounts.total}
-                    sublabel={filterLabel}
-                    color="slate"
-                    icon={ClipboardList}
-                  />
-                  <StatCard
-                    label="Completed"
-                    value={activeCounts.completed}
-                    sublabel={`${activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}%`}
-                    color="green"
-                    icon={CheckCircle2}
-                  />
-                  <StatCard
-                    label="Ongoing"
-                    value={activeCounts.ongoing}
-                    sublabel={`${activeCounts.total ? Math.round((activeCounts.ongoing / activeCounts.total) * 100) : 0}%`}
-                    color="amber"
-                    icon={Hourglass}
-                  />
-                  <StatCard
-                    label="Upcoming"
-                    value={activeCounts.not_started}
-                    sublabel={`${activeCounts.total ? Math.round((activeCounts.not_started / activeCounts.total) * 100) : 0}%`}
-                    color="red"
-                    icon={XCircle}
-                  />
+
+                {/* Compliance Donuts Section */}
+                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {/* Activities Compliance */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-6">
+                    <p className="mb-4 text-sm font-semibold text-slate-800">
+                      Activity Implementation
+                    </p>
+                    <ComplianceDonut
+                      counts={activeCounts}
+                      filterLabel={filterLabel}
+                      category="activity"
+                    />
+                  </div>
+
+                  {/* Reports Compliance */}
+                  <div className="rounded-xl border border-slate-200 bg-white p-6">
+                    <p className="mb-4 text-sm font-semibold text-slate-800">
+                      Report Submission Compliance
+                    </p>
+                    <ComplianceDonut
+                      counts={reportCounts}
+                      filterLabel={filterLabel}
+                      category="report"
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-                  <div className="rounded-xl border border-slate-200 bg-white p-5">
-                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-slate-800">
-                          Activities Monitoring — {activeSchool.name}
-                        </p>
-                        <button
-                          onClick={() => setMaximizedActivities(true)}
-                          className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                          title="View full table"
-                        >
-                          <Maximize2 size={16} />
-                        </button>
-                      </div>
-                      <p className="text-xs sm:text-sm text-slate-500">
-                        {filterLabel}
+                {/* Performance Analysis Statements */}
+                <div className="rounded-xl border border-slate-200 bg-white p-6">
+                  <h3 className="mb-6 text-lg font-bold text-slate-800">
+                    HOW IS THE SCHOOL PERFORMING?{" "}
+                    <span className="text-lg font-normal italic text-slate-600">
+                      ({filterLabel})
+                    </span>
+                  </h3>
+
+                  <div className="space-y-6">
+                    {/* Statement 1: Activity Implementation */}
+                    <div className="border-l-4 border-blue-600 pl-4">
+                      <p className="text-sm text-slate-700">
+                        <span className="font-semibold">
+                          1. Activity Implementation:
+                        </span>{" "}
+                        All{" "}
+                        <span className="font-bold">
+                          {activeCounts.completed} out of {activeCounts.total}{" "}
+                          scheduled activities
+                        </span>{" "}
+                        have been successfully completed, indicating{" "}
+                        <span className="font-bold">
+                          {activeCounts.total
+                            ? Math.round(
+                                (activeCounts.completed / activeCounts.total) *
+                                  100,
+                              )
+                            : 0}
+                          % activity implementation
+                        </span>
+                        .
                       </p>
                     </div>
-                    {filteredSubmissions.length === 0 ? (
-                      <p className="py-8 text-center text-sm italic text-slate-400">
-                        No activities match the selected filter.
-                      </p>
-                    ) : (
-                      <div className="max-h-90 overflow-x-auto rounded-lg">
-                        <table className="w-full min-w-170 table-fixed text-left text-sm">
-                          <thead className="sticky top-0 z-10 bg-slate-50">
-                            <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                              <th className="pb-2 pt-2 pl-2 font-bold">
-                                Activity
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Date
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Status
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Priority
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Link
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Legal Basis
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {sortedSubmissions.map((sub) => (
-                              <tr
-                                key={sub.id}
-                                className="border-b border-slate-50"
-                              >
-                                <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
-                                  {sub.name}
-                                </td>
-                                <td className="py-3 text-center text-slate-500">
-                                  {sub.start_date
-                                    ? !sub.end_date ||
-                                      sub.end_date === sub.start_date
-                                      ? sub.start_date
-                                      : `${sub.start_date} – ${sub.end_date}`
-                                    : "—"}
-                                </td>
-                                <td className="py-3 text-center">
-                                  <StatusBadge
-                                    status={sub.status}
-                                    category="activity"
-                                  />
-                                </td>
-                                <td className="py-3 text-center">
-                                  <PriorityBadge priority={sub.priority} />
-                                </td>
-                                <td className="py-3 text-center">
-                                  {sub.drive_link ? (
-                                    <a
-                                      href={sub.drive_link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex justify-center text-blue-600 hover:text-blue-800"
-                                      title="Open OneDrive Link"
-                                    >
-                                      <OneDriveLogo size={18} />
-                                    </a>
-                                  ) : (
-                                    "—"
-                                  )}
-                                </td>
-                                <td
-                                  className="py-3 text-center text-slate-500"
-                                  title={sub.legal_basis || undefined}
-                                >
-                                  {sub.legal_basis || "—"}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-                  <ComplianceDonut
-                    counts={activeCounts}
-                    filterLabel={filterLabel}
-                    category="activity"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <h2 className="mb-4 pt-4 text-lg font-semibold text-slate-800 border-t border-slate-200/80">
-                  Reports Summary
-                </h2>
-                <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-                  <StatCard
-                    label="Total Reports"
-                    value={reportCounts.total}
-                    sublabel={filterLabel}
-                    color="slate"
-                    icon={ClipboardList}
-                  />
-                  <StatCard
-                    label="Completed"
-                    value={reportCounts.completed}
-                    sublabel={`${reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}%`}
-                    color="green"
-                    icon={CheckCircle2}
-                  />
-                  <StatCard
-                    label="In Progress"
-                    value={reportCounts.ongoing}
-                    sublabel={`${reportCounts.total ? Math.round((reportCounts.ongoing / reportCounts.total) * 100) : 0}%`}
-                    color="amber"
-                    icon={Hourglass}
-                  />
-                  <StatCard
-                    label="Not Started"
-                    value={reportCounts.not_started}
-                    sublabel={`${reportCounts.total ? Math.round((reportCounts.not_started / reportCounts.total) * 100) : 0}%`}
-                    color="red"
-                    icon={XCircle}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
-                  <div className="rounded-xl border border-slate-200 bg-white p-5">
-                    <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-slate-800">
-                          Reports Monitoring
-                        </p>
-                        <button
-                          onClick={() => setMaximizedReports(true)}
-                          className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                          title="View full table"
-                        >
-                          <Maximize2 size={16} />
-                        </button>
-                      </div>
-                      <p className="text-xs sm:text-sm text-slate-500">
-                        {filterLabel}
+                    {/* Statement 2: Report Submission */}
+                    <div className="border-l-4 border-blue-600 pl-4">
+                      <p className="text-sm text-slate-700">
+                        <span className="font-semibold">
+                          2. Report Submission:
+                        </span>{" "}
+                        <span className="font-bold">
+                          {reportCounts.completed} out of {reportCounts.total}{" "}
+                          required reports
+                        </span>{" "}
+                        were submitted within the prescribed period, reflecting{" "}
+                        <span className="font-bold">
+                          {reportCounts.total
+                            ? Math.round(
+                                (reportCounts.completed / reportCounts.total) *
+                                  100,
+                              )
+                            : 0}
+                          % on-time submission compliance
+                        </span>
+                        .
                       </p>
                     </div>
-                    {filteredReportSubmissions.length === 0 ? (
-                      <p className="py-8 text-center text-sm italic text-slate-400">
-                        No reports match the selected filter.
-                      </p>
-                    ) : (
-                      <div className="max-h-90 overflow-x-auto rounded-lg">
-                        <table className="w-full min-w-170 table-fixed text-left text-sm">
-                          <thead className="sticky top-0 z-10 bg-slate-50">
-                            <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
-                              <th className="pb-2 pt-2 pl-2 font-bold">
-                                Report
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Date
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Date Submitted
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Status
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Frequency
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Remarks
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Link
-                              </th>
-                              <th className="pb-2 pt-2 font-bold text-center">
-                                Legal Basis
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {sortedReportSubmissions.map((sub) => (
-                              <tr
-                                key={sub.id}
-                                className="border-b border-slate-50"
-                              >
-                                <td className="py-3 pl-2 pr-2 font-medium text-slate-700">
-                                  {sub.name}
-                                </td>
-                                <td className="py-3 text-center text-slate-500">
-                                  {sub.submission_date || "—"}
-                                </td>
-                                <td className="py-3 text-center text-slate-500">
-                                  {sub.date_submitted || "—"}
-                                </td>
-                                <td className="py-3 text-center">
-                                  <StatusBadge status={sub.status} />
-                                </td>
-                                <td className="py-3 text-center">
-                                  <FrequencyBadge frequency={sub.frequency} />
-                                </td>
-                                <td className="py-3 text-center">
-                                  {sub.remarks ? (
-                                    <button
-                                      onClick={() => setViewingRemarks(sub)}
-                                      className="text-slate-400 hover:text-blue-600 cursor-pointer"
-                                      title={sub.remarks}
-                                    >
-                                      <MessageSquareText size={18} />
-                                    </button>
-                                  ) : (
-                                    "—"
-                                  )}
-                                </td>
-                                <td className="py-3 text-center">
-                                  {sub.drive_link ? (
-                                    <a
-                                      href={sub.drive_link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex justify-center text-blue-600 hover:text-blue-800"
-                                      title="Open OneDrive Link"
-                                    >
-                                      <OneDriveLogo size={18} />
-                                    </a>
-                                  ) : (
-                                    "—"
-                                  )}
-                                </td>
-                                <td
-                                  className="py-3 text-center text-slate-500"
-                                  title={sub.legal_basis || undefined}
-                                >
-                                  {sub.legal_basis || "—"}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+
+                    {/* Statement 3: In Progress Reports */}
+                    {sortedReportSubmissions.filter(
+                      (r) => r.status === "ongoing",
+                    ).length > 0 && (
+                      <div className="space-y-4">
+                        {sortedReportSubmissions
+                          .filter((r) => r.status === "ongoing")
+                          .map((report, idx) => (
+                            <div
+                              key={report.id}
+                              className="border-l-4 border-amber-600 pl-4"
+                            >
+                              <p className="text-sm text-slate-700">
+                                {/* <span className="font-bold">{3 + idx}. {report.name}:</span> The{" "} */}
+                                <span className="font-semibold">
+                                  {3 + idx}. In Progress Report:
+                                </span>{" "}
+                                The{" "}
+                                <span className="font-bold">{report.name}</span>{" "}
+                                is currently{" "}
+                                <span className="font-bold">in progress</span>,
+                                with a deadline of{" "}
+                                <span className="font-bold">
+                                  {report.submission_date}
+                                </span>
+                                . {report.remarks || "No remarks added yet."}
+                              </p>
+                            </div>
+                          ))}
                       </div>
                     )}
+
+                    {/* Statement 4: DPDS Report */}
+                    {(() => {
+                      const dpdsReportName = `DPDS Report for ${MONTH_NAMES[filterMonth - 1]} ${filterYear}`;
+                      const dpdsReport = sortedReportSubmissions.find(
+                        (r) => r.name === dpdsReportName,
+                      );
+                      if (dpdsReport) {
+                        const statementNum =
+                          2 +
+                          sortedReportSubmissions.filter(
+                            (r) => r.status === "ongoing",
+                          ).length;
+                        return (
+                          <div className="border-l-4 border-green-600 pl-4">
+                            <p className="text-sm text-slate-700">
+                              <span className="font-semibold">
+                                {statementNum + 1}. DPDS Report:
+                              </span>{" "}
+                              The{" "}
+                              <span className="font-bold">
+                                {dpdsReportName}
+                              </span>{" "}
+                              {dpdsReport.status === "completed" ? (
+                                <>
+                                  was successfully submitted on{" "}
+                                  <span className="font-bold">
+                                    {dpdsReport.date_submitted ||
+                                      dpdsReport.submission_date}
+                                  </span>
+                                  .
+                                </>
+                              ) : (
+                                <>
+                                  is currently{" "}
+                                  <span className="font-bold">
+                                    {dpdsReport.status === "not_started"
+                                      ? "not started"
+                                      : "in progress"}
+                                  </span>
+                                  .
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
-                  <ComplianceDonut
-                    counts={reportCounts}
-                    filterLabel={filterLabel}
-                    category="report"
-                  />
                 </div>
               </div>
             </>

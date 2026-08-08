@@ -168,7 +168,7 @@ const ComplianceDonut = ({ counts, filterLabel, category }) => {
   const ongoingLabel = category === "activity" ? "Ongoing" : "In Progress";
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <div className="rounded-xl bg-white p-5">
       <div className="mb-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
         <p className="text-sm font-semibold text-slate-800">
           {category === "activity"
@@ -2418,14 +2418,12 @@ const AdminDashboard = ({ profile }) => {
                 {/* Compliance Donuts Section */}
                 <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
                   {/* Activities Compliance */}
-                  <div className="rounded-xl border border-slate-200 bg-white p-6">
-                    <p className="mb-4 text-sm font-semibold text-slate-800">Activity Implementation</p>
+                  <div className="rounded-xl border border-slate-200 bg-white p-0">
                     <ComplianceDonut counts={activeCounts} filterLabel={filterLabel} category="activity" />
                   </div>
                   
                   {/* Reports Compliance */}
-                  <div className="rounded-xl border border-slate-200 bg-white p-6">
-                    <p className="mb-4 text-sm font-semibold text-slate-800">Report Submission Compliance</p>
+                  <div className="rounded-xl border border-slate-200 bg-white p-0">
                     <ComplianceDonut counts={reportCounts} filterLabel={filterLabel} category="report" />
                   </div>
                 </div>
@@ -2473,7 +2471,7 @@ const AdminDashboard = ({ profile }) => {
                                 <span className="font-semibold">{3 + idx}. In Progress Report:</span> The{" "}
                                 <span className="font-bold">{report.name}</span> is currently{" "}
                                 <span className="font-bold">in progress</span>, with a deadline of{" "}
-                                <span className="font-bold">{report.submission_date}</span>.{" "} {report.remarks ? `Remarks: ${report.remarks}` : "No remarks added yet."}
+                                <span className="font-bold">{report.submission_date}</span>.{" "} {report.remarks ? `Remarks: ${report.remarks}` : ""}
                               </p>
                             </div>
                           ))}
@@ -2486,27 +2484,45 @@ const AdminDashboard = ({ profile }) => {
                       const dpdsReport = sortedReportSubmissions.find(
                         (r) => r.name === dpdsReportName
                       );
+
                       if (dpdsReport) {
-                        const statementNum = 2 + sortedReportSubmissions.filter((r) => r.status === "ongoing").length;
+                        const statementNum =
+                          2 + sortedReportSubmissions.filter((r) => r.status === "ongoing").length;
+
                         return (
                           <div className="border-l-4 border-green-600 pl-4">
                             <p className="text-sm text-slate-700">
-                              <span className="font-semibold">{statementNum + 1}. DPDS Report:</span> The{" "}
-                              <span className="font-bold">{dpdsReportName}</span> {" "}
+                              <span className="font-semibold">
+                                {statementNum + 1}. DPDS Report:
+                              </span>{" "}
+                              The <span className="font-bold">{dpdsReportName}</span>{" "}
+                              
                               {dpdsReport.status === "completed" ? (
                                 <>
                                   was successfully submitted on{" "}
-                                  <span className="font-bold">{dpdsReport.date_submitted || dpdsReport.submission_date}</span>.
+                                  <span className="font-bold">
+                                    {dpdsReport.date_submitted || dpdsReport.submission_date}
+                                  </span>.
                                 </>
                               ) : (
                                 <>
-                                  is currently <span className="font-bold">{dpdsReport.status === "not_started"? "not started" : "in progress"}</span>.
+                                  is currently{" "}
+                                  <span className="font-bold">
+                                    {dpdsReport.status === "not_started"
+                                      ? "not started"
+                                      : "in progress"}
+                                  </span>.
                                 </>
+                              )}
+
+                              {dpdsReport.remarks && (
+                                <>{" "}Remarks: {dpdsReport.remarks}</>
                               )}
                             </p>
                           </div>
                         );
                       }
+
                       return null;
                     })()}
                   </div>

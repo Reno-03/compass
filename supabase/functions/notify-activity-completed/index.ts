@@ -79,5 +79,17 @@ async function sendEmail(to: string, html: string, activityName: string) {
       html,
     }),
   });
-  return await res.json();
+  const data = await res.json();
+
+  await supabase.from("email_logs").insert({
+    email_type: "activity_completed",
+    subject: `✓ Activity completed: ${activityName}`,
+    recipient: to,
+    related_name: activityName,
+    status: res.ok ? "sent" : "failed",
+    error_message: res.ok ? null : JSON.stringify(data),
+    resend_id: data?.id || null,
+  });
+
+  return data;
 }

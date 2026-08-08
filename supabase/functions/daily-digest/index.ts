@@ -166,5 +166,17 @@ async function sendDigestEmail(to: string, html: string, count: number) {
       html,
     }),
   });
-  return await res.json();
+  const data = await res.json();
+
+  await supabase.from("email_logs").insert({
+    email_type: "daily_digest",
+    subject: `COMPASS: ${count} item(s) due within ${WINDOW_DAYS} days`,
+    recipient: to,
+    related_name: "",
+    status: res.ok ? "sent" : "failed",
+    error_message: res.ok ? null : JSON.stringify(data),
+    resend_id: data?.id || null,
+  });
+
+  return data;
 }

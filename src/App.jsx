@@ -21,6 +21,7 @@ import CalendarView from "./CalendarView";
 import ConsolidatedReports from "./ConsolidatedReports";
 import PublicDashboard from "./PublicDashboard";
 import NotificationSettings from "./NotificationSettings";
+import { EmailLogsButton } from "./EmailLogs";
 
 // ============================================
 // Shared style tokens
@@ -2387,6 +2388,7 @@ const AdminDashboard = ({ profile }) => {
                     <span className="whitespace-nowrap text-xs sm:text-sm text-slate-600">
                       Welcome, {profile.full_name || "PDO"}
                     </span>
+                    <EmailLogsButton />
                     <LogoutButton />
                   </div>
                 </div>

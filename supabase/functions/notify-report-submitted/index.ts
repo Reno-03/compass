@@ -80,5 +80,17 @@ async function sendEmail(to: string, html: string, reportName: string) {
       html,
     }),
   });
-  return await res.json();
+  const data = await res.json();
+
+  await supabase.from("email_logs").insert({
+    email_type: "report_submitted",
+    subject: `📄 Report submitted: ${reportName}`,
+    recipient: to,
+    related_name: reportName,
+    status: res.ok ? "sent" : "failed",
+    error_message: res.ok ? null : JSON.stringify(data),
+    resend_id: data?.id || null,
+  });
+
+  return data;
 }

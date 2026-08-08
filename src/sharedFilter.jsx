@@ -15,7 +15,7 @@ const LogoutButton = () => {
   return (
     <button
       onClick={handleLogout}
-      className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+      className="inline-flex whitespace-nowrap items-center gap-2 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
     >
       <LogOut size={16} />
       <span>Log Out</span>
@@ -45,14 +45,14 @@ export default function SharedFilterHeader({
           <p className="text-sm text-slate-500">{subtitle}</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-nowrap items-center gap-2 sm:gap-3">
             {(filterMonth !== "all" || filterYear !== "all") && (
               <button
                 onClick={() => {
                   setFilterMonth("all");
                   setFilterYear("all");
                 }}
-                className="cursor-pointer text-xs font-semibold text-blue-600 hover:underline"
+                className="cursor-pointer whitespace-nowrap text-xs font-semibold text-blue-600 hover:underline"
               >
                 Clear filter
               </button>
@@ -65,7 +65,7 @@ export default function SharedFilterHeader({
                   e.target.value === "all" ? "all" : Number(e.target.value),
                 )
               }
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+              className="shrink-0 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
             >
               <option value="all">All Months</option>
               {monthNames.map((label, i) => (
@@ -82,7 +82,7 @@ export default function SharedFilterHeader({
                   e.target.value === "all" ? "all" : Number(e.target.value),
                 )
               }
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
+              className="shrink-0 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 focus:border-blue-500 focus:outline-none"
             >
               <option value="all">All Years</option>
               {availableYears.map((year) => (

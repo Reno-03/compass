@@ -2474,7 +2474,7 @@ const AdminDashboard = ({ profile }) => {
                                 <span className="font-semibold">{3 + idx}. In Progress Report:</span> The{" "}
                                 <span className="font-bold">{report.name}</span> is currently{" "}
                                 <span className="font-bold">in progress</span>, with a deadline of{" "}
-                                <span className="font-bold">{report.submission_date}</span>.{" "} {report.remarks ? `Remarks: ${report.remarks}` : ""}
+                                <span className="font-bold">{report.submission_date}</span>.{" "} {report.remarks ? `${report.remarks}` : ""}
                               </p>
                             </div>
                           ))}
@@ -2519,7 +2519,7 @@ const AdminDashboard = ({ profile }) => {
                               )}
 
                               {dpdsReport.remarks && (
-                                <>{" "}Remarks: {dpdsReport.remarks}</>
+                                <>{" "}{dpdsReport.remarks}</>
                               )}
                             </p>
                           </div>

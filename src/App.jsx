@@ -27,6 +27,7 @@ import ActivitiesView from "./ActivitiesView";
 import ReportsView from "./ReportsView";
 import SharedFilterHeader from "./sharedFilter";
 import EvidenceVault from "./EvidenceVault";
+import LinkView from "./LinkView";
 
 // ============================================
 // Shared style tokens
@@ -252,6 +253,7 @@ const Sidebar = ({ currentView, onNavigate, items }) => {
     { key: "consolidated_reports", label: "Consolidated Reports" },
     { key: "notifications", label: "Email Notifications" },
     { key: "evidence_vault", label: "Evidence Vault" },
+    { key: "link", label: "LINK" },
   ];
 
   return (
@@ -2340,6 +2342,8 @@ const AdminDashboard = ({ profile }) => {
         <NotificationSettings />
       ) : view === "evidence_vault" ? (
         <EvidenceVault />
+      ) : view === "link" ? (
+        <LinkView />
       ) : view === "activities" ? (
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <SharedFilterHeader

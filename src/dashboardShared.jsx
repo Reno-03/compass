@@ -281,6 +281,11 @@ export const MobileHeader = ({
             alt="DEPED Logo"
             className="h-7"
           />
+          <img
+            src="/images/lantaw-banner-logo-white.webp"
+            alt="LANTAW Banner"
+            className="h-10 ml-2 rounded-lg"
+          />
         </div>
         <button
           onClick={onMenuToggle}

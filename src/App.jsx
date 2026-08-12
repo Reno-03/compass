@@ -334,7 +334,12 @@ const MobileHeader = ({
           <img
             src="/images/DEPED_torch_logo.png"
             alt="DEPED Logo"
-            className="h-7"
+            className="h-7 ml-2"
+          />
+          <img
+            src="/images/lantaw-banner-logo-white.webp"
+            alt="LANTAW Banner"
+            className="h-10 ml-2 rounded-lg"
           />
         </div>
         <button

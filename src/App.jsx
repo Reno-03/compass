@@ -1,4 +1,4 @@
-// App.jsx — Tailwind-styled to match DepEd COMPASS reference
+// App.jsx — Tailwind-styled to match DepEd LANTAW reference
 
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
@@ -272,13 +272,12 @@ const Sidebar = ({ currentView, onNavigate, items }) => {
 
       <div className="mb-8 text-lg font-semibold leading-tight">
         <img
-          src="/images/COMPASS_banner_dark.webp"
-          alt="COMPASS Banner"
+          src="/images/lantaw-banner-logo-white.webp"
+          alt="LANTAW Banner"
           className="mb-2 w-full pr-5 rounded-lg"
         />
         <div className="text-[11px] font-normal text-white/60">
-          Centralized Online Monitoring of Programs, Activities, and School
-          Submissions
+          Leveraging Analytics and Navigation for Timely Action and Workflow
         </div>
       </div>
 
@@ -1886,8 +1885,8 @@ const LoginPage = () => {
                 className="h-10"
               />
               <img
-                src="/images/COMPASS_banner_dark.webp"
-                alt="COMPASS Banner"
+                src="/images/lantaw-banner-logo-white.webp"
+                alt="LANTAW Logo"
                 className="h-10 ml-4"
               />
             </div>
@@ -1917,7 +1916,7 @@ const LoginPage = () => {
           </div>
 
           <p className="text-xs text-white/40">
-            © {new Date().getFullYear()} COMPASS
+            © {new Date().getFullYear()} LANTAW
           </p>
         </div>
 
@@ -1927,7 +1926,7 @@ const LoginPage = () => {
             Welcome back
           </h2>
           <p className="mb-8 text-sm text-slate-500">
-            Sign in to your COMPASS account to continue.
+            Sign in to your LANTAW account to continue.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

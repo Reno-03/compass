@@ -799,7 +799,7 @@ const PublicDashboard = () => {
                         : "No activities match the selected filter."}
                     </p>
                   ) : (
-                    <div className="max-h-90 overflow-x-auto rounded-lg">
+                    <div className="max-h-150 overflow-x-auto rounded-lg">
                       <table className="w-full min-w-170 table-fixed text-left text-sm">
                         <thead className="sticky top-0 z-10 bg-slate-50">
                           <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">
@@ -1015,7 +1015,7 @@ const PublicDashboard = () => {
                         : "No reports match the selected filter."}
                     </p>
                   ) : (
-                    <div className="max-h-90 overflow-x-auto rounded-lg">
+                    <div className="max-h-150 overflow-x-auto rounded-lg">
                       <table className="w-full min-w-170 table-fixed text-left text-sm">
                         <thead className="sticky top-0 z-10 bg-slate-50">
                           <tr className="border-b border-slate-100 text-xs uppercase text-slate-800">

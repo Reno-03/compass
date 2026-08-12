@@ -269,10 +269,10 @@ const LinkView = () => {
           Header
       ====================================================== */}
       <div className="mb-6 mt-2">
-        <h1 className="text-2xl font-bold text-slate-800">Link</h1>
+        <h1 className="text-2xl font-bold text-slate-800">LINK (Leveraging Initiatives in Networking and Key Partnerships)</h1>
 
         <p className="mt-1 text-sm text-slate-500">
-          View each school's Google Sheet. Edits are made directly in Google
+          View each school's LINK via Google Sheet. Edits are made directly in Google
           Sheets and reflect here automatically.
         </p>
       </div>

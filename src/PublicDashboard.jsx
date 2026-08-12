@@ -773,7 +773,7 @@ const PublicDashboard = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+              <div>
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
                   <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-2">
@@ -877,11 +877,6 @@ const PublicDashboard = () => {
                     </div>
                   )}
                 </div>
-                <ComplianceDonut
-                  counts={activeCounts}
-                  filterLabel={filterLabel}
-                  category="activity"
-                />
               </div>
             </>
           )}
@@ -994,7 +989,7 @@ const PublicDashboard = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+              <div>
                 <div className="rounded-xl border border-slate-200 bg-white p-5">
                   <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-2">
@@ -1110,11 +1105,6 @@ const PublicDashboard = () => {
                     </div>
                   )}
                 </div>
-                <ComplianceDonut
-                  counts={reportCounts}
-                  filterLabel={filterLabel}
-                  category="report"
-                />
               </div>
             </>
           )}

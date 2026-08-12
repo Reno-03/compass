@@ -804,7 +804,7 @@ export default function ActivitiesView({
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,1fr)]">
+        <div className="space-y-6">
           {/* Activities table */}
           <div className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -829,7 +829,7 @@ export default function ActivitiesView({
                   : "No activities match the selected filter."}
               </p>
             ) : (
-              <div className="max-h-90 overflow-x-auto lg:overflow-y-auto rounded-lg">
+              <div className="max-h-150 overflow-x-auto lg:overflow-y-auto rounded-lg">
                 <table className="w-full min-w-170 table-fixed text-left text-sm">
                   <colgroup>
                     <col className="w-[28%]" />
@@ -914,27 +914,17 @@ export default function ActivitiesView({
               </div>
             )}
           </div>
-
-          {/* Right column */}
-          <div className="space-y-6">
-            <ComplianceDonut
-              counts={activeCounts}
-              filterLabel={filterLabel}
-              category="activity"
-            />
-
-            <div className="rounded-xl border border-slate-200 bg-white p-5">
-              <p className="mb-3 text-sm font-semibold text-slate-800">
-                Quick Actions
-              </p>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
-              >
-                + Add New Activity
-              </button>
-            </div>
-          </div>
+        </div>
+        <div className="mt-5 w-75 rounded-xl border border-slate-200 bg-white p-5">
+          <p className="mb-3 text-sm font-semibold text-slate-800">
+            Quick Actions
+          </p>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer transition-transform hover:-translate-y-0.5"
+          >
+            + Add New Activity
+          </button>
         </div>
       </div>
 

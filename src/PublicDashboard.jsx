@@ -601,8 +601,8 @@ const PublicDashboard = () => {
     { key: "activities", label: "Activities" },
     { key: "reports", label: "Reports" },
     { key: "calendar", label: "Calendar" },
-    { key: "consolidated_reports", label: "Consolidated Reports" },
     { key: "evidence_vault", label: "Evidence Vault" },
+    { key: "link", label: "LINK" },
   ];
 
   return (

@@ -25,6 +25,7 @@ import {
   FrequencyBadge,
 } from "./dashboardShared";
 import PublicEvidenceVault from "./EvidenceVaultPublic";
+import LinkViewPublic from "./LinkViewPublic";
 
 const STATUS_ORDER = {
   not_started: 0,
@@ -660,6 +661,8 @@ const PublicDashboard = () => {
           activeSchoolId={activeSchoolId}
           setActiveSchoolId={setActiveSchoolId}
         />
+      ) : view === "link" ? (
+        <LinkViewPublic />
       ) : view === "activities" ? (
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <div className="lg:sticky lg:top-0 z-20 -mx-4 lg:-mx-8 mb-6 border-b border-slate-200/80 bg-[#f4f6fb]/95 px-4 lg:px-8 pb-4 pt-5 backdrop-blur-sm">

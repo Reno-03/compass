@@ -260,9 +260,11 @@ export const MobileHeader = ({
 }) => {
   const navItems = items || [
     { key: "dashboard", label: "Dashboard" },
+    { key: "activities", label: "Activities" },
+    { key: "reports", label: "Reports" },
     { key: "calendar", label: "Calendar" },
-    { key: "reports", label: "Consolidated Reports" },
-    { key: "download", label: "Download Reports" },
+    { key: "evidence_vault", label: "Evidence Vault" },
+    { key: "link", label: "LINK" },
   ];
 
   return (
@@ -289,9 +291,15 @@ export const MobileHeader = ({
       </div>
 
       <div
-        className={`fixed inset-x-0 top-16 z-50 overflow-hidden border-b border-white/10 bg-[#0b1c39] shadow-lg transition-all duration-300 ease-out lg:hidden
-    ${isMenuOpen ? "max-h-64" : "max-h-0  pointer-events-none"}`}
-      >
+        className={`fixed inset-x-0 top-16 z-50 lg:hidden
+      border-b border-white/10 bg-[#0b1c39] shadow-lg
+      transition-all duration-300 ease-out
+      ${
+        isMenuOpen
+          ? "max-h-[calc(100dvh-4rem)] overflow-y-auto"
+          : "max-h-0 overflow-hidden pointer-events-none"
+      }`}
+        >
         <nav className="space-y-1 px-2 py-3">
           {navItems.map((item) => (
             <button

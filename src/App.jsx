@@ -57,7 +57,8 @@ const REPORT_STATUS_LABEL = {
 };
 
 export const StatusBadge = ({ status, category }) => {
-  const labels = category === "activity" ? ACTIVITY_STATUS_LABEL : REPORT_STATUS_LABEL;
+  const labels =
+    category === "activity" ? ACTIVITY_STATUS_LABEL : REPORT_STATUS_LABEL;
   return (
     <span
       className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status] || STATUS_STYLES.not_started}`}
@@ -315,8 +316,9 @@ const MobileHeader = ({
     { key: "activities", label: "Activities" },
     { key: "reports", label: "Reports" },
     { key: "calendar", label: "Calendar" },
-    { key: "consolidated_reports", label: "Consolidated Reports" },
-    { key: "download", label: "Download Reports" },
+    { key: "evidence_vault", label: "Evidence Vault" },
+    { key: "link", label: "LINK" },
+    { key: "notifications", label: "Email Notifications" },
   ];
 
   return (
@@ -345,9 +347,15 @@ const MobileHeader = ({
 
       {/* Mobile Navigation Menu */}
       <div
-        className={`fixed inset-x-0 top-16 z-50 overflow-hidden border-b border-white/10 bg-[#0b1c39] shadow-lg transition-all duration-300 ease-out lg:hidden
-    ${isMenuOpen ? "max-h-64" : "max-h-0  pointer-events-none"}`}
-      >
+        className={`fixed inset-x-0 top-16 z-50 lg:hidden
+      border-b border-white/10 bg-[#0b1c39] shadow-lg
+      transition-all duration-300 ease-out
+      ${
+        isMenuOpen
+          ? "max-h-[calc(100dvh-4rem)] overflow-y-auto"
+          : "max-h-0 overflow-hidden pointer-events-none"
+      }`}
+        >
         <nav className="space-y-1 px-2 py-3">
           {navItems.map((item) => (
             <button
@@ -594,7 +602,7 @@ const CreateActivity = ({ allSchools, onActivityCreated, onClose }) => {
               />
             </div>
 
-             <div className="relative">
+            <div className="relative">
               <label className="mb-2 block text-xs font-semibold text-slate-500">
                 Priority
               </label>
@@ -900,7 +908,7 @@ const EditActivity = ({ submission, onSaved, onDeleted, onClose }) => {
               />
             </div>
 
-             <div className="relative">
+            <div className="relative">
               <label className="mb-2 block text-xs font-semibold text-slate-500">
                 Priority
               </label>
@@ -1248,7 +1256,9 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
   const [dateSubmitted, setDateSubmitted] = useState(
     submission.date_submitted || "",
   );
-  const [frequency, setFrequency] = useState(submission.frequency || "one_time");
+  const [frequency, setFrequency] = useState(
+    submission.frequency || "one_time",
+  );
   const [remarks, setRemarks] = useState(submission.remarks || "");
 
   async function handleDelete() {
@@ -1397,7 +1407,7 @@ const EditReport = ({ submission, onSaved, onDeleted, onClose }) => {
             </div>
           </div>
 
-           <div className="relative">
+          <div className="relative">
             <label className="mb-2 block text-xs font-semibold text-slate-500">
               Frequency
             </label>
@@ -1617,7 +1627,7 @@ const MaximizedReportsModal = ({
                   <td className="py-3 text-center">
                     <StatusBadge status={sub.status} />
                   </td>
-                   <td className="py-3 text-center">
+                  <td className="py-3 text-center">
                     <FrequencyBadge frequency={sub.frequency} />
                   </td>
                   {showActions && (
@@ -2244,8 +2254,18 @@ const AdminDashboard = ({ profile }) => {
   });
 
   const MONTH_NAMES = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   function getFilterLabel(filterMonth, filterYear) {
@@ -2316,7 +2336,8 @@ const AdminDashboard = ({ profile }) => {
           <div className="mb-4 mt-5">
             <h1 className="text-2xl font-bold text-slate-800">Calendar</h1>
             <p className="text-sm text-slate-500">
-              Visual timeline of activities and reports across all schools, by date.
+              Visual timeline of activities and reports across all schools, by
+              date.
             </p>
           </div>
           <CalendarView
@@ -2329,7 +2350,9 @@ const AdminDashboard = ({ profile }) => {
       ) : view === "consolidated_reports" ? (
         <main className="flex-1 p-4 lg:p-8 lg:pt-0">
           <div className="mb-6 mt-5">
-            <h1 className="text-2xl font-bold text-slate-800">Consolidated Reports</h1>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Consolidated Reports
+            </h1>
             <p className="text-sm text-slate-500">
               Consolidated reports by school and school year.
             </p>
@@ -2418,35 +2441,61 @@ const AdminDashboard = ({ profile }) => {
             <>
               {/* Executive Analytics Dashboard */}
               <div className="mb-10">
-                <h2 className="mb-6 text-2xl font-bold text-slate-800">Executive Analytics</h2>
-                
+                <h2 className="mb-6 text-2xl font-bold text-slate-800">
+                  Executive Analytics
+                </h2>
+
                 {/* Compliance Donuts Section */}
                 <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
                   {/* Activities Compliance */}
                   <div className="rounded-xl border border-slate-200 bg-white p-0">
-                    <ComplianceDonut counts={activeCounts} filterLabel={filterLabel} category="activity" />
+                    <ComplianceDonut
+                      counts={activeCounts}
+                      filterLabel={filterLabel}
+                      category="activity"
+                    />
                   </div>
-                  
+
                   {/* Reports Compliance */}
                   <div className="rounded-xl border border-slate-200 bg-white p-0">
-                    <ComplianceDonut counts={reportCounts} filterLabel={filterLabel} category="report" />
+                    <ComplianceDonut
+                      counts={reportCounts}
+                      filterLabel={filterLabel}
+                      category="report"
+                    />
                   </div>
                 </div>
 
                 {/* Performance Analysis Statements */}
                 <div className="rounded-xl border border-slate-200 bg-white p-6">
-                  <h3 className="mb-6 text-lg font-bold text-slate-800">HOW IS THE SCHOOL PERFORMING? {" "} <span className="text-lg font-normal italic text-slate-600">
+                  <h3 className="mb-6 text-lg font-bold text-slate-800">
+                    HOW IS THE SCHOOL PERFORMING?{" "}
+                    <span className="text-lg font-normal italic text-slate-600">
                       ({filterLabel})
-                    </span></h3>
-                  
+                    </span>
+                  </h3>
+
                   <div className="space-y-6">
                     {/* Statement 1: Activity Implementation */}
                     <div className="border-l-4 border-blue-600 pl-4">
                       <p className="text-sm text-slate-700">
-                        <span className="font-semibold">1. Activity Implementation:</span> All{" "}
-                        <span className="font-bold">{activeCounts.completed} out of {activeCounts.total} scheduled activities</span> have been successfully completed, indicating{" "}
+                        <span className="font-semibold">
+                          1. Activity Implementation:
+                        </span>{" "}
+                        All{" "}
                         <span className="font-bold">
-                          {activeCounts.total ? Math.round((activeCounts.completed / activeCounts.total) * 100) : 0}% activity implementation
+                          {activeCounts.completed} out of {activeCounts.total}{" "}
+                          scheduled activities
+                        </span>{" "}
+                        have been successfully completed, indicating{" "}
+                        <span className="font-bold">
+                          {activeCounts.total
+                            ? Math.round(
+                                (activeCounts.completed / activeCounts.total) *
+                                  100,
+                              )
+                            : 0}
+                          % activity implementation
                         </span>
                         .
                       </p>
@@ -2455,28 +2504,53 @@ const AdminDashboard = ({ profile }) => {
                     {/* Statement 2: Report Submission */}
                     <div className="border-l-4 border-blue-600 pl-4">
                       <p className="text-sm text-slate-700">
-                        <span className="font-semibold">2. Report Submission:</span>{" "}
-                        <span className="font-bold">{reportCounts.completed} out of {reportCounts.total} required reports</span> were submitted within the prescribed period, reflecting{" "}
+                        <span className="font-semibold">
+                          2. Report Submission:
+                        </span>{" "}
                         <span className="font-bold">
-                          {reportCounts.total ? Math.round((reportCounts.completed / reportCounts.total) * 100) : 0}% on-time submission compliance
+                          {reportCounts.completed} out of {reportCounts.total}{" "}
+                          required reports
+                        </span>{" "}
+                        were submitted within the prescribed period, reflecting{" "}
+                        <span className="font-bold">
+                          {reportCounts.total
+                            ? Math.round(
+                                (reportCounts.completed / reportCounts.total) *
+                                  100,
+                              )
+                            : 0}
+                          % on-time submission compliance
                         </span>
                         .
                       </p>
                     </div>
 
                     {/* Statement 3: In Progress Reports */}
-                    {sortedReportSubmissions.filter((r) => r.status === "ongoing").length > 0 && (
+                    {sortedReportSubmissions.filter(
+                      (r) => r.status === "ongoing",
+                    ).length > 0 && (
                       <div className="space-y-4">
                         {sortedReportSubmissions
                           .filter((r) => r.status === "ongoing")
                           .map((report, idx) => (
-                            <div key={report.id} className="border-l-4 border-amber-600 pl-4">
+                            <div
+                              key={report.id}
+                              className="border-l-4 border-amber-600 pl-4"
+                            >
                               <p className="text-sm text-slate-700">
                                 {/* <span className="font-bold">{3 + idx}. {report.name}:</span> The{" "} */}
-                                <span className="font-semibold">{3 + idx}. In Progress Report:</span> The{" "}
-                                <span className="font-bold">{report.name}</span> is currently{" "}
-                                <span className="font-bold">in progress</span>, with a deadline of{" "}
-                                <span className="font-bold">{report.submission_date}</span>.{" "} {report.remarks ? `${report.remarks}` : ""}
+                                <span className="font-semibold">
+                                  {3 + idx}. In Progress Report:
+                                </span>{" "}
+                                The{" "}
+                                <span className="font-bold">{report.name}</span>{" "}
+                                is currently{" "}
+                                <span className="font-bold">in progress</span>,
+                                with a deadline of{" "}
+                                <span className="font-bold">
+                                  {report.submission_date}
+                                </span>
+                                . {report.remarks ? `${report.remarks}` : ""}
                               </p>
                             </div>
                           ))}
@@ -2487,12 +2561,15 @@ const AdminDashboard = ({ profile }) => {
                     {(() => {
                       const dpdsReportName = `DPDS Report for ${MONTH_NAMES[filterMonth - 1]} ${filterYear}`;
                       const dpdsReport = sortedReportSubmissions.find(
-                        (r) => r.name === dpdsReportName
+                        (r) => r.name === dpdsReportName,
                       );
 
                       if (dpdsReport) {
                         const statementNum =
-                          2 + sortedReportSubmissions.filter((r) => r.status === "ongoing").length;
+                          2 +
+                          sortedReportSubmissions.filter(
+                            (r) => r.status === "ongoing",
+                          ).length;
 
                         return (
                           <div className="border-l-4 border-green-600 pl-4">
@@ -2500,14 +2577,18 @@ const AdminDashboard = ({ profile }) => {
                               <span className="font-semibold">
                                 {statementNum + 1}. DPDS Report:
                               </span>{" "}
-                              The <span className="font-bold">{dpdsReportName}</span>{" "}
-                              
+                              The{" "}
+                              <span className="font-bold">
+                                {dpdsReportName}
+                              </span>{" "}
                               {dpdsReport.status === "completed" ? (
                                 <>
                                   was successfully submitted on{" "}
                                   <span className="font-bold">
-                                    {dpdsReport.date_submitted || dpdsReport.submission_date}
-                                  </span>.
+                                    {dpdsReport.date_submitted ||
+                                      dpdsReport.submission_date}
+                                  </span>
+                                  .
                                 </>
                               ) : (
                                 <>
@@ -2516,13 +2597,11 @@ const AdminDashboard = ({ profile }) => {
                                     {dpdsReport.status === "not_started"
                                       ? "not started"
                                       : "in progress"}
-                                  </span>.
+                                  </span>
+                                  .
                                 </>
                               )}
-
-                              {dpdsReport.remarks && (
-                                <>{" "}{dpdsReport.remarks}</>
-                              )}
+                              {dpdsReport.remarks && <> {dpdsReport.remarks}</>}
                             </p>
                           </div>
                         );
